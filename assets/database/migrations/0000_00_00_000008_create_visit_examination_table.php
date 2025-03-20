@@ -3,20 +3,21 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Zahzah\ModulePatient\Enums\EvaluationEmployee\Commit;
-use Zahzah\ModulePatient\Enums\VisitExamination\ExaminationStatus;
-use Zahzah\ModulePatient\Models\{
+use Hanafalah\ModulePatient\Enums\EvaluationEmployee\Commit;
+use Hanafalah\ModulePatient\Enums\VisitExamination\ExaminationStatus;
+use Hanafalah\ModulePatient\Models\{
     Emr\VisitExamination,
     Emr\VisitRegistration,
 };
 
 return new class extends Migration
 {
-   use Zahzah\LaravelSupport\Concerns\NowYouSeeMe;
+    use Hanafalah\LaravelSupport\Concerns\NowYouSeeMe;
 
     private $__table;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->__table = app(config('database.models.VisitExamination', VisitExamination::class));
     }
 
@@ -28,12 +29,12 @@ return new class extends Migration
     public function up(): void
     {
         $table_name = $this->__table->getTable();
-        if (!$this->isTableExists()){
+        if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
                 $visit_registration = app(config('database.models.VisitRegistration', VisitRegistration::class));
 
                 $table->ulid('id')->primary();
-                $table->string('visit_examination_code',100)->nullable();
+                $table->string('visit_examination_code', 100)->nullable();
                 $table->foreignIdFor($visit_registration::class)
                     ->nullable(false)->index()
                     ->constrained()->cascadeOnUpdate()->cascadeOnDelete();

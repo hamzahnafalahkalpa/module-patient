@@ -1,25 +1,26 @@
 <?php
 
-namespace Zahzah\ModulePatient\Models\EMR;
+namespace Hanafalah\ModulePatient\Models\EMR;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Zahzah\LaravelHasProps\Concerns\HasProps;
-use Zahzah\LaravelSupport\Concerns\Support\HasActivity;
-use Zahzah\LaravelSupport\Models\BaseModel;
-use Zahzah\ModulePatient\Enums\Referral\Status;
-use Zahzah\ModulePatient\Enums\VisitRegistration\Activity;
-use Zahzah\ModulePatient\Enums\VisitRegistration\ActivityStatus;
-use Zahzah\ModulePatient\Resources\Referral\ShowReferral;
-use Zahzah\ModulePatient\Resources\Referral\ViewReferral;
+use Hanafalah\LaravelHasProps\Concerns\HasProps;
+use Hanafalah\LaravelSupport\Concerns\Support\HasActivity;
+use Hanafalah\LaravelSupport\Models\BaseModel;
+use Hanafalah\ModulePatient\Enums\Referral\Status;
+use Hanafalah\ModulePatient\Enums\VisitRegistration\Activity;
+use Hanafalah\ModulePatient\Enums\VisitRegistration\ActivityStatus;
+use Hanafalah\ModulePatient\Resources\Referral\ShowReferral;
+use Hanafalah\ModulePatient\Resources\Referral\ViewReferral;
 
-class Referral extends BaseModel{
+class Referral extends BaseModel
+{
     use HasUlids, HasProps, SoftDeletes, HasActivity;
 
     public $incrementing  = false;
     protected $keyType    = 'string';
     protected $primaryKey = 'id';
-    protected $list       = ['id','referral_code','reference_type','reference_id','visit_registration_id','status','props'];
+    protected $list       = ['id', 'referral_code', 'reference_type', 'reference_id', 'visit_registration_id', 'status', 'props'];
     protected $show       = [];
 
     protected $casts = [
@@ -31,41 +32,57 @@ class Referral extends BaseModel{
         'medical_record' => 'string'
     ];
 
-    public function getPropsQuery(): array{
+    public function getPropsQuery(): array
+    {
         return [
             'name'           => 'props->prop_patient->prop_people->name',
             'dob'            => 'props->prop_patient->prop_people->dob',
             'nik'            => 'props->prop_patient->nik',
             'medical_record' => 'props->prop_patient->medical_record'
         ];
-    }    
+    }
 
-    protected static function booted(): void{
+    protected static function booted(): void
+    {
         parent::booted();
-        static::creating(function($query){
+        static::creating(function ($query) {
             if (!isset($query->referral_code)) {
-                $query->referral_code = static::hasEncoding('REFERRAL'); 
+                $query->referral_code = static::hasEncoding('REFERRAL');
             }
             if (!isset($query->status)) $query->status = Status::CREATED->value;
         });
     }
 
-    public function toViewApi(){
+    public function toViewApi()
+    {
         return new ViewReferral($this);
     }
 
-    public function toShowApi(){
+    public function toShowApi()
+    {
         return new ShowReferral($this);
     }
 
-    public function reference(){return $this->morphTo();}
-    public function visitRegistration(){return $this->belongsToModel('VisitRegistration');}
-    public function visitRegistrations(){return $this->hasManyModel('VisitRegistration');}
-    public function internalReferral(){return $this->hasOneModel("InternalReferral");}
+    public function reference()
+    {
+        return $this->morphTo();
+    }
+    public function visitRegistration()
+    {
+        return $this->belongsToModel('VisitRegistration');
+    }
+    public function visitRegistrations()
+    {
+        return $this->hasManyModel('VisitRegistration');
+    }
+    public function internalReferral()
+    {
+        return $this->hasOneModel("InternalReferral");
+    }
 
     public static array $activityList = [
-        Activity::REFERRAL_POLI->value.'_'.ActivityStatus::REFERRAL_CREATED->value    => ['flag' => 'REFERRAL_CREATED',   'message' => 'Pembuatan data Rujukan.'],
-        Activity::REFERRAL_POLI->value.'_'.ActivityStatus::REFERRAL_PROCESSED->value  => ['flag' => 'REFERRAL_PROCESSED', 'message' => 'Rujukan di sedang dalam proses.'],
-        Activity::REFERRAL_POLI->value.'_'.ActivityStatus::REFERRAL_DONE->value       => ['flag' => 'REFERRAL_DONE',      'message' => 'Rujukan Telah selesai di lakukan.'],
+        Activity::REFERRAL_POLI->value . '_' . ActivityStatus::REFERRAL_CREATED->value    => ['flag' => 'REFERRAL_CREATED',   'message' => 'Pembuatan data Rujukan.'],
+        Activity::REFERRAL_POLI->value . '_' . ActivityStatus::REFERRAL_PROCESSED->value  => ['flag' => 'REFERRAL_PROCESSED', 'message' => 'Rujukan di sedang dalam proses.'],
+        Activity::REFERRAL_POLI->value . '_' . ActivityStatus::REFERRAL_DONE->value       => ['flag' => 'REFERRAL_DONE',      'message' => 'Rujukan Telah selesai di lakukan.'],
     ];
 }

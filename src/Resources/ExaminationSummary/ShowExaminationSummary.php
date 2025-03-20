@@ -1,6 +1,6 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\ExaminationSummary;
+namespace Hanafalah\ModulePatient\Resources\ExaminationSummary;
 
 class ShowExaminationSummary extends ViewExaminationSummary
 {
@@ -12,10 +12,9 @@ class ShowExaminationSummary extends ViewExaminationSummary
      */
     public function toArray(\Illuminate\Http\Request $request): array
     {
-        $arr = [
-        ];
-        $arr = $this->mergeArray(parent::toArray($request),$arr);
-        
+        $arr = [];
+        $arr = $this->mergeArray(parent::toArray($request), $arr);
+
         return $arr;
     }
 }

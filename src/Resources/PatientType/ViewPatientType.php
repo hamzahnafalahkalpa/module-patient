@@ -1,8 +1,8 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\PatientType;
+namespace Hanafalah\ModulePatient\Resources\PatientType;
 
-use Zahzah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
 
 class ViewPatientType extends ApiResource
 {
@@ -12,8 +12,7 @@ class ViewPatientType extends ApiResource
             'id'    => $this->id,
             "name"  => $this->name
         ];
-        
+
         return $arr;
     }
 }
-

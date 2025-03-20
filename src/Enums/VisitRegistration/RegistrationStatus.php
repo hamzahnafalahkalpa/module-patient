@@ -1,8 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Enums\VisitRegistration;
+namespace Hanafalah\ModulePatient\Enums\VisitRegistration;
 
-enum RegistrationStatus: string{
+enum RegistrationStatus: string
+{
     case DRAFT      = 'DRAFT';
     case PROCESSING = 'PROCESSING';
     case COMPLETED  = 'COMPLETED';

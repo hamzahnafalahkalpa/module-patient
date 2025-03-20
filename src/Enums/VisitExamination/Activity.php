@@ -1,7 +1,8 @@
 <?php
 
-namespace Zahzah\ModulePatient\Enums\VisitExamination;
+namespace Hanafalah\ModulePatient\Enums\VisitExamination;
 
-enum Activity: string{
+enum Activity: string
+{
     case VISITATION = 'VISITATION';
 }

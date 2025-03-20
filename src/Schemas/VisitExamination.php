@@ -1,15 +1,15 @@
 <?php
 
-namespace Zahzah\ModulePatient\Schemas;
+namespace Hanafalah\ModulePatient\Schemas;
 
-use Gii\ModuleMedicService\Enums\MedicServiceFlag;
+use Hanafalah\ModuleMedicService\Enums\MedicServiceFlag;
 use Illuminate\Database\Eloquent\{
     Builder,
     Collection,
     Model
 };
-use Zahzah\ModulePatient\Schemas\VisitRegistratxion;
-use Zahzah\ModulePatient\{
+use Hanafalah\ModulePatient\Schemas\VisitRegistratxion;
+use Hanafalah\ModulePatient\{
     Enums\VisitExamination\CommitStatus,
     Enums\VisitExamination\ExaminationStatus,
     Enums\VisitPatient\VisitStatus,
@@ -23,7 +23,7 @@ use Zahzah\ModulePatient\{
     Contracts\VisitExamination as ContractsVisitExamination
 };
 
-use Zahzah\ModulePatient\Enums\{
+use Hanafalah\ModulePatient\Enums\{
     EvaluationEmployee\PIC,
     VisitRegistration\Activity as VisitRegistrationActivity,
     VisitRegistration\ActivityStatus as VisitRegistrationActivityStatus
@@ -58,9 +58,9 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         //PUSH ACTIVITY FOR COMMITED
         $visit_examination->pushActivity(Activity::VISITATION->value, [ActivityStatus::VISITED->value]);
 
-        $assessments = $visit_examination->assessments()->whereIn('morph',['InitialDiagnose','SecondaryDiagnose','PrimaryDiagnose'])->get();
+        $assessments = $visit_examination->assessments()->whereIn('morph', ['InitialDiagnose', 'SecondaryDiagnose', 'PrimaryDiagnose'])->get();
         foreach ($assessments as $assessment) {
-            $assessment = $this->{$assessment->morph.'Model'}()->find($assessment->getKey());
+            $assessment = $this->{$assessment->morph . 'Model'}()->find($assessment->getKey());
             $assessment->reporting();
         }
         return $visit_examination;
@@ -115,7 +115,8 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         return static::$visit_examination_model = $visit_examination;
     }
 
-    public function storeServices($visit_examination, $attributes){
+    public function storeServices($visit_examination, $attributes)
+    {
         $visit_registration  = $visit_examination->visitRegistration;
         $prop_service_labels = $visit_registration->prop_service_labels ?? [];
         $service_label_ids   = $this->pluckColumn($prop_service_labels, 'id');
@@ -129,10 +130,18 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             'reference_type' => $patient->reference_type
         ]);
         switch ($attributes['medic_service_flag']) {
-            case MedicServiceFlag::LABORATORY->value : $schema = 'lab_treatment';break;
-            case MedicServiceFlag::RADIOLOGY->value  : $schema = 'radiology_treatment';break;
-            case MedicServiceFlag::OUTPATIENT->value : $schema = 'clinical_treatment';break;
-            case MedicServiceFlag::MCU->value        : $schema = 'clinical_treatment';break;
+            case MedicServiceFlag::LABORATORY->value:
+                $schema = 'lab_treatment';
+                break;
+            case MedicServiceFlag::RADIOLOGY->value:
+                $schema = 'radiology_treatment';
+                break;
+            case MedicServiceFlag::OUTPATIENT->value:
+                $schema = 'clinical_treatment';
+                break;
+            case MedicServiceFlag::MCU->value:
+                $schema = 'clinical_treatment';
+                break;
         }
         $examination_treatment_schema = $this->schemaContract($schema);
         $transaction_item_schema = $this->schemaContract('transaction_item');
@@ -159,13 +168,13 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                     'qty'                    => $service_attr['qty'] ?? 1,
                     'price'                  => $service_attr['price'] ?? null
                 ]);
-                if (isset($service->service_label)){
-                    $search = $this->searchArray($service_label_ids,$service->service_label['id']);
+                if (isset($service->service_label)) {
+                    $search = $this->searchArray($service_label_ids, $service->service_label['id']);
 
                     $service_label = $service->service_label;
-                    if (\is_numeric($search)){
+                    if (\is_numeric($search)) {
                         $service_label = &$prop_service_labels[$search];
-                    }else{
+                    } else {
                         $service_label = [
                             'id'          => $service_label['id'],
                             'name'        => $service_label['name'],
@@ -182,7 +191,6 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
 
                     if (!is_numeric($search)) $prop_service_labels[] = $service_label;
                 }
-
             } else {
                 $payment_summary = $transaction->paymentSummary;
 
@@ -201,19 +209,20 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                 ]);
             }
         }
-        if (count($prop_service_labels) > 0){
-            $visit_registration->setAttribute('prop_service_labels',$prop_service_labels);
-            $visit_registration->setAttribute('prop_service_label_ids',\implode($service_label_ids));
+        if (count($prop_service_labels) > 0) {
+            $visit_registration->setAttribute('prop_service_labels', $prop_service_labels);
+            $visit_registration->setAttribute('prop_service_label_ids', \implode($service_label_ids));
             $visit_registration->save();
         }
     }
-    public function visitExaminationCancelation(? array $attributes = null) {
+    public function visitExaminationCancelation(?array $attributes = null)
+    {
         $attributes ??= request()->all();
         $visit_examination = $this->prepareShowVisitExamination([
             "id" => $attributes['visit_examination_id']
         ]);
 
-        if(!isset($visit_examination)) throw new \Exception("Data Examination Tidak Di Temukan");
+        if (!isset($visit_examination)) throw new \Exception("Data Examination Tidak Di Temukan");
 
         // CANCELLATION VISIT EXAMINATION
         $visit_examination->status = ExaminationStatus::CANCELLED->value;
@@ -221,7 +230,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         $visit_examination->pushActivity(Activity::VISITATION->value, [ActivityStatus::CANCELLED->value]);
 
         $visit_registration = $visit_examination->visitRegistration;
-        if(!isset($visit_registration)) throw new \Exception("Data Visit Registration Tidak Di Temukan");
+        if (!isset($visit_registration)) throw new \Exception("Data Visit Registration Tidak Di Temukan");
 
         $schameVisitReg     = new $this->__schema_extends['visitRegistration'];
         $visit_registration = $schameVisitReg->visitRegistrationCancellation([
@@ -229,16 +238,16 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         ]);
 
         $visit_patient = $visit_registration->visitPatient;
-        if(!isset($visit_patient)) throw new \Exception("Data Visit Patient Tidak Ditemukan");
+        if (!isset($visit_patient)) throw new \Exception("Data Visit Patient Tidak Ditemukan");
 
         $visit_patient->load([
-            "visitRegistrations" => fn($q) => $q->whereIn("status",[
+            "visitRegistrations" => fn($q) => $q->whereIn("status", [
                 RegistrationStatus::PROCESSING->value,
                 RegistrationStatus::DRAFT->value
             ])
         ]);
 
-        if(empty($visit_patient->visitRegistrations)) {
+        if (empty($visit_patient->visitRegistrations)) {
             $visit_patient->status = VisitStatus::CANCELLED->value;
             $visit_patient->saveQuietly();
         }
@@ -246,26 +255,27 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         return $visit_patient;
     }
 
-    public function visitExaminationDoneProcess(? array $attributes = null) {
+    public function visitExaminationDoneProcess(?array $attributes = null)
+    {
         $attributes ??= request()->all();
         $visit_examination = $this->prepareShowVisitExamination([
             "id" => $attributes['visit_examination_id']
         ]);
-        if(isset($visit_examination)) {
+        if (isset($visit_examination)) {
             $visit_examination->is_commit = CommitStatus::COMMITED->value;
             $visit_examination->save();
 
-            if($visit_examination->is_commit == CommitStatus::COMMITED->value) {
+            if ($visit_examination->is_commit == CommitStatus::COMMITED->value) {
                 $visit_registration = $visit_examination->visitRegistration;
 
-                if(isset($visit_registration)) {
+                if (isset($visit_registration)) {
                     $visit_registration->status = RegistrationStatus::COMPLETED->value;
                     $visit_registration->save();
 
                     $visit_registration->pushActivity(VisitRegistrationActivity::POLI_SESSION->value, [VisitRegistrationActivityStatus::POLI_SESSION_END->value]);
                 }
 
-                $visit_examination->pushActivity(Activity::VISITATION->value,[ActivityStatus::VISITED->value]);
+                $visit_examination->pushActivity(Activity::VISITATION->value, [ActivityStatus::VISITED->value]);
                 $visit_examination->reported_at = now();
                 $visit_examination->status = ExaminationStatus::VISITED->value;
                 $visit_examination->save();
@@ -273,10 +283,10 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                 $visit_examination->pushActivity(Activity::VISITATION->value, [ActivityStatus::VISITED->value]);
 
                 return $visit_examination;
-            }else {
+            } else {
                 throw new \Exception("Harap Commit terlebih dahulu sebelum penyelesaian patient!");
             }
-        }else {
+        } else {
             throw new \Exception("Visit Examination Not Found");
         }
     }

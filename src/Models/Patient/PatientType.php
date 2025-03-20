@@ -1,28 +1,34 @@
 <?php
 
-namespace Zahzah\ModulePatient\Models\Patient;
+namespace Hanafalah\ModulePatient\Models\Patient;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Zahzah\LaravelHasProps\Concerns\HasProps;
-use Zahzah\LaravelSupport\Models\BaseModel;
-use Zahzah\ModulePatient\Resources\PatientType\ShowPatientType;
-use Zahzah\ModulePatient\Resources\PatientType\ViewPatientType;
+use Hanafalah\LaravelHasProps\Concerns\HasProps;
+use Hanafalah\LaravelSupport\Models\BaseModel;
+use Hanafalah\ModulePatient\Resources\PatientType\ShowPatientType;
+use Hanafalah\ModulePatient\Resources\PatientType\ViewPatientType;
 
-class PatientType extends BaseModel{
+class PatientType extends BaseModel
+{
     use SoftDeletes, HasProps;
 
-    protected $list = ['id','name','props'];
+    protected $list = ['id', 'name', 'props'];
 
-    public function toViewApi(){
+    public function toViewApi()
+    {
         return new ViewPatientType($this);
     }
 
-    public function toShowApi(){
+    public function toShowApi()
+    {
         return new ShowPatientType($this);
     }
 
     //EIGER SECCTION
 
-    public function service(){return $this->hasOneModel('service');}
+    public function service()
+    {
+        return $this->hasOneModel('service');
+    }
     //END EIGER SECTION
 }

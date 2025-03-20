@@ -1,8 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Enums\VisitRegistration;
+namespace Hanafalah\ModulePatient\Enums\VisitRegistration;
 
-enum ActivityStatus: int{
+enum ActivityStatus: int
+{
     case POLI_EXAM_QUEUE      = 1;
     case POLI_EXAM_START      = 2;
     case POLI_EXAM_END        = 3;

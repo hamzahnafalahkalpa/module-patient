@@ -1,9 +1,7 @@
 <?php
 
-namespace Zahzah\ModulePatient\Contracts;
+namespace Hanafalah\ModulePatient\Contracts;
 
-use Zahzah\LaravelSupport\Contracts\DataManagement;
+use Hanafalah\LaravelSupport\Contracts\DataManagement;
 
-interface InternalReferral extends DataManagement{
-
-}
+interface InternalReferral extends DataManagement {}

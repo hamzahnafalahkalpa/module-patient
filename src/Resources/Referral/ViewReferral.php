@@ -1,8 +1,8 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\Referral;
+namespace Hanafalah\ModulePatient\Resources\Referral;
 
-use Zahzah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
 
 class ViewReferral extends ApiResource
 {
@@ -13,14 +13,14 @@ class ViewReferral extends ApiResource
             'referral_code'         => $this->referral_code,
             'status'                => $this->status,
             'reference_type'        => $this->reference_type,
-            'reference'             => $this->relationValidation('reference',function(){
+            'reference'             => $this->relationValidation('reference', function () {
                 return $this->reference->toViewApi();
             }),
-            'visit_registration'    => $this->relationValidation('visitRegistration',function(){
+            'visit_registration'    => $this->relationValidation('visitRegistration', function () {
                 return $this->visitRegistration->toViewApi();
-        })
+            })
         ];
-        
+
         return $arr;
     }
 }

@@ -1,8 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Enums\VisitPatient;
+namespace Hanafalah\ModulePatient\Enums\VisitPatient;
 
-enum ActivityStatus: int{
+enum ActivityStatus: int
+{
     case ADM_START      = 1;
     case ADM_PROCESSED  = 2;
     case ADM_FINISHED   = 3;

@@ -1,19 +1,19 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\VisitPatient;
+namespace Hanafalah\ModulePatient\Resources\VisitPatient;
 
-use Zahzah\ModuleTransaction\Resources\Transaction\ShowTransaction;
+use Hanafalah\ModuleTransaction\Resources\Transaction\ShowTransaction;
 
 class ShowVisitPatient extends ViewVisitPatient
 {
     public function toArray(\Illuminate\Http\Request $request): array
     {
         $arr = [
-            'transaction'   => $this->relationValidation('transaction',function(){
+            'transaction'   => $this->relationValidation('transaction', function () {
                 return $this->transaction->toShowApi();
             }),
             "organizations" => $this->relationValidation("organizations", function () {
-                return $this->organizations->transform(function($organization){
+                return $this->organizations->transform(function ($organization) {
                     return $organization->toViewApi();
                 });
             }),
@@ -25,7 +25,7 @@ class ShowVisitPatient extends ViewVisitPatient
             }),
         ];
         $arr = array_merge(parent::toArray($request), $arr);
-        
+
         return $arr;
     }
 }

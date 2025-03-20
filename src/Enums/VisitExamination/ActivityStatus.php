@@ -1,8 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Enums\VisitExamination;
+namespace Hanafalah\ModulePatient\Enums\VisitExamination;
 
-enum ActivityStatus: int{
+enum ActivityStatus: int
+{
     case VISIT_CREATED = 1;
     case VISITING      = 2;
     case VISITED       = 3;

@@ -1,9 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\VisitRegistration;
+namespace Hanafalah\ModulePatient\Resources\VisitRegistration;
 
-use Zahzah\LaravelSupport\Resources\ApiResource;
-use Zahzah\ModulePatient\Resources\VisitPatient\ShowVisitPatient;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\ModulePatient\Resources\VisitPatient\ShowVisitPatient;
 
 class ViewVisitRegistration extends ApiResource
 {
@@ -18,7 +18,7 @@ class ViewVisitRegistration extends ApiResource
         $arr = [
             "id"                      => $this->id,
             "visit_registration_code" => $this->visit_registration_code,
-            "patient_type"            => $this->relationValidation('patientType',function(){
+            "patient_type"            => $this->relationValidation('patientType', function () {
                 $patientType = $this->patientType;
                 return [
                     'id'   => $patientType->getKey(),
@@ -27,26 +27,26 @@ class ViewVisitRegistration extends ApiResource
             }),
             "status"          => $this->status,
             "status_spell"    => $this->getStatusSpell(),
-            "medic_service"   => $this->relationValidation('medicService',function(){
+            "medic_service"   => $this->relationValidation('medicService', function () {
                 $medicService = $this->medicService;
-                
+
                 return [
                     'id'      => $medicService->getKey(),
                     'name'    => $medicService->name,
-                    'flag'    => $medicService->flag,  
-                    'service' => $medicService->relationValidation('service',function() use ($medicService){
+                    'flag'    => $medicService->flag,
+                    'service' => $medicService->relationValidation('service', function () use ($medicService) {
                         return ['id' => $medicService->service->id];
                     })
                 ];
             }),
             'visit_patient_type'     => $this->visit_patient_type,
-            'visit_patient'          => $this->relationValidation('visitPatient',function(){
+            'visit_patient'          => $this->relationValidation('visitPatient', function () {
                 return $this->visitPatient->toShowApi();
             }),
-            'head_doctor'          => $this->relationValidation('headDoctor',function(){
+            'head_doctor'          => $this->relationValidation('headDoctor', function () {
                 return $this->headDoctor->toShowApi();
             }),
-            'visit_examination'  => $this->relationValidation('visitExamination',function(){
+            'visit_examination'  => $this->relationValidation('visitExamination', function () {
                 return $this->visitExamination->toViewApi();
             }),
             'activity'           => $this->sortActivity(),
@@ -54,7 +54,7 @@ class ViewVisitRegistration extends ApiResource
             "created_at"         => $this->created_at,
             "updated_at"         => $this->updated_at
         ];
-        
+
         return $arr;
     }
 }

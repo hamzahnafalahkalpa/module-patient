@@ -1,9 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\VisitPatient;
+namespace Hanafalah\ModulePatient\Resources\VisitPatient;
 
-use Zahzah\LaravelSupport\Resources\ApiResource;
-use Zahzah\ModuleTransaction\Resources\Transaction\ShowTransaction;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\ModuleTransaction\Resources\Transaction\ShowTransaction;
 
 class ViewVisitPatient extends ApiResource
 {
@@ -18,7 +18,7 @@ class ViewVisitPatient extends ApiResource
         $arr = [
             "id"                 => $this->id,
             'visit_code'         => $this->visit_code,
-            'transaction' => $this->relationValidation('transaction',function(){
+            'transaction' => $this->relationValidation('transaction', function () {
                 return $this->transaction->toViewApi();
             }),
             "reservation_id"     => $this->reservation_id,
@@ -26,7 +26,7 @@ class ViewVisitPatient extends ApiResource
             "flag"               => $this->flag,
             "visited_at"         => $this->visited_at,
             "reported_at"        => $this->reported_at,
-            "reference"          => $this->relationValidation('reference',function(){
+            "reference"          => $this->relationValidation('reference', function () {
                 return $this->reference->toViewApi();
             }),
             "status"             => $this->status,
@@ -44,19 +44,19 @@ class ViewVisitPatient extends ApiResource
                 return $this->visitRegistration->toViewApi();
             }),
             "visit_registrations" => $this->relationValidation("visitRegistrations", function () {
-                return $this->visitRegistrations->transform(function($visitRegistration){
+                return $this->visitRegistrations->transform(function ($visitRegistration) {
                     return $visitRegistration->toViewApi();
                 });
             }),
-            "services"           => $this->relationValidation('services',function(){
+            "services"           => $this->relationValidation('services', function () {
                 $services = $this->services;
-                return $services->map(function($service){
+                return $services->map(function ($service) {
                     $arr = ['id' => $service->getKey()];
                     if (isset($service->name)) $arr['name'] = $service->name;
                     return $arr;
                 });
             }),
-            'patient' => $this->relationValidation('patient',function(){
+            'patient' => $this->relationValidation('patient', function () {
                 // return $this->patient->toShowApi();
                 $patient = $this->patient;
                 $arr = [
@@ -68,9 +68,9 @@ class ViewVisitPatient extends ApiResource
                         'uuid' => $patient->uuid
                     ]
                 ];
-                if (class_exists(\Zahzah\ModulePeople\Models\People\People::class)) {
-                    if ($patient->reference_type == $this->PeopleModel()->getMorphClass()){
-                        $arr['people'] = $patient->propResource($patient->reference,\Zahzah\ModulePeople\Resources\People\ViewPeople::class);
+                if (class_exists(\Hanafalah\ModulePeople\Models\People\People::class)) {
+                    if ($patient->reference_type == $this->PeopleModel()->getMorphClass()) {
+                        $arr['people'] = $patient->propResource($patient->reference, \Hanafalah\ModulePeople\Resources\People\ViewPeople::class);
                     }
                 }
                 return $arr;

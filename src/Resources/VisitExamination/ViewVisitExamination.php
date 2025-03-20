@@ -1,8 +1,8 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\VisitExamination;
+namespace Hanafalah\ModulePatient\Resources\VisitExamination;
 
-use Zahzah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
 
 class ViewVisitExamination extends ApiResource
 {
@@ -20,7 +20,7 @@ class ViewVisitExamination extends ApiResource
             "created_at"             => $this->created_at,
             "updated_at"             => $this->updated_at,
         ];
-        
+
         return $arr;
     }
 }

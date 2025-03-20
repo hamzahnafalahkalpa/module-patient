@@ -1,21 +1,21 @@
 <?php
 
-use Zahzah\ModulePatient\{
+use Hanafalah\ModulePatient\{
     Models as ModulePatientModels,
     Commands as ModulePatientCommands,
     Contracts
 };
 
-use Gii\ModuleExamination\{
+use Hanafalah\ModuleExamination\{
     Contracts as ModuleExaminationContracts,
     Contracts\Examination as ExaminationContracts,
     Contracts\Examination\Assessment as AssessmentContracts,
     Contracts\Examination\Assessment\Treatment as TreatmentContracts,
 };
-use Zahzah\ModulePatient\Contracts\Patient;
-use Zahzah\ModulePharmacy\Contracts as ModulePharmacyContracts;
-use Zahzah\ModuleTransaction\Contracts as ModuleTransactionContracts;
-use Zahzah\ModuleTransaction\Contracts\TransactionItem;
+use Hanafalah\ModulePatient\Contracts\Patient;
+use Hanafalah\ModulePharmacy\Contracts as ModulePharmacyContracts;
+use Hanafalah\ModuleTransaction\Contracts as ModuleTransactionContracts;
+use Hanafalah\ModuleTransaction\Contracts\TransactionItem;
 
 return [
     'commands' => [

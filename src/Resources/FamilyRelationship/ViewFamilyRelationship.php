@@ -1,8 +1,8 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\FamilyRelationship;
+namespace Hanafalah\ModulePatient\Resources\FamilyRelationship;
 
-use Zahzah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
 
 class ViewFamilyRelationship extends ApiResource
 {
@@ -17,13 +17,12 @@ class ViewFamilyRelationship extends ApiResource
             "reference_type"    => $this->reference_type,
             "sex"               => $this->sex
         ];
-        if (class_exists(\Zahzah\ModulePeople\Models\People\People::class)) {
-            if ($this->reference_type == $this->PeopleModel()->getMorphClass()){
-                $arr['reference'] = $this->propResource($this->PeopleModel(),\Zahzah\ModulePeople\Resources\People\ViewPeople::class);
+        if (class_exists(\Hanafalah\ModulePeople\Models\People\People::class)) {
+            if ($this->reference_type == $this->PeopleModel()->getMorphClass()) {
+                $arr['reference'] = $this->propResource($this->PeopleModel(), \Hanafalah\ModulePeople\Resources\People\ViewPeople::class);
             }
         }
 
         return $arr;
     }
 }
-

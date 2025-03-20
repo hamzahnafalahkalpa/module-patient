@@ -1,8 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Enums\VisitExamination;
+namespace Hanafalah\ModulePatient\Enums\VisitExamination;
 
-enum ExaminationStatus: string{
+enum ExaminationStatus: string
+{
     case DRAFT     = 'DRAFT';
     case VISITING  = 'VISITING';
     case EXAMING   = 'EXAMING';

@@ -1,8 +1,8 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\PractitionerEvaluation;
+namespace Hanafalah\ModulePatient\Resources\PractitionerEvaluation;
 
-use Zahzah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
 
 class ShowPractitionerEvaluation extends ViewPractitionerEvaluation
 {
@@ -14,7 +14,7 @@ class ShowPractitionerEvaluation extends ViewPractitionerEvaluation
             })
         ];
         $arr = array_merge(parent::toArray($request), $arr);
-        
+
         return $arr;
     }
 }

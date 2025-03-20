@@ -1,11 +1,12 @@
 <?php
 
-namespace Zahzah\ModulePatient\Models\EMR;
+namespace Hanafalah\ModulePatient\Models\EMR;
 
-use Zahzah\ModuleSummary\Models\Summary\Summary;
+use Hanafalah\ModuleSummary\Models\Summary\Summary;
 
-class PatientSummary extends Summary{
+class PatientSummary extends Summary
+{
     protected $table = 'summaries';
 
-    protected $list      = ['id','parent_id','patient_id','reference_type','reference_id','props'];
+    protected $list      = ['id', 'parent_id', 'patient_id', 'reference_type', 'reference_id', 'props'];
 }

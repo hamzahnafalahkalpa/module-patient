@@ -1,8 +1,8 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\PractitionerEvaluation;
+namespace Hanafalah\ModulePatient\Resources\PractitionerEvaluation;
 
-use Zahzah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
 
 class ViewPractitionerEvaluation extends ApiResource
 {
@@ -11,7 +11,7 @@ class ViewPractitionerEvaluation extends ApiResource
         $arr = [
             'id'                        => $this->id,
             'practitioner_reference_id' => $this->practitioner_id,
-            'practitioner_reference'    => $this->relationValidation('practitioner',function(){
+            'practitioner_reference'    => $this->relationValidation('practitioner', function () {
                 return $this->practitioner->toViewApi();
             }),
             'is_commit'            => $this->is_commit,
@@ -19,7 +19,7 @@ class ViewPractitionerEvaluation extends ApiResource
             'created_at'           => $this->created_at,
             'updated_at'           => $this->updated_at
         ];
-        
+
         return $arr;
     }
 }

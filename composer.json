@@ -1,8 +1,8 @@
 {
-    "name": "zahzah/module-patient",
+    "name": "hanafalah/module-patient",
     "autoload": {
         "psr-4": {
-            "Zahzah\\ModulePatient\\": "src/"
+            "Hanafalah\\ModulePatient\\": "src/"
         }
     },
     "authors": [
@@ -12,14 +12,14 @@
         }
     ],
     "require": {
-        "zahzah/laravel-support": "1.x",
-        "zahzah/module-user": "1.x",
-        "zahzah/module-card-identity": "1.x",
-        "gii/module-service": "1.x",
-        "gii/module-medic-service": "1.x",
-        "gii/module-payer": "1.x",
-        "gii/module-organization": "1.x",
-        "gii/module-examination": "1.x"
+        "hanafalah/laravel-support": "1.x",
+        "hanafalah/module-user": "1.x",
+        "hanafalah/module-card-identity": "1.x",
+        "hanafalah/module-service": "1.x",
+        "hanafalah/module-medic-service": "1.x",
+        "hanafalah/module-payer": "1.x",
+        "hanafalah/module-organization": "1.x",
+        "hanafalah/module-examination": "1.x"
     },
     "minimum-stability": "dev",
     "prefer-stable": false

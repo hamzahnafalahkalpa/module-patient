@@ -1,31 +1,40 @@
 <?php
 
-namespace Zahzah\ModulePatient\Models\Patient;
+namespace Hanafalah\ModulePatient\Models\Patient;
 
-use Zahzah\LaravelHasProps\Concerns\HasProps;
+use Hanafalah\LaravelHasProps\Concerns\HasProps;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Projects\Klinik\Enums\Encoding\EnumEncoding;
-use Zahzah\LaravelSupport\Models\BaseModel;
-use Zahzah\ModuleCardIdentity\Concerns\HasCardIdentity;
-use Zahzah\ModulePatient\Enums\Patient\CardIdentity;
-use Zahzah\ModuleUser\Concerns\UserReference\HasUserReference;
-use Zahzah\ModuleRegional\Concerns\HasLocation;
-use Zahzah\LaravelSupport\Concerns\Support\HasEncoding;
-use Zahzah\ModulePatient\Resources\Patient\{
-    ShowPatient, ViewPatient
+use Hanafalah\LaravelSupport\Models\BaseModel;
+use Hanafalah\ModuleCardIdentity\Concerns\HasCardIdentity;
+use Hanafalah\ModulePatient\Enums\Patient\CardIdentity;
+use Hanafalah\ModuleUser\Concerns\UserReference\HasUserReference;
+use Hanafalah\ModuleRegional\Concerns\HasLocation;
+use Hanafalah\LaravelSupport\Concerns\Support\HasEncoding;
+use Hanafalah\ModulePatient\Resources\Patient\{
+    ShowPatient,
+    ViewPatient
 };
-use Zahzah\ModuleTransaction\Concerns\HasDeposit;
+use Hanafalah\ModuleTransaction\Concerns\HasDeposit;
 
-class Patient extends BaseModel{
-    use HasProps, SoftDeletes, HasCardIdentity,
-        HasUserReference, HasLocation,
+class Patient extends BaseModel
+{
+    use HasProps,
+        SoftDeletes,
+        HasCardIdentity,
+        HasUserReference,
+        HasLocation,
         HasDeposit;
 
-    protected $list = ['id','reference_type','reference_id','medical_record','patient_type_id','props'];
+    protected $list = ['id', 'reference_type', 'reference_id', 'medical_record', 'patient_type_id', 'props'];
     protected $show = [];
 
     protected $identity_flags = [
-        'MR','BPJS_CODE','OLD_MR','NIK','PASSPORT'
+        'MR',
+        'BPJS_CODE',
+        'OLD_MR',
+        'NIK',
+        'PASSPORT'
     ];
 
     protected $casts = [
@@ -36,7 +45,8 @@ class Patient extends BaseModel{
         'medical_record' => 'string'
     ];
 
-    public function getPropsQuery(): array{
+    public function getPropsQuery(): array
+    {
         return [
             'name'             => 'props->prop_people->name',
             'first_name'       => 'props->prop_people->first_name',
@@ -49,27 +59,37 @@ class Patient extends BaseModel{
 
     protected $prop_attributes = [
         'People'            => [
-            'id','name','first_name','last_name','dob','pob',
-            'email','phone_number','father_name','marital_status',
-            'nationality','sex'
+            'id',
+            'name',
+            'first_name',
+            'last_name',
+            'dob',
+            'pob',
+            'email',
+            'phone_number',
+            'father_name',
+            'marital_status',
+            'nationality',
+            'sex'
         ],
         'UserReference'     => ['uuid']
     ];
 
-    public static function booted(): void{
+    public static function booted(): void
+    {
         parent::booted();
-        static::creating(function($query){
-            if (!isset($query->medical_record)){
+        static::creating(function ($query) {
+            if (!isset($query->medical_record)) {
                 $medical_record = HasEncoding::generateCode(EnumEncoding::MEDICAL_RECORD->value);
                 $query->medical_record = $medical_record;
             }
         });
-        static::created(function($query){
-            if (isset($query->medical_record)){
-                $query->setCardIdentity(CardIdentity::MEDICAL_RECORD->value,$query->medical_record);
+        static::created(function ($query) {
+            if (isset($query->medical_record)) {
+                $query->setCardIdentity(CardIdentity::MEDICAL_RECORD->value, $query->medical_record);
             }
-            if (!isset($query->uuid)){
-                if (isset(tenancy()->tenant)){
+            if (!isset($query->uuid)) {
+                if (isset(tenancy()->tenant)) {
                     $tenant_id = \tenancy()->tenant->getKey();
                     $central_tenant_id = \tenancy()->tenant->parent_id;
                 }
@@ -91,11 +111,13 @@ class Patient extends BaseModel{
         });
     }
 
-    public function toViewApi(){
+    public function toViewApi()
+    {
         return new ViewPatient($this);
     }
 
-    public function toShowApi(){
+    public function toShowApi()
+    {
         return new ShowPatient($this);
     }
 
@@ -104,19 +126,53 @@ class Patient extends BaseModel{
         return $builder->where($uuid_name, $uuid);
     }
 
-    public function getIdentityFlags(): array{
+    public function getIdentityFlags(): array
+    {
         return $this->identity_flags;
     }
 
-    public function patientType(){return $this->belongsToModel('PatientType');}
-    public function people(){return $this->belongsToModel('People');}
-    public function reference(){return $this->morphTo();}
-    public function familyRelationships(){return $this->hasManyModel('FamilyRelationship');}
-    public function familyRelationship(){return $this->hasOneModel('FamilyRelationship');}
-    public function cardIdentity(){return $this->morphOneModel('CardIdentity','reference');}
-    public function cardIdentities(){return $this->morphManyModel('CardIdentity','reference');}
-    public function visitPatient(){return $this->hasOneModel('VisitPatient');}
-    public function patientSummary(){return $this->hasOneModel('PatientSummary');}
-    public function boat(){return $this->hasOneModel("ModelHasOrganization");}
-    public function invoice(){return $this->morphOneModel('Invoice','consument');}
+    public function patientType()
+    {
+        return $this->belongsToModel('PatientType');
+    }
+    public function people()
+    {
+        return $this->belongsToModel('People');
+    }
+    public function reference()
+    {
+        return $this->morphTo();
+    }
+    public function familyRelationships()
+    {
+        return $this->hasManyModel('FamilyRelationship');
+    }
+    public function familyRelationship()
+    {
+        return $this->hasOneModel('FamilyRelationship');
+    }
+    public function cardIdentity()
+    {
+        return $this->morphOneModel('CardIdentity', 'reference');
+    }
+    public function cardIdentities()
+    {
+        return $this->morphManyModel('CardIdentity', 'reference');
+    }
+    public function visitPatient()
+    {
+        return $this->hasOneModel('VisitPatient');
+    }
+    public function patientSummary()
+    {
+        return $this->hasOneModel('PatientSummary');
+    }
+    public function boat()
+    {
+        return $this->hasOneModel("ModelHasOrganization");
+    }
+    public function invoice()
+    {
+        return $this->morphOneModel('Invoice', 'consument');
+    }
 }

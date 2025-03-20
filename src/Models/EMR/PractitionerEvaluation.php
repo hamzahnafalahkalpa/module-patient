@@ -1,17 +1,18 @@
 <?php
 
-namespace Zahzah\ModulePatient\Models\EMR;
+namespace Hanafalah\ModulePatient\Models\EMR;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Zahzah\LaravelHasProps\Concerns\HasProps;
-use Zahzah\LaravelSupport\Models\BaseModel;
-use Zahzah\ModulePatient\Enums\EvaluationEmployee\Commit;
-use Zahzah\ModulePatient\Enums\EvaluationEmployee\PIC;
-use Zahzah\ModulePatient\Resources\PractitionerEvaluation\ShowPractitionerEvaluation;
-use Zahzah\ModulePatient\Resources\PractitionerEvaluation\ViewPractitionerEvaluation;
+use Hanafalah\LaravelHasProps\Concerns\HasProps;
+use Hanafalah\LaravelSupport\Models\BaseModel;
+use Hanafalah\ModulePatient\Enums\EvaluationEmployee\Commit;
+use Hanafalah\ModulePatient\Enums\EvaluationEmployee\PIC;
+use Hanafalah\ModulePatient\Resources\PractitionerEvaluation\ShowPractitionerEvaluation;
+use Hanafalah\ModulePatient\Resources\PractitionerEvaluation\ViewPractitionerEvaluation;
 
-class PractitionerEvaluation extends BaseModel{
+class PractitionerEvaluation extends BaseModel
+{
     use HasUlids, HasProps, SoftDeletes;
 
     //IS COMMIT LOOK ENUM
@@ -19,7 +20,8 @@ class PractitionerEvaluation extends BaseModel{
     protected $keyType    = 'string';
     protected $primaryKey = 'id';
     protected $list       = [
-        'id','visit_examination_id',
+        'id',
+        'visit_examination_id',
         'practitioner_type',
         'practitioner_id',
         'name',
@@ -32,35 +34,66 @@ class PractitionerEvaluation extends BaseModel{
         'name' => 'string'
     ];
 
-    public function getPropsQuery(): array{
+    public function getPropsQuery(): array
+    {
         return ['name' => 'props->prop_people->name'];
     }
 
-    protected static function booted():void{
+    protected static function booted(): void
+    {
         parent::booted();
-        static::creating(function($query){
+        static::creating(function ($query) {
             if (!isset($query->is_commit)) $query->is_commit = Commit::DRAFT->value;
         });
     }
 
-    public function toViewApi(){
+    public function toViewApi()
+    {
         return new ViewPractitionerEvaluation($this);
     }
 
-    public function toShowApi(){
+    public function toShowApi()
+    {
         return new ShowPractitionerEvaluation($this);
     }
 
     //SCOPE SECTION
-    public function scopeCommit($builder){return $builder->where('is_commit',Commit::COMMIT->value);}
-    public function scopeDraft($builder){return $builder->where('is_commit',Commit::DRAFT->value);}
-    public function scopePic($builder){return $builder->where('role_as',PIC::IS_PIC->value);}
-    public function scopeDoctor($builder){return $builder->where('role_as',PIC::IS_DOCTOR->value);}
-    public function scopeMidwife($builder){return $builder->where('role_as',PIC::IS_MIDWIFE->value);}
-    public function scopeNurse($builder){return $builder->where('role_as',PIC::IS_NURSE->value);}
-    public function scopeOther($builder){return $builder->where('role_as',PIC::IS_OTHER->value);}
+    public function scopeCommit($builder)
+    {
+        return $builder->where('is_commit', Commit::COMMIT->value);
+    }
+    public function scopeDraft($builder)
+    {
+        return $builder->where('is_commit', Commit::DRAFT->value);
+    }
+    public function scopePic($builder)
+    {
+        return $builder->where('role_as', PIC::IS_PIC->value);
+    }
+    public function scopeDoctor($builder)
+    {
+        return $builder->where('role_as', PIC::IS_DOCTOR->value);
+    }
+    public function scopeMidwife($builder)
+    {
+        return $builder->where('role_as', PIC::IS_MIDWIFE->value);
+    }
+    public function scopeNurse($builder)
+    {
+        return $builder->where('role_as', PIC::IS_NURSE->value);
+    }
+    public function scopeOther($builder)
+    {
+        return $builder->where('role_as', PIC::IS_OTHER->value);
+    }
 
     //EIGER SECTION
-    public function practitioner(){return $this->morphTo();}
-    public function visitExamination(){return $this->belongsToModel('VisitExamination');}
+    public function practitioner()
+    {
+        return $this->morphTo();
+    }
+    public function visitExamination()
+    {
+        return $this->belongsToModel('VisitExamination');
+    }
 }

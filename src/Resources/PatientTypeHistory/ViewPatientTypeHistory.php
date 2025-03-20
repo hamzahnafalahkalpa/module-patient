@@ -1,8 +1,8 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\PatientTypeHistory;
+namespace Hanafalah\ModulePatient\Resources\PatientTypeHistory;
 
-use Zahzah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
 
 class ViewPatientTypeHistory extends ApiResource
 {
@@ -12,8 +12,7 @@ class ViewPatientTypeHistory extends ApiResource
             'id'    => $this->id,
             "name"  => $this->name,
         ];
-        
+
         return $arr;
     }
 }
-

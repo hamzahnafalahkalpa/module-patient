@@ -1,7 +1,8 @@
 <?php
 
-namespace Zahzah\ModulePatient\Concerns\VisitRegistration;
+namespace Hanafalah\ModulePatient\Concerns\VisitRegistration;
 
-trait HasGetter{
+trait HasGetter
+{
     protected object $__visit_patient;
 }

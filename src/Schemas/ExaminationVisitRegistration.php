@@ -1,17 +1,19 @@
 <?php
 
-namespace Zahzah\ModulePatient\Schemas;
+namespace Hanafalah\ModulePatient\Schemas;
 
 use Illuminate\Pagination\LengthAwarePaginator;
-use Zahzah\ModulePatient\{
+use Hanafalah\ModulePatient\{
     Contracts\VisitRegistration as ContractsVisitRegistration,
 };
 
-class ExaminationVisitRegistration extends VisitRegistration implements ContractsVisitRegistration{
+class ExaminationVisitRegistration extends VisitRegistration implements ContractsVisitRegistration
+{
     public static $exam_visit_registration_model;
 
-    public function commonPaginate($paginate_options): LengthAwarePaginator{
-        return $this->visitRegistration()->orderBy('created_at','desc')->paginate(
+    public function commonPaginate($paginate_options): LengthAwarePaginator
+    {
+        return $this->visitRegistration()->orderBy('created_at', 'desc')->paginate(
             ...$this->arrayValues($paginate_options)
         )->appends(request()->all());
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\InternalReferral;
+namespace Hanafalah\ModulePatient\Resources\InternalReferral;
 
 use App\Http\Resources\ApiResource;
 
@@ -10,14 +10,14 @@ class ViewInternalReferral extends ApiResource
     {
         $arr = [
             'id'                => $this->id,
-            'referral'          => $this->relationValidation('referral',function(){
+            'referral'          => $this->relationValidation('referral', function () {
                 return $this->referral->toViewApi();
             }),
-            'medic_service'     => $this->relationValidation('medicService',function(){
+            'medic_service'     => $this->relationValidation('medicService', function () {
                 return $this->medicService->toViewApi();
             })
         ];
-        
+
         return $arr;
     }
 }

@@ -1,8 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Enums\EvaluationEmployee;
+namespace Hanafalah\ModulePatient\Enums\EvaluationEmployee;
 
-enum Commit: int{
+enum Commit: int
+{
     case COMMIT = 1;
     case DRAFT  = 0;
 }

@@ -1,21 +1,22 @@
 <?php
 
-namespace Zahzah\ModulePatient\Concerns\VisitRegistration;
+namespace Hanafalah\ModulePatient\Concerns\VisitRegistration;
 
-use Zahzah\LaravelSupport\Concerns\PackageManagement\HasCacheConfiguration;
+use Hanafalah\LaravelSupport\Concerns\PackageManagement\HasCacheConfiguration;
 
-trait HasCache{
+trait HasCache
+{
     use HasCacheConfiguration;
 
     protected array $__cache = [
         'index' => [
             'name'     => 'visit-registration',
-            'tags'     => ['visit-registration','visit-registration-index'],
+            'tags'     => ['visit-registration', 'visit-registration-index'],
             'forever'  => true
         ],
         'show' => [
             'name'     => 'visit-registration-show',
-            'tags'     => ['visit-registration','visit-registration-show'],
+            'tags'     => ['visit-registration', 'visit-registration-show'],
             'forever'  => true
         ]
     ];

@@ -1,13 +1,13 @@
 <?php
 
-use Zahzah\ModulePatient\Models\EMR\ExaminationSummary;
+use Hanafalah\ModulePatient\Models\EMR\ExaminationSummary;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    use Zahzah\LaravelSupport\Concerns\NowYouSeeMe;
+    use Hanafalah\LaravelSupport\Concerns\NowYouSeeMe;
 
     private $__table;
 
@@ -32,17 +32,17 @@ return new class extends Migration
                 $table->json('props')->nullable();
                 $table->timestamps();
 
-                $table->index(['reference_type','reference_id'],'ref_es');
+                $table->index(['reference_type', 'reference_id'], 'ref_es');
             });
 
-            Schema::table($table_name,function (Blueprint $table){
-                $table->foreignIdFor($this->__table,'parent_id')->collation("utf8mb4_bin")
-                        ->nullable()->after($this->__table->getKeyName())
-                        ->index()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+            Schema::table($table_name, function (Blueprint $table) {
+                $table->foreignIdFor($this->__table, 'parent_id')->collation("utf8mb4_bin")
+                    ->nullable()->after($this->__table->getKeyName())
+                    ->index()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
 
-                $table->foreignIdFor($this->__table,'group_summary_id')->collation("utf8mb4_bin")
-                        ->nullable()->after('parent_id')
-                        ->index()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+                $table->foreignIdFor($this->__table, 'group_summary_id')->collation("utf8mb4_bin")
+                    ->nullable()->after('parent_id')
+                    ->index()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             });
         }
     }

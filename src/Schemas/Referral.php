@@ -1,9 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Schemas;
+namespace Hanafalah\ModulePatient\Schemas;
 
 use Illuminate\Database\Eloquent\{Builder, Model};
-use Zahzah\ModulePatient\{
+use Hanafalah\ModulePatient\{
     Contracts\Referral as ContractsReferral,
     Enums\VisitRegistration\ActivityStatus,
     Enums\VisitRegistration\Activity,
@@ -27,21 +27,22 @@ class Referral extends ModulePatient implements ContractsReferral
     protected array $__cache = [
         'index' => [
             'name'     => 'referral',
-            'tags'     => ['referral','referral-index'],
+            'tags'     => ['referral', 'referral-index'],
             'duration' => 60
         ]
     ];
 
-    public function prepareStoreReferral(? array $attributes = null): Model|null {
+    public function prepareStoreReferral(?array $attributes = null): Model|null
+    {
         $attributes ??= request()->all();
 
-        if(isset($attributes['visit_examination_id']) || isset($attributes['referral_id'])) {
+        if (isset($attributes['visit_examination_id']) || isset($attributes['referral_id'])) {
             $source = (isset($attributes['visit_examination_id']))
-                        ? $this->VisitExaminationModel()->findOrFail($attributes['visit_examination_id'])
-                        : $this->referral()->findOrFail($attributes['referral_id']);
+                ? $this->VisitExaminationModel()->findOrFail($attributes['visit_examination_id'])
+                : $this->referral()->findOrFail($attributes['referral_id']);
 
             $visitRegistration = $source->visitRegistration;
-            if(isset($visitRegistration)) {
+            if (isset($visitRegistration)) {
                 $referral_type = $attributes['flag'] ?? "internal";
                 if (isset($attributes['flag']) && $referral_type == "external") {
                     $referralSide = $this->ExternalReferralModel()->create([
@@ -53,7 +54,7 @@ class Referral extends ModulePatient implements ContractsReferral
                         "initial_diagnose" => $attributes['diagnose'],
                         "note"             => $attributes['note']
                     ]);
-                }else{
+                } else {
                     //FOR INTERNAL CASE
                     $service      = $this->ServiceModel()->findOrFail($attributes['medic_service_id']);
                     $referralSide = $this->InternalReferralModel()->create([
@@ -70,7 +71,7 @@ class Referral extends ModulePatient implements ContractsReferral
                 ]);
                 $visit_patient = $visitRegistration->visitPatient;
 
-                if($referral_type == 'internal') {
+                if ($referral_type == 'internal') {
                     $visit_patient_schema = $this->appVisitPatientSchema();
 
                     $this->appVisitRegistrationSchema()->newVisitRegistration([
@@ -85,13 +86,13 @@ class Referral extends ModulePatient implements ContractsReferral
                         'services'           => $attributes['services'] ?? []
                     ]);
 
-                    $referral->pushActivity(Activity::REFERRAL_POLI->value,ActivityStatus::REFERRAL_PROCESSED->value);
-                    $visit_patient_schema->preparePushLifeCycleActivity($visit_patient,$referral,'REFERRAL_POLI',['REFERRAL_CREATED']);
+                    $referral->pushActivity(Activity::REFERRAL_POLI->value, ActivityStatus::REFERRAL_PROCESSED->value);
+                    $visit_patient_schema->preparePushLifeCycleActivity($visit_patient, $referral, 'REFERRAL_POLI', ['REFERRAL_CREATED']);
                     $referral->status = Status::PROCESS->value;
 
-                    if(isset($attributes['visit_examination_id'])) {
-                        $referral->pushActivity(Activity::REFERRAL_POLI->value,ActivityStatus::REFERRAL_CREATED->value);
-                        $visit_patient_schema->preparePushLifeCycleActivity($visit_patient,$referral,'REFERRAL_POLI',['REFERRAL_CREATED']);
+                    if (isset($attributes['visit_examination_id'])) {
+                        $referral->pushActivity(Activity::REFERRAL_POLI->value, ActivityStatus::REFERRAL_CREATED->value);
+                        $visit_patient_schema->preparePushLifeCycleActivity($visit_patient, $referral, 'REFERRAL_POLI', ['REFERRAL_CREATED']);
 
                         $referral->reference_id   = $referralSide->getKey();
                         $referral->reference_type = $referralSide->getMorphClass();
@@ -99,7 +100,7 @@ class Referral extends ModulePatient implements ContractsReferral
                     }
                 }
 
-                $referral->setAttribute('prop_patient',$visit_patient->patient->getPropsKey());
+                $referral->setAttribute('prop_patient', $visit_patient->patient->getPropsKey());
                 $referral->save();
                 return $referral;
             } else throw new \Exception("Data Registrasi Tidak ditemukan");
@@ -107,30 +108,34 @@ class Referral extends ModulePatient implements ContractsReferral
         throw new \Exception("Data Visit Pemeriksaan Tidak ditemukan");
     }
 
-    public function referral(mixed $conditionals = null): Builder{
+    public function referral(mixed $conditionals = null): Builder
+    {
         $this->booting();
         return $this->ReferralModel()->conditionals($conditionals)->withParameters('or');
     }
 
-    public function preparePaginateReferral(): object{
+    public function preparePaginateReferral(): object
+    {
         $attributes ??= request()->all();
         return $this->referral(function ($q) use ($attributes) {
-            $q->with(['visitRegistration' => function ($q) {
-                $q->with("visitPatient.patient","medicService");
-            },'reference' => function($q) {
-                $q->constrain([
-                    get_class($this->InternalReferralModel()) => function ($query) {
-                        $query->with('medicService');
-                    }
-                ]);
-            }
-            ])->whereHas("visitRegistration.visitExamination",function($q) use ($attributes) {
-                if(isset($attributes['visit_examination_id'])) $q->where("id" , $attributes['visit_examination_id']);
-            })->where(function($q) {
-                if(request()->is_external) {
+            $q->with([
+                'visitRegistration' => function ($q) {
+                    $q->with("visitPatient.patient", "medicService");
+                },
+                'reference' => function ($q) {
+                    $q->constrain([
+                        get_class($this->InternalReferralModel()) => function ($query) {
+                            $query->with('medicService');
+                        }
+                    ]);
+                }
+            ])->whereHas("visitRegistration.visitExamination", function ($q) use ($attributes) {
+                if (isset($attributes['visit_examination_id'])) $q->where("id", $attributes['visit_examination_id']);
+            })->where(function ($q) {
+                if (request()->is_external) {
                     $q->where("reference_type", $this->ExternalReferralModel()->getMorphClass());
-                }else {
-                    if(isset($attributes['visit_examination_id'])) {
+                } else {
+                    if (isset($attributes['visit_examination_id'])) {
                         $q->where("reference_type", $this->InternalReferralModel()->getMorphClass());
                     }
                 }
@@ -138,13 +143,15 @@ class Referral extends ModulePatient implements ContractsReferral
         })->paginate(request('per_page'))->appends(request()->all());
     }
 
-    public function paginateReferral() {
-        return $this->transforming($this->__resources['view'],function(){
+    public function paginateReferral()
+    {
+        return $this->transforming($this->__resources['view'], function () {
             return $this->preparePaginateReferral();
         });
     }
 
-    public function addOrChange(?array $attributes = []): self{
+    public function addOrChange(?array $attributes = []): self
+    {
         $this->updateOrCreate($attributes);
         return $this;
     }

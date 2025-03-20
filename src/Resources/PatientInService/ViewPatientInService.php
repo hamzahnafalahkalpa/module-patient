@@ -1,8 +1,8 @@
 <?php
 
-namespace Zahzah\ModulePatient\Resources\PatientInService;
+namespace Hanafalah\ModulePatient\Resources\PatientInService;
 
-use Zahzah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
 
 class ViewPatientInService extends ApiResource
 {
@@ -10,22 +10,21 @@ class ViewPatientInService extends ApiResource
     {
         $arr = [
             'id'             => $this->id,
-            'profile'        => $this->profile ?? null,  
-            'user_reference' => $this->when(isset($this->uuid),function(){
+            'profile'        => $this->profile ?? null,
+            'user_reference' => $this->when(isset($this->uuid), function () {
                 return ['uuid' => $this->uuid];
             }),
             "card_identities"    => $this->cardIdentities->mapWithKeys(function ($cardIdentity) {
                 return [$cardIdentity->flag => $cardIdentity->value];
             }),
         ];
-        if (class_exists(\Zahzah\ModulePeople\Models\People\People::class)) {
-            if ($this->reference_type == $this->PeopleModel()->getMorphClass()){
-                $arr['people'] = $this->propResource($this->reference,\Zahzah\ModulePeople\Resources\People\ViewPeople::class);
+        if (class_exists(\Hanafalah\ModulePeople\Models\People\People::class)) {
+            if ($this->reference_type == $this->PeopleModel()->getMorphClass()) {
+                $arr['people'] = $this->propResource($this->reference, \Hanafalah\ModulePeople\Resources\People\ViewPeople::class);
             }
         }
-        
-        
+
+
         return $arr;
     }
 }
-

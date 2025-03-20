@@ -1,8 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Enums\EvaluationEmployee;
+namespace Hanafalah\ModulePatient\Enums\EvaluationEmployee;
 
-enum PIC: string{
+enum PIC: string
+{
     case IS_PIC      = 'PIC';
     case IS_NURSE    = 'NURSE';
     case IS_DOCTOR   = 'DOCTOR';

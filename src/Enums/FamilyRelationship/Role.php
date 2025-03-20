@@ -1,8 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Enums\FamilyRelationship;
+namespace Hanafalah\ModulePatient\Enums\FamilyRelationship;
 
-enum Role: int{
+enum Role: int
+{
     case ADIK_LAKI_LAKI = 1;
     case ADIK_PEREMPUAN = 2;
     case ANAK = 3;

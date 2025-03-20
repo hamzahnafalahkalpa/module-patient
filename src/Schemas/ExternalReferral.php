@@ -1,9 +1,9 @@
 <?php
 
-namespace Zahzah\ModulePatient\Schemas;
+namespace Hanafalah\ModulePatient\Schemas;
 
-use Zahzah\LaravelSupport\Supports\PackageManagement;
-use Zahzah\ModulePatient\Contracts\ExternalReferral as ContractsExternalRefferal;
+use Hanafalah\LaravelSupport\Supports\PackageManagement;
+use Hanafalah\ModulePatient\Contracts\ExternalReferral as ContractsExternalRefferal;
 
 class ExternalReferral extends PackageManagement implements ContractsExternalRefferal
 {
@@ -14,7 +14,8 @@ class ExternalReferral extends PackageManagement implements ContractsExternalRef
 
     protected array $__cache = [];
 
-    public function prepareStoreExternalReferral($attributes = null) {
+    public function prepareStoreExternalReferral($attributes = null)
+    {
         $attributes ??= request()->all();
 
         $external = $this->ExternalReferralModel()->updateOrCreate(
@@ -34,10 +35,9 @@ class ExternalReferral extends PackageManagement implements ContractsExternalRef
 
         $referral      = $external->referral;
         $visit_patient = $external->visitPatient;
-        $referral->setAttribute('prop_patient',$visit_patient->patient->getPropsKey());
+        $referral->setAttribute('prop_patient', $visit_patient->patient->getPropsKey());
         $referral->save();
 
         return static::$external_referral = $external;
     }
-
 }
