@@ -1,0 +1,56 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Zahzah\ModulePatient\Enums\EvaluationEmployee\Commit;
+use Zahzah\ModulePatient\Enums\VisitExamination\ExaminationStatus;
+use Zahzah\ModulePatient\Models\{
+    Emr\VisitExamination,
+    Emr\VisitRegistration,
+};
+
+return new class extends Migration
+{
+   use Zahzah\LaravelSupport\Concerns\NowYouSeeMe;
+
+    private $__table;
+
+    public function __construct(){
+        $this->__table = app(config('database.models.VisitExamination', VisitExamination::class));
+    }
+
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up(): void
+    {
+        $table_name = $this->__table->getTable();
+        if (!$this->isTableExists()){
+            Schema::create($table_name, function (Blueprint $table) {
+                $visit_registration = app(config('database.models.VisitRegistration', VisitRegistration::class));
+
+                $table->ulid('id')->primary();
+                $table->string('visit_examination_code',100)->nullable();
+                $table->foreignIdFor($visit_registration::class)
+                    ->nullable(false)->index()
+                    ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+                $table->boolean('is_commit')->default(0)->nullable(false);
+                $table->enum('status', array_column(ExaminationStatus::cases(), 'value'));
+                $table->json('props')->nullable();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists($this->__table->getTable());
+    }
+};

@@ -1,0 +1,26 @@
+<?php
+
+namespace Zahzah\ModulePatient\Resources\Referral;
+
+use Zahzah\LaravelSupport\Resources\ApiResource;
+
+class ViewReferral extends ApiResource
+{
+    public function toArray(\Illuminate\Http\Request $request): array
+    {
+        $arr = [
+            'id'                    => $this->id,
+            'referral_code'         => $this->referral_code,
+            'status'                => $this->status,
+            'reference_type'        => $this->reference_type,
+            'reference'             => $this->relationValidation('reference',function(){
+                return $this->reference->toViewApi();
+            }),
+            'visit_registration'    => $this->relationValidation('visitRegistration',function(){
+                return $this->visitRegistration->toViewApi();
+        })
+        ];
+        
+        return $arr;
+    }
+}
