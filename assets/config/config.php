@@ -21,24 +21,31 @@ return [
     'commands' => [
         ModulePatientCommands\InstallMakeCommand::class
     ],
-    'contracts' => [
-        'transaction'             => ModuleTransactionContracts\Transaction::class,
-        'external_referral'       => Contracts\ExternalReferral::class,
-        'practitioner_evaluation' => Contracts\PractitionerEvaluation::class,
-        'visit_examination'       => Contracts\VisitExamination::class,
-        'visit_registration'      => Contracts\VisitRegistration::class,
-        'visit_patient'           => Contracts\VisitPatient::class,
-        'internal_referral'       => Contracts\InternalReferral::class,
-        'pharmacy_sale'           => ModulePharmacyContracts\PharmacySale::class,
-        'assessment'              => AssessmentContracts\Assessment::class,
-        'examination'             => ModuleExaminationContracts\Examination::class,
-        'examination_treatment'   => ExaminationContracts\ExaminationTreatment::class,
-        'examination_summary'     => Contracts\ExaminationSummary::class,
-        'clinical_treatment'      => TreatmentContracts\ClinicalTreatment::class,
-        'radiology_treatment'     => TreatmentContracts\RadiologyTreatment::class,
-        'lab_treatment'           => TreatmentContracts\LabTreatment::class,
-        'transaction_item'        => TransactionItem::class,
-        'patient'                 => Patient::class
+    'app' => [
+        'contracts' => [
+            //ADD YOUR CONTRACTS HERE
+            'transaction'             => ModuleTransactionContracts\Transaction::class,
+            'external_referral'       => Contracts\ExternalReferral::class,
+            'practitioner_evaluation' => Contracts\PractitionerEvaluation::class,
+            'visit_examination'       => Contracts\VisitExamination::class,
+            'visit_registration'      => Contracts\VisitRegistration::class,
+            'visit_patient'           => Contracts\VisitPatient::class,
+            'internal_referral'       => Contracts\InternalReferral::class,
+            'pharmacy_sale'           => ModulePharmacyContracts\PharmacySale::class,
+            'assessment'              => AssessmentContracts\Assessment::class,
+            'examination'             => ModuleExaminationContracts\Examination::class,
+            'examination_treatment'   => ExaminationContracts\ExaminationTreatment::class,
+            'examination_summary'     => Contracts\ExaminationSummary::class,
+            'clinical_treatment'      => TreatmentContracts\ClinicalTreatment::class,
+            'radiology_treatment'     => TreatmentContracts\RadiologyTreatment::class,
+            'lab_treatment'           => TreatmentContracts\LabTreatment::class,
+            'transaction_item'        => TransactionItem::class,
+            'patient'                 => Patient::class
+        ],
+    ],
+    'libs' => [
+        'model' => 'Models',
+        'contract' => 'Contracts'
     ],
     'database' => [
         'models' => [
