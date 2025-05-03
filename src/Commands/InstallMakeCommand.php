@@ -38,12 +38,6 @@ class InstallMakeCommand extends EnvironmentCommand
             '--tag'      => 'migrations'
         ]);
         $this->info('✔️  Created migrations');
-
-        $migrations = $this->setMigrationBasePath(database_path('migrations'))->canMigrate();
-        $this->callSilent('migrate', ['--path' => $migrations]);
-
-        $this->info('✔️  App table migrated');
-
         $this->comment('hanafalah/module-patient installed successfully.');
     }
 }
