@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\{
     Collection,
     Model
 };
-use Hanafalah\LaravelSupport\Contracts\DataManagement;
+use Hanafalah\LaravelSupport\Contracts\Supports\DataManagement;
 
 interface PatientType extends DataManagement
 {

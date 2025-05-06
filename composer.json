@@ -12,14 +12,14 @@
         }
     ],
     "require": {
-        "hanafalah/laravel-support": "1.x",
-        "hanafalah/module-user": "1.x",
-        "hanafalah/module-card-identity": "1.x",
-        "hanafalah/module-service": "1.x",
-        "hanafalah/module-medic-service": "1.x",
-        "hanafalah/module-payer": "1.x",
-        "hanafalah/module-organization": "1.x",
-        "hanafalah/module-examination": "1.x"
+        "hanafalah/laravel-support": "1.x-dev as 1.0",
+        "hanafalah/module-user": "1.x-dev as 1.0",
+        "hanafalah/module-card-identity": "1.x-dev as 1.0",
+        "hanafalah/module-service": "1.x-dev as 1.0",
+        "hanafalah/module-medic-service": "1.x-dev as 1.0",
+        "hanafalah/module-payer": "1.x-dev as 1.0",
+        "hanafalah/module-organization": "1.x-dev as 1.0",
+        "hanafalah/module-examination": "1.x-dev as 1.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": false

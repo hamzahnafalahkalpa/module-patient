@@ -2,6 +2,6 @@
 
 namespace Hanafalah\ModulePatient\Contracts;
 
-use Hanafalah\LaravelSupport\Contracts\DataManagement;
+use Hanafalah\LaravelSupport\Contracts\Supports\DataManagement;
 
 interface PatientRegister extends DataManagement {}
