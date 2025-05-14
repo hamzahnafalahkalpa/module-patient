@@ -10,9 +10,9 @@ use Hanafalah\LaravelSupport\Models\BaseModel;
 use Hanafalah\ModulePatient\Enums\VisitRegistration\RegistrationStatus;
 use Hanafalah\ModulePatient\Resources\VisitRegistration\ShowVisitRegistration;
 use Hanafalah\ModulePatient\Resources\VisitRegistration\ViewVisitRegistration;
-use Hanafalah\ModuleTransaction\Concerns\HasPaymentSummary;
 use Hanafalah\ModulePatient\Enums\VisitRegistration\Activity;
 use Hanafalah\ModulePatient\Enums\VisitRegistration\ActivityStatus;
+use Hanafalah\ModulePayment\Concerns\HasPaymentSummary;
 use Hanafalah\ModuleTransaction\Concerns\HasTransaction;
 
 class VisitRegistration extends BaseModel

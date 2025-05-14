@@ -33,9 +33,7 @@ return new class extends Migration
         if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
                 $patient_type  = app(config('database.models.PatientType', PatientType::class));
-                $visit_patient = app(config('database.models.VisitPatient', VisitPatient::class));
                 $medic_service = app(config('database.models.MedicService', MedicService::class));
-                $referral      = app(config('database.models.Referral', Referral::class));
 
                 $table->ulid('id')->primary();
                 $table->string('visit_registration_code', 100)->nullable();
@@ -52,10 +50,6 @@ return new class extends Migration
 
                 $table->string('head_doctor_type', 50)->nullable(true);
                 $table->string('head_doctor_id', 36)->nullable(true);
-
-                $table->foreignIdFor($referral::class)
-                    ->nullable()->index()->constrained()
-                    ->cascadeOnUpdate()->restrictOnDelete();
 
                 $table->string('status', 50)->nullable(true);
                 $table->json('props')->nullable();

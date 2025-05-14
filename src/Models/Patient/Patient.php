@@ -10,12 +10,13 @@ use Hanafalah\ModuleCardIdentity\Concerns\HasCardIdentity;
 use Hanafalah\ModulePatient\Enums\Patient\CardIdentity;
 use Hanafalah\ModuleUser\Concerns\UserReference\HasUserReference;
 use Hanafalah\ModuleRegional\Concerns\HasLocation;
-use Hanafalah\LaravelSupport\Concerns\Support\HasEncoding;
 use Hanafalah\ModulePatient\Resources\Patient\{
     ShowPatient,
     ViewPatient
 };
-use Hanafalah\ModuleTransaction\Concerns\HasDeposit;
+use Hanafalah\ModuleEncoding\Concerns\HasEncoding;
+
+use Hanafalah\ModulePayment\Concerns\HasDeposit;
 
 class Patient extends BaseModel
 {
@@ -80,7 +81,7 @@ class Patient extends BaseModel
         parent::booted();
         static::creating(function ($query) {
             if (!isset($query->medical_record)) {
-                $medical_record = HasEncoding::generateCode(EnumEncoding::MEDICAL_RECORD->value);
+                $medical_record = HasEncoding::generateCode('MEDICAL_RECORD');
                 $query->medical_record = $medical_record;
             }
         });

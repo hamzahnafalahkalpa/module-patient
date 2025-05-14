@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Projects\Klinik\Models\Patient\EMR\VisitExamination;
+use Hanafalah\ModulePatient\Models\EMR\VisitExamination;
 use Hanafalah\ModulePatient\Enums\EvaluationEmployee\Commit;
 use Hanafalah\ModulePatient\Models\{
     Emr\PractitionerEvaluation,
@@ -42,7 +42,7 @@ return new class extends Migration
                 $table->string('name', 100)->default('')->nullable(false);
 
                 $table->boolean('is_commit')->default(Commit::DRAFT->value)->nullable(false);
-                $table->stirng('role_as', 50)->nullable(false);
+                $table->string('role_as', 50)->nullable(false);
                 $table->json('props')->nullable();
                 $table->timestamps();
                 $table->softDeletes();

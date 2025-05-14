@@ -26,7 +26,7 @@ use Hanafalah\ModulePatient\Enums\VisitPatient\{
     ActivityStatus
 };
 use Hanafalah\ModulePatient\Enums\VisitRegistration\RegistrationStatus;
-use Hanafalah\ModuleTransaction\Concerns\HasPaymentSummary;
+use Hanafalah\ModulePayment\Concerns\HasPaymentSummary;
 
 class VisitPatient extends BaseModel
 {
