@@ -34,7 +34,7 @@ class ExaminationSummary extends BaseModel
         return new ViewExaminationSummary($this);
     }
 
-    public function toShowApi()
+    public function getShowResource()
     {
         return new ShowExaminationSummary($this);
     }

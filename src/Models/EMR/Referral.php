@@ -58,7 +58,7 @@ class Referral extends BaseModel
         return new ViewReferral($this);
     }
 
-    public function toShowApi()
+    public function getShowResource()
     {
         return new ShowReferral($this);
     }

@@ -77,15 +77,31 @@ class VisitRegistration extends BaseModel
         });
     }
 
-    public function toShowApi()
-    {
-        return new ShowVisitRegistration($this);
+
+    public function viewUsingRelation(){
+        return [];
     }
 
-    public function toViewApi()
-    {
-        return new ViewVisitRegistration($this);
+    public function showUsingRelation(){
+        return [
+            'visitPatient' => function ($query) {
+                $query->with([
+                    'patient' => function ($query) {
+                        $query->with(['reference.cardIdentities', 'cardIdentities']);
+                    },
+                    'transaction.consument',
+                    'services'
+                ]);
+            },
+            'medicService.service',
+            'patientType',
+            'headDoctor'
+        ];
     }
+
+    public function getViewResource(){return ViewVisitRegistration::class;}
+    public function getShowResource(){return ShowVisitRegistration::class;}
+
 
     public function getStatusSpell()
     {

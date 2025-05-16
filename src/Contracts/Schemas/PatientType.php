@@ -1,0 +1,26 @@
+<?php
+
+namespace Hanafalah\ModulePatient\Contracts\Schemas;
+
+use Hanafalah\LaravelSupport\Contracts\Supports\DataManagement;
+use Hanafalah\ModulePatient\Contracts\Data\PatientTypeData;
+use Illuminate\Database\Eloquent\Model;
+
+/**
+ * @see \Hanafalah\ModulePatient\Schemas\PatientType
+ * @method self conditionals(mixed $conditionals)
+ * @method bool deletePatientType()
+ * @method bool prepareDeletePatientType(? array $attributes = null)
+ * @method mixed getPatientType()
+ * @method ?Model prepareShowPatientType(?Model $model = null, ?array $attributes = null)
+ * @method array showPatientType(?Model $model = null)
+ * @method Collection prepareViewPatientTypeList()
+ * @method array viewPatientTypeList()
+ * @method LengthAwarePaginator prepareViewPatientTypePaginate(PaginateData $paginate_dto)
+ * @method array viewPatientTypePaginate(?PaginateData $paginate_dto = null)
+ * @method array storePatientType(?PatientTypeData $patient_type_dto = null)
+ * @method Builder patientType(mixed $conditionals = null)
+ */
+interface PatientType extends DataManagement {
+    // public function prepareStorePatientType(PatientTypeData $patient_type_dto): Model;
+}

@@ -24,7 +24,7 @@ class InternalReferral extends BaseModel
         return new ViewInternalReferral($this);
     }
 
-    public function toShowApi()
+    public function getShowResource()
     {
         return new ShowInternalReferral($this);
     }

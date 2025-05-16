@@ -2,7 +2,8 @@
 
 namespace Hanafalah\ModulePatient\Schemas;
 
-use Hanafalah\ModulePatient\Contracts\VisitPatient as ContractsVisitPatient;
+use Hanafalah\ModulePatient\Contracts\Data\VisitPatientData;
+use Hanafalah\ModulePatient\Contracts\Schemas\VisitPatient as ContractsVisitPatient;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -19,15 +20,8 @@ use Hanafalah\ModulePatient\Resources\VisitPatient\{
 
 class VisitPatient extends ModulePatient implements ContractsVisitPatient
 {
-    protected array $__guard   = ['id'];
-    protected array $__add     = ['patient_id', 'visit_code', 'reservation_id', 'queue_number', 'visited_at', 'status'];
     protected string $__entity = 'VisitPatient';
     public static $visit_patient;
-
-    protected array $__resources = [
-        'view' => ViewVisitPatient::class,
-        'show' => ShowVisitPatient::class
-    ];
 
     protected array $__cache = [
         'show' => [
@@ -75,7 +69,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         return $this;
     }
 
-    public function prepareStoreVisitPatient(?array $attributes = null): Model
+    public function prepareStoreVisitPatient(VisitPatientData $visit_patient_dto): Model
     {
         $attributes ??= request()->all();
 
@@ -270,15 +264,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         $model->sync($payer, ['id', 'name']);
     }
 
-    public function storeVisitPatient(): array
-    {
-        return $this->transaction(function () {
-            return $this->showVisitPatient($this->prepareStoreVisitPatient());
-        });
-    }
-
-    protected function createPatientType(Model &$model, array $attributes): self
-    {
+    protected function createPatientType(Model &$model, array $attributes): self{
         if (isset($attributes['patient_type_id'])) {
             $patientType = $this->PatientTypeModel()->findOrFail($attributes['patient_type_id']);
             $model->patientTypeHistory()->firstOrCreate(['patient_type_id' => $attributes['patient_type_id']]);
@@ -303,24 +289,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         return $this;
     }
 
-    public function showUsingRelation(): array
-    {
-        return [
-            'patient',
-            'reservation',
-            'visitRegistrations' => function ($query) {
-                $query->with(['medicService.service', 'patientType', 'headDoctor', 'visitExamination', "visitPatient"]);
-            },
-            'organizations',
-            'transaction.consument',
-            'services',
-            'payer',
-            'agent'
-        ];
-    }
-
-    public function prepareShowVisitPatient(?Model $model = null, ?array $attributes = null): Model
-    {
+    public function prepareShowVisitPatient(?Model $model = null, ?array $attributes = null): Model{
         $attributes ??= request()->all();
 
         $model ??= $this->getVisitPatient();
@@ -338,32 +307,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         return static::$visit_patient = $model;
     }
 
-    public function showVisitPatient(?Model $model = null)
-    {
-        return $this->transforming($this->__resources['show'], function () use ($model) {
-            return $this->prepareShowVisitPatient($model);
-        });
-    }
-
-    public function prepareViewPatientPaginate(int $perPage = 50, array $columns = ['*'], string $pageName = 'page', ?int $page = null, ?int $total = null): LengthAwarePaginator
-    {
-        $attributes ??= request()->all();
-
-        $paginate_options = compact('perPage', 'columns', 'pageName', 'page', 'total');
-        $visit_patient = $this->commonPaginate($paginate_options);
-        return static::$visit_patient = $visit_patient;
-    }
-
-    public function viewVisitPatientPaginate(int $perPage = 50, array $columns = ['*'], string $pageName = 'page', ?int $page = null, ?int $total = null): array
-    {
-        $paginate_options = compact('perPage', 'columns', 'pageName', 'page', 'total');
-        return $this->transforming($this->__resources['view'], function () use ($paginate_options) {
-            return $this->prepareViewPatientPaginate(...$this->arrayValues($paginate_options));
-        });
-    }
-
-    protected function createInvoice($model)
-    {
+    protected function createInvoice($model){
         return $model->invoice()->firstOrCreate([
             'consument_id'   => $model->getKey(),
             'consument_type' => $model->getMorphClass(),
@@ -371,22 +315,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         ]);
     }
 
-    public function commonPaginate($paginate_options): LengthAwarePaginator
-    {
-        return $this->visitPatient()->with(['visitRegistrations' => function ($q) {
-            $q->with([
-                'medicService.service',
-                'patientType',
-                'headDoctor'
-            ]);
-        }, 'organization', 'patient', 'transaction', 'services', 'agent', 'payer'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(...$this->arrayValues($paginate_options))
-            ->appends(request()->all());
-    }
-
-    public function prepareDeleteVisitPatient(?array $attributes = null): mixed
-    {
+    public function prepareDeleteVisitPatient(?array $attributes = null): mixed{
         $attributes ??= request()->all();
         if (!isset($attributes['id'])) throw new \Exception('Visit Patient not found.', 422);
 
@@ -403,34 +332,15 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             $this->preparePushLifeCycleActivity($visit_patient_model, $visit_patient_model, 'ADM_VISIT', ['ADM_CANCELLED']);
             $visit_patient_model->save();
             $visit_patient_model->canceling();
-            return $visit_patient_model;
         }
         throw new \Exception('Data cannot be cancelled anymore.', 422);
     }
 
-    public function deleteVisitPatient(): bool
-    {
-        return $this->transaction(function () {
-            return $this->prepareDeleteVisitPatient();
-        });
-    }
-
-    public function visitPatient(mixed $conditionals = null): Builder
-    {
-        return $this->VisitPatientModel()->conditionals($conditionals)
+    public function visitPatient(mixed $conditionals = null): Builder{
+        return $this->usingEntity()->conditionals($conditionals)
             ->when(isset(request()->patient_id), function ($query) {
                 $query->where('patient_id', request()->patient_id);
             })->withParameters('or');
     }
 
-    public function getVisitPatient(): mixed
-    {
-        return static::$visit_patient;
-    }
-
-    public function addOrChange(?array $attributes = []): self
-    {
-        $this->updateOrCreate($attributes);
-        return $this;
-    }
 }

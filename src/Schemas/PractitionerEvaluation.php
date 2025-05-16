@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\{
     Model
 };
 use Illuminate\Pagination\LengthAwarePaginator;
-use Hanafalah\ModulePatient\Contracts\{
+use Hanafalah\ModulePatient\Contracts\Schemas\{
     PractitionerEvaluation as ContractsPractitionerEvaluation
 };
 use Hanafalah\ModulePatient\Enums\{
@@ -26,11 +26,6 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
     protected string $__entity = 'PractitionerEvaluation';
     public static $practitioner_evaluation;
 
-    protected array $__resources = [
-        'view' => ViewPractitionerEvaluation::class,
-        'show' => ShowPractitionerEvaluation::class
-    ];
-
     public function practitionerEvaluation(mixed $conditionals = null): Builder
     {
         return $this->PractitionerEvaluationModel()
@@ -42,11 +37,6 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
     public function getPractitionerEvaluation(): Model|LengthAwarePaginator|Collection
     {
         return static::$practitioner_evaluation;
-    }
-
-    protected function showUsingRelation()
-    {
-        return ['practitioner'];
     }
 
     public function prepareStorePractitionerEvaluation(?array $attributes = null): Model

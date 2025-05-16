@@ -12,10 +12,11 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 use Illuminate\Support\Str;
 use Hanafalah\ModulePatient\{
-    Contracts\VisitRegistration as ContractsVisitRegistration,
+    Contracts\Schemas\VisitRegistration as ContractsVisitRegistration,
     Enums\VisitRegistration\RegistrationStatus,
     ModulePatient
 };
+use Hanafalah\ModulePatient\Contracts\Data\VisitRegistrationData;
 use Hanafalah\ModulePatient\Enums\{
     EvaluationEmployee\PIC,
     VisitRegistration\Activity as VisitRegistrationActivity,
@@ -28,8 +29,6 @@ use Hanafalah\ModulePatient\Resources\VisitRegistration\{
 
 class VisitRegistration extends ModulePatient implements ContractsVisitRegistration
 {
-    protected array $__guard   = ['id'];
-    protected array $__add     = ['visit_patient_id', 'visit_patient_type', 'medic_service_id', 'patient_type_id', 'status'];
     protected string $__entity = 'VisitRegistration';
     public static $visit_registration_model;
 
@@ -45,29 +44,6 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             'forever'  => true
         ]
     ];
-
-    protected array $__resources = [
-        'view' => ViewVisitRegistration::class,
-        'show' => ShowVisitRegistration::class
-    ];
-
-    protected function showUsingRelation()
-    {
-        return [
-            'visitPatient' => function ($query) {
-                $query->with([
-                    'patient' => function ($query) {
-                        $query->with(['reference.cardIdentities', 'cardIdentities']);
-                    },
-                    'transaction.consument',
-                    'services'
-                ]);
-            },
-            'medicService.service',
-            'patientType',
-            'headDoctor'
-        ];
-    }
 
     protected function createVisitPatient($attributes)
     {
@@ -94,8 +70,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             ]));
     }
 
-    public function prepareStoreVisitRegistration(?array $attributes = null): Model
-    {
+    public function prepareStoreVisitRegistration(VisitRegistrationData $visit_registration_dto): Model{
         $attributes ??= request()->all();
         $visit_patient = $this->createVisitPatient($this->mergeArray([
             'patient_id'      => $attributes['patient_id'] ?? null,

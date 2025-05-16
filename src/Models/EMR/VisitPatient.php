@@ -120,46 +120,36 @@ class VisitPatient extends BaseModel
         });
     }
 
-    public function toShowApi()
-    {
-        return new ShowVisitPatient($this);
+    public function viewUsingRelation(): array{
+        return [];
     }
 
-    public function toViewApi()
-    {
-        return new ViewVisitPatient($this);
+    public function showUsingRelation(): array{
+        return [
+            'patient',
+            'reservation',
+            'visitRegistrations' => function ($query) {
+                $query->with(['medicService.service', 'patientType', 'headDoctor', 'visitExamination', "visitPatient"]);
+            },
+            'organizations',
+            'transaction.consument',
+            'services',
+            'payer',
+            'agent'
+        ];
     }
+    
+    public function getViewResource(){return ViewVisitPatient::class;}
+    public function getShowResource(){return ShowVisitPatient::class;}    
 
-    public function patient()
-    {
-        return $this->belongsToModel('Patient');
-    }
-    public function visitRegistration()
-    {
-        return $this->morphOneModel('VisitRegistration', 'visit_patient');
-    }
-    public function visitRegistrations()
-    {
-        return $this->morphManyModel('VisitRegistration', 'visit_patient');
-    }
-    public function reservation()
-    {
-        return $this->belongsToModel('Reservation');
-    }
-    public function patientDischarge()
-    {
-        return $this->hasOneModel('PatientDischarge', 'visit_patient_id');
-    }
-    public function modelHasOrganization()
-    {
-        return $this->morphOneModel('ModelHasOrganization', 'reference');
-    }
-    public function modelHasOrganizations()
-    {
-        return $this->morphManyModel('ModelHasOrganization', 'reference');
-    }
-    public function payer()
-    {
+    public function patient(){return $this->belongsToModel('Patient');}
+    public function visitRegistration(){return $this->morphOneModel('VisitRegistration', 'visit_patient');}
+    public function visitRegistrations(){return $this->morphManyModel('VisitRegistration', 'visit_patient');}
+    public function reservation(){return $this->belongsToModel('Reservation');}
+    public function patientDischarge(){return $this->hasOneModel('PatientDischarge', 'visit_patient_id');}
+    public function modelHasOrganization(){return $this->morphOneModel('ModelHasOrganization', 'reference');}
+    public function modelHasOrganizations(){return $this->morphManyModel('ModelHasOrganization', 'reference');}
+    public function payer(){
         $payer_table          = $this->PayerModel()->getTableName();
         $model_has_table_name = $this->ModelHasOrganizationModel()->getTableName();
         return $this->hasOneThroughModel(
@@ -216,26 +206,11 @@ class VisitPatient extends BaseModel
         )->where('reference_type', $this->getMorphClass())
             ->select([$organization_table . '.*', $model_has_table_name . '.*', $organization_table . '.id as id']);
     }
-    public function modelHasService()
-    {
-        return $this->morphOneModel('ModelHasService', 'reference');
-    }
-    public function modelHasServices()
-    {
-        return $this->morphManyModel('ModelHasService', 'reference');
-    }
-    public function patientSummary()
-    {
-        return $this->hasOneModel('PatientSummary', 'visit_patient_id');
-    }
-    public function patientTypeHistory()
-    {
-        return $this->hasOneModel('PatientTypeHistory', 'visit_patient_id');
-    }
-    public function patientTypeHistories()
-    {
-        return $this->hasManyModel('PatientTypeHistory', 'visit_patient_id');
-    }
+    public function modelHasService(){return $this->morphOneModel('ModelHasService', 'reference');}
+    public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'reference');}
+    public function patientSummary(){return $this->hasOneModel('PatientSummary', 'visit_patient_id');}
+    public function patientTypeHistory(){return $this->hasOneModel('PatientTypeHistory', 'visit_patient_id');}
+    public function patientTypeHistories(){return $this->hasManyModel('PatientTypeHistory', 'visit_patient_id');}
     public function cardStocks()
     {
         $transaction_model = $this->TransactionModel();

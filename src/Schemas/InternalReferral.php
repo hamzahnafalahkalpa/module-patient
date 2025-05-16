@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
-use Hanafalah\ModulePatient\Contracts\InternalReferral as ContractsInternalRefferal;
+use Hanafalah\ModulePatient\Contracts\Schemas\InternalReferral as ContractsInternalRefferal;
 
 class InternalReferral extends PackageManagement implements ContractsInternalRefferal
 {

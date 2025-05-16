@@ -3,7 +3,7 @@
 namespace Hanafalah\ModulePatient\Schemas;
 
 use Hanafalah\ModuleService\Schemas\Service;
-use Hanafalah\ModulePatient\Contracts\PatientType as ContractsPatientType;
+use Hanafalah\ModulePatient\Contracts\Schemas\PatientType as ContractsPatientType;
 use Illuminate\Database\Eloquent\{
     Builder,
     Collection,
@@ -21,11 +21,6 @@ class PatientType extends Service implements ContractsPatientType
     protected string $__entity = 'PatientType';
     public static $patient_type_model;
 
-    protected array $__resources = [
-        'view' => ViewPatientType::class,
-        'show' => ShowPatientType::class
-    ];
-
     protected array $__cache = [
         'index' => [
             'name'     => 'patient-type',
@@ -33,11 +28,6 @@ class PatientType extends Service implements ContractsPatientType
             'forever'  => true
         ]
     ];
-
-    protected function showUsingRelation()
-    {
-        return [];
-    }
 
     public function prepareShowPatientType(?Model $model = null, ?array $attributes = null): Model
     {

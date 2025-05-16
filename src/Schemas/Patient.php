@@ -2,7 +2,9 @@
 
 namespace Hanafalah\ModulePatient\Schemas;
 
-use Hanafalah\ModulePatient\Contracts\Patient as ContractsPatient;
+use Hanafalah\LaravelSupport\Supports\BasePackageManagement;
+use Hanafalah\LaravelSupport\Supports\PackageManagement;
+use Hanafalah\ModulePatient\Contracts\Schemas\Patient as ContractsPatient;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -14,17 +16,12 @@ use Hanafalah\ModulePatient\Resources\Patient\{
 };
 use Hanafalah\ModulePeople\Schemas\People;
 
-class Patient extends People implements ContractsPatient
+class Patient extends PackageManagement implements ContractsPatient
 {
     protected array $__guard   = ['id', 'reference_id', 'reference_type'];
     protected array $__add     = ['reference_id', 'reference_type'];
     protected string $__entity = 'Patient';
     public static $patient_model;
-
-    protected array $__resources = [
-        'view' => ViewPatient::class,
-        'show' => ShowPatient::class
-    ];
 
     protected array $__cache = [
         'index' => [
@@ -38,15 +35,6 @@ class Patient extends People implements ContractsPatient
             'duration' => 60 * 2
         ]
     ];
-
-    protected function showUsingRelation()
-    {
-        return [
-            'reference' => function ($query) {
-                $query->with('addresses', 'familyRelationship', 'hasPhones', 'cardIdentities', 'userReference');
-            }
-        ];
-    }
 
     public function getPatientByUUID(?array $attributes = null): Model
     {

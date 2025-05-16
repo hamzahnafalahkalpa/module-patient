@@ -47,14 +47,20 @@ class PractitionerEvaluation extends BaseModel
         });
     }
 
-    public function toViewApi()
-    {
-        return new ViewPractitionerEvaluation($this);
+    public function getViewResource(){
+        return ViewPractitionerEvaluation::class;
     }
 
-    public function toShowApi()
-    {
-        return new ShowPractitionerEvaluation($this);
+    public function getShowResource(){
+        return ShowPractitionerEvaluation::class;
+    }
+
+    public function viewUsingRelation(): array{
+        return [];
+    }
+
+    public function showUsingRelation(): array{
+        return ['practitioner'];
     }
 
     //SCOPE SECTION

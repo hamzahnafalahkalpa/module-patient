@@ -19,7 +19,7 @@ class PatientType extends BaseModel
         return new ViewPatientType($this);
     }
 
-    public function toShowApi()
+    public function getShowResource()
     {
         return new ShowPatientType($this);
     }

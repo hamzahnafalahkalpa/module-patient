@@ -35,7 +35,7 @@ class ExternalReferral extends BaseModel
         return new ViewExternalReferral($this);
     }
 
-    public function toShowApi()
+    public function getShowResource()
     {
         return new ShowExternalReferral($this);
     }

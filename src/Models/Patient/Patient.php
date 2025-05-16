@@ -112,15 +112,21 @@ class Patient extends BaseModel
         });
     }
 
-    public function toViewApi()
-    {
-        return new ViewPatient($this);
+    public function viewUsingRelation(): array{
+        return [];
     }
 
-    public function toShowApi()
-    {
-        return new ShowPatient($this);
+    public function showUsingRelation(): array{
+        return [
+            'reference' => function ($query) {
+                $query->with('addresses', 'familyRelationship', 'hasPhones', 'cardIdentities', 'userReference');
+            }
+        ];
     }
+
+    public function getViewResource(){return ViewPatient::class;}
+
+    public function getShowResource(){return ShowPatient::class;}
 
     public function scopeUUID($builder, $uuid, $uuid_name = "props->uuid")
     {

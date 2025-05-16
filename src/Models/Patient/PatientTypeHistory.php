@@ -30,7 +30,7 @@ class PatientTypeHistory extends BaseModel
         return new ViewPatientTypeHistory($this);
     }
 
-    public function toShowApi()
+    public function getShowResource()
     {
         return new ShowPatientTypeHistory($this);
     }

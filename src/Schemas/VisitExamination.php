@@ -20,11 +20,10 @@ use Hanafalah\ModulePatient\{
     Enums\VisitExamination\ActivityStatus,
     Resources\VisitExamination\ViewVisitExamination,
     Resources\VisitExamination\ShowVisitExamination,
-    Contracts\VisitExamination as ContractsVisitExamination
+    Contracts\Schemas\VisitExamination as ContractsVisitExamination
 };
-
+use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationData;
 use Hanafalah\ModulePatient\Enums\{
-    EvaluationEmployee\PIC,
     VisitRegistration\Activity as VisitRegistrationActivity,
     VisitRegistration\ActivityStatus as VisitRegistrationActivityStatus
 };
@@ -32,20 +31,9 @@ use Hanafalah\ModulePatient\Enums\{
 class VisitExamination extends ModulePatient implements ContractsVisitExamination
 {
 
-    protected array $__guard   = ['id'];
-    protected array $__add     = ['visit_registration_id', 'status'];
     protected string $__entity = 'VisitExamination';
 
     public static $visit_examination_model;
-
-    protected array $__schema_extends = [
-        "visitRegistration" => VisitRegistration::class
-    ];
-
-    protected array $__resources = [
-        'view' => ViewVisitExamination::class,
-        'show' => ShowVisitExamination::class
-    ];
 
     public function prepareCommitVisitExamination(?array $attributes = null): Model
     {
@@ -73,8 +61,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         });
     }
 
-    public function prepareStoreVisitExamination(?array $attributes = null): Model
-    {
+    public function prepareStoreVisitExamination(VisitExaminationData $visit_examination_dto): Model{
         $attributes ??= request()->all();
 
         $visit_registration_fk = $this->VisitRegistrationModel()->getForeignKey();
@@ -232,8 +219,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         $visit_registration = $visit_examination->visitRegistration;
         if (!isset($visit_registration)) throw new \Exception("Data Visit Registration Tidak Di Temukan");
 
-        $schameVisitReg     = new $this->__schema_extends['visitRegistration'];
-        $visit_registration = $schameVisitReg->visitRegistrationCancellation([
+        $visit_registration = $this->schemaContract('visit_registration')->visitRegistrationCancellation([
             "visit_registration_id" => $visit_registration->getKey()
         ]);
 
@@ -295,7 +281,6 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
     {
         $attributes ??= request()->all();
         return $this->visitExamination()
-            ->where($this->visitRegistrationModel()->getForeignKey(), $attributes['visit_registration_id'])
             ->get();
     }
 
@@ -350,13 +335,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
 
     public function visitExamination(mixed $conditionals = null): Builder
     {
-        $this->booting();
-        return $this->VisitExaminationModel()->withParameters()->conditionals($conditionals);
+        return $this->usingEntity()->withParameters()->conditionals($conditionals);
     }
 
-    public function addOrChange(?array $attributes = []): self
-    {
-        $this->updateOrCreate($attributes);
-        return $this;
-    }
 }

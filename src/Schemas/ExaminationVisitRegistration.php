@@ -4,7 +4,7 @@ namespace Hanafalah\ModulePatient\Schemas;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 use Hanafalah\ModulePatient\{
-    Contracts\VisitRegistration as ContractsVisitRegistration,
+    Contracts\Schemas\VisitRegistration as ContractsVisitRegistration,
 };
 
 class ExaminationVisitRegistration extends VisitRegistration implements ContractsVisitRegistration

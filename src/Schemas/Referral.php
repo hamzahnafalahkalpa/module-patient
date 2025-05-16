@@ -4,7 +4,7 @@ namespace Hanafalah\ModulePatient\Schemas;
 
 use Illuminate\Database\Eloquent\{Builder, Model};
 use Hanafalah\ModulePatient\{
-    Contracts\Referral as ContractsReferral,
+    Contracts\Schemas\Referral as ContractsReferral,
     Enums\VisitRegistration\ActivityStatus,
     Enums\VisitRegistration\Activity,
     Resources\Referral\ViewReferral,
