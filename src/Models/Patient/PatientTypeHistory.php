@@ -25,14 +25,14 @@ class PatientTypeHistory extends BaseModel
         });
     }
 
-    public function toViewApi()
+    public function getViewResource()
     {
-        return new ViewPatientTypeHistory($this);
+        return ViewPatientTypeHistory::class;
     }
 
     public function getShowResource()
     {
-        return new ShowPatientTypeHistory($this);
+        return ShowPatientTypeHistory::class;
     }
 
     public function visitPatient()

@@ -53,14 +53,14 @@ class Referral extends BaseModel
         });
     }
 
-    public function toViewApi()
+    public function getViewResource()
     {
-        return new ViewReferral($this);
+        return ViewReferral::class;
     }
 
     public function getShowResource()
     {
-        return new ShowReferral($this);
+        return ShowReferral::class;
     }
 
     public function reference()

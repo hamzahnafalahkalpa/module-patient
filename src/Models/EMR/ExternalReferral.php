@@ -30,14 +30,14 @@ class ExternalReferral extends BaseModel
         "note"
     ];
 
-    public function toViewApi()
+    public function getViewResource()
     {
-        return new ViewExternalReferral($this);
+        return ViewExternalReferral::class;
     }
 
     public function getShowResource()
     {
-        return new ShowExternalReferral($this);
+        return ShowExternalReferral::class;
     }
 
     //EIGER SECCTION

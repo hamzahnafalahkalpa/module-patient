@@ -14,14 +14,14 @@ class PatientType extends BaseModel
 
     protected $list = ['id', 'name', 'props'];
 
-    public function toViewApi()
+    public function getViewResource()
     {
-        return new ViewPatientType($this);
+        return ViewPatientType::class;
     }
 
     public function getShowResource()
     {
-        return new ShowPatientType($this);
+        return ShowPatientType::class;
     }
 
     //EIGER SECCTION

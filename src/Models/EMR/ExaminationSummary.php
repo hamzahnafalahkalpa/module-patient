@@ -29,13 +29,13 @@ class ExaminationSummary extends BaseModel
         return $this->belongsToModel('ExaminationSummary', 'group_summary_id');
     }
 
-    public function toViewApi()
+    public function getViewResource()
     {
-        return new ViewExaminationSummary($this);
+        return ViewExaminationSummary::class;
     }
 
     public function getShowResource()
     {
-        return new ShowExaminationSummary($this);
+        return ShowExaminationSummary::class;
     }
 }

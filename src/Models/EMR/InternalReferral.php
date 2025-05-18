@@ -19,14 +19,14 @@ class InternalReferral extends BaseModel
     protected $list = ['id', 'medic_service_id', 'props'];
     protected $show = [];
 
-    public function toViewApi()
+    public function getViewResource()
     {
-        return new ViewInternalReferral($this);
+        return ViewInternalReferral::class;
     }
 
     public function getShowResource()
     {
-        return new ShowInternalReferral($this);
+        return ShowInternalReferral::class;
     }
 
     public function referral()
