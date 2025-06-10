@@ -3,7 +3,7 @@
 namespace Hanafalah\ModulePatient\Schemas;
 
 use Dompdf\Css\Content\Attr;
-use Hanafalah\ModuleMedicService\Enums\MedicServiceFlag;
+use Hanafalah\ModuleMedicService\Enums\Label;
 use Illuminate\Database\Eloquent\{
     Builder,
     Model
@@ -174,10 +174,10 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         $this->addTransactionIdTo($visit_patient, $visit_patient->transaction);
 
         if (in_array($medic_service->flag, [
-            MedicServiceFlag::OUTPATIENT->value,
-            MedicServiceFlag::MCU->value,
-            MedicServiceFlag::LABORATORY->value,
-            MedicServiceFlag::RADIOLOGY->value
+            Label::OUTPATIENT->value,
+            Label::MCU->value,
+            Label::LABORATORY->value,
+            Label::RADIOLOGY->value
         ])) {
             $visit_registration->pushActivity(VisitRegistrationActivity::POLI_EXAM->value, [VisitRegistrationActivityStatus::POLI_EXAM_QUEUE->value]);
             $this->appVisitPatientSchema()->preparePushLifeCycleActivity($visit_patient, $visit_registration, 'POLI_EXAM', [
@@ -307,9 +307,9 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
                 $medic_service_ids = $medic_services->pluck('id');
                 $query->whereIn('medic_service_id', $medic_service_ids);
                 if (!in_array(request()->flag, [
-                    MedicServiceFlag::INPATIENT,
-                    MedicServiceFlag::VERLOS_KAMER,
-                    MedicServiceFlag::OPERATING_ROOM
+                    Label::INPATIENT,
+                    Label::VERLOS_KAMER,
+                    Label::OPERATING_ROOM
                 ])) {
                     $query->with('visitExamination');
                 }

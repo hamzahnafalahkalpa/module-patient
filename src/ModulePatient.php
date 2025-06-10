@@ -3,7 +3,7 @@
 namespace Hanafalah\ModulePatient;
 
 use Illuminate\Support\Str;
-use Hanafalah\ModuleMedicService\Enums\MedicServiceFlag;
+use Hanafalah\ModuleMedicService\Enums\Label;
 use Illuminate\Database\Eloquent\Model;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Hanafalah\ModulePatient\Contracts;
@@ -110,7 +110,7 @@ class ModulePatient extends PackageManagement implements Contracts\ModulePatient
 
     public function getMedicServiceByFlag(string $flag = null): Model
     {
-        return $this->MedicServiceModel()->flagIn($flag ?? MedicServiceFlag::OUTPATIENT->value)
+        return $this->MedicServiceModel()->flagIn($flag ?? Label::OUTPATIENT->value)
             ->firstOrFail();
     }
 }

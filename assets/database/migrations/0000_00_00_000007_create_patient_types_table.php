@@ -28,11 +28,19 @@ return new class extends Migration
         $table_name = $this->__table->getTable();
         if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
-                $table->id();
+                $table->ulid('id')->primary();
                 $table->string('name', 50)->nullable(false);
+                $table->string('flag')->nullable(false);
+                $table->string('label')->nullable(false);
                 $table->json('props')->nullable();
                 $table->timestamps();
                 $table->softDeletes();
+            });
+
+            Schema::table($table_name, function (Blueprint $table) use ($table_name) {
+                $table->foreignIdFor($this->__table::class, 'parent_id')->nullable()->after('id')->index()
+                    ->constrained($table_name, $this->__table->getKeyName())
+                    ->cascadeOnUpdate()->restrictOnDelete();
             });
         }
     }

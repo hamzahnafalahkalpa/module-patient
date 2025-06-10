@@ -2,24 +2,19 @@
 
 namespace Hanafalah\ModulePatient\Schemas;
 
-use Hanafalah\ModuleService\Schemas\Service;
+use Hanafalah\LaravelSupport\Supports\PackageManagement;
+use Hanafalah\ModulePatient\Contracts\Data\PatientTypeData;
 use Hanafalah\ModulePatient\Contracts\Schemas\PatientType as ContractsPatientType;
 use Illuminate\Database\Eloquent\{
     Builder,
-    Collection,
     Model
 };
-use Hanafalah\ModulePatient\Resources\PatientType\{
-    ShowPatientType,
-    ViewPatientType
-};
 
-class PatientType extends Service implements ContractsPatientType
+class PatientType extends PackageManagement implements ContractsPatientType
 {
-    protected array $__guard   = ['id'];
-    protected array $__add     = ['name'];
     protected string $__entity = 'PatientType';
     public static $patient_type_model;
+    protected mixed $__order_by_created_at = false; //asc, desc, false
 
     protected array $__cache = [
         'index' => [
@@ -29,100 +24,28 @@ class PatientType extends Service implements ContractsPatientType
         ]
     ];
 
-    public function prepareShowPatientType(?Model $model = null, ?array $attributes = null): Model
+    public function prepareStorePatientType(PatientTypeData $patient_type_dto): Model
     {
-        $attributes ??= \request()->all();
-
-        $model ??= $this->getPatientType();
-        if (!isset($model)) {
-            $id = $attributes['id'] ?? null;
-            if (!isset($id)) throw new \Exception('No id provided', 422);
-
-            $model = $this->patientType()->with($this->showUsingRelation())->findOrFail($id);
-        } else {
-            $model->load($this->showUsingRelation());
+        $add = [
+            'name'  => $patient_type_dto->name,
+            'flag'  => $patient_type_dto->flag,
+            'label' => $patient_type_dto->label ?? 'Umum'
+        ];
+        if (isset($patient_type_dto->id)){
+            $guard  = ['id' => $patient_type_dto->id];
+            $create = [$add,$guard];
+        }else{
+            $create = [$add];
         }
-
-        return static::$patient_type_model = $model;
-    }
-
-    public function showPatientType(?Model $model = null): array
-    {
-        return $this->transforming($this->__resources['show'], function () use ($model) {
-            return $this->prepareShowPatientType($model);
-        });
-    }
-
-    public function prepareStorePatientType(?array $attributes = null): Model
-    {
-        $attributes ??= request()->all();
-
-        if (!isset($attributes['id'])) {
-            $patient_type = $this->PatientTypeModel()->updateOrCreate([
-                'name' => $attributes['name']
-            ]);
-        } else {
-            $patient_type = $this->PatientTypeModel()->findOrFail($attributes['id']);
-            if (!$patient_type->is_permanent) {
-                $patient_type->name = $attributes['name'];
-                $patient_type->save();
-            }
-        }
+        $patient_type = $this->usingEntity()->updateOrCreate(...$create);
+        $this->fillingProps($patient_type, $patient_type_dto->props);
+        $patient_type->save();
         return static::$patient_type_model = $patient_type;
     }
 
-    public function storePatientType(): array
-    {
-        return $this->transaction(function () {
-            return $this->showPatientType($this->prepareStorePatientType());
+    public function patientType(mixed $conditionals = null): Builder{
+        return $this->generalSchemaModel($conditionals)->when(isset(request()->flag),function($query){
+            $query->flagIn(request()->flag);
         });
-    }
-
-    public function viewServicePatientTypeList(): array
-    {
-        return $this->transforming($this->__resources['view'], fn() => $this->prepareViewPatientTypeList());
-    }
-
-    public function prepareViewPatientTypeList(): Collection
-    {
-        return static::$patient_type_model = $this->cacheWhen(!$this->isSearch(), $this->__cache['index'], function () {
-            return $this->patientType()->orderBy('name', 'asc')->get();
-        });
-    }
-
-    public function viewPatientTypeList(): array
-    {
-        return $this->transforming($this->__resources['view'], fn() => $this->prepareViewPatientTypeList());
-    }
-
-    public function prepareDeletePatientType(?array $attributes = null): bool
-    {
-        $attributes ??= request()->all();
-        $id = $attributes['id'] ?? null;
-        if (!isset($id)) throw new \Exception('No id provided', 422);
-
-        $patient_type = $this->patientType()->findOrFail($id);
-        if ($patient_type->is_permanent) {
-            return false;
-        }
-        return $patient_type->delete();
-    }
-
-    public function deletePatientType(): bool
-    {
-        return $this->transaction(function () {
-            return $this->prepareDeletePatientType();
-        });
-    }
-
-    public function patientType(mixed $conditionals = null): Builder
-    {
-        $this->booting();
-        return $this->PatientTypeModel()->conditionals($conditionals);
-    }
-
-    public function getPatientType(): mixed
-    {
-        return static::$patient_type_model;
     }
 }

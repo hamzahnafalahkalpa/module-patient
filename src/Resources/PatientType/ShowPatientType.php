@@ -8,7 +8,6 @@ class ShowPatientType extends ViewPatientType
     {
         $arr = [];
         $arr = array_merge(parent::toArray($request), $arr);
-
         return $arr;
     }
 }

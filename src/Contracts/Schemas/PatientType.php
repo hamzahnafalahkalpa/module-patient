@@ -4,6 +4,7 @@ namespace Hanafalah\ModulePatient\Contracts\Schemas;
 
 use Hanafalah\LaravelSupport\Contracts\Supports\DataManagement;
 use Hanafalah\ModulePatient\Contracts\Data\PatientTypeData;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -19,8 +20,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method LengthAwarePaginator prepareViewPatientTypePaginate(PaginateData $paginate_dto)
  * @method array viewPatientTypePaginate(?PaginateData $paginate_dto = null)
  * @method array storePatientType(?PatientTypeData $patient_type_dto = null)
- * @method Builder patientType(mixed $conditionals = null)
  */
 interface PatientType extends DataManagement {
-    // public function prepareStorePatientType(PatientTypeData $patient_type_dto): Model;
+    public function prepareStorePatientType(PatientTypeData $patient_type_dto): Model;
+    public function patientType(mixed $conditionals = null): Builder;
 }

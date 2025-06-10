@@ -8,7 +8,7 @@ use Hanafalah\LaravelSupport\{
     Models\BaseModel,
     Concerns\Support\HasActivity
 };
-use Hanafalah\ModuleMedicService\Enums\MedicServiceFlag;
+use Hanafalah\ModuleMedicService\Enums\Label;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Hanafalah\ModulePatient\Enums\{
     VisitExamination\ExaminationStatus,
@@ -50,9 +50,9 @@ class VisitExamination extends BaseModel
             if (!isset($query->status)) {
                 $visit_registration = $query->visitRegistration()->find($query->visit_registration_id);
                 $service_validation = in_array($visit_registration->medicService->flag, [
-                    MedicServiceFlag::OUTPATIENT->value,
-                    MedicServiceFlag::MCU->value,
-                    MedicServiceFlag::EMERGENCY_UNIT->value
+                    Label::OUTPATIENT->value,
+                    Label::MCU->value,
+                    Label::EMERGENCY_UNIT->value
                 ]);
                 if ($service_validation) $query->status = ExaminationStatus::VISITING->value;
 

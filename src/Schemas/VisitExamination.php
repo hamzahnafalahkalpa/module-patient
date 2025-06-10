@@ -2,7 +2,7 @@
 
 namespace Hanafalah\ModulePatient\Schemas;
 
-use Hanafalah\ModuleMedicService\Enums\MedicServiceFlag;
+use Hanafalah\ModuleMedicService\Enums\Label;
 use Illuminate\Database\Eloquent\{
     Builder,
     Collection,
@@ -76,7 +76,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         $visit_examination  = $visit_registration->visitExamination()->firstOrCreate();
         $visit_examination->pushActivity(Activity::VISITATION->value, [ActivityStatus::VISIT_CREATED->value, ActivityStatus::VISITING->value]);
 
-        if (in_array($medic_service->flag, [MedicServiceFlag::OUTPATIENT->value, MedicServiceFlag::MCU->value])) {
+        if (in_array($medic_service->flag, [Label::OUTPATIENT->value, Label::MCU->value])) {
             //ADD DEFAULT SCREENING
             $screenings = [];
             $screening_models = $this->ScreeningModel()->whereHas('hasServices', function ($query) use ($medic_service) {
@@ -117,16 +117,16 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             'reference_type' => $patient->reference_type
         ]);
         switch ($attributes['medic_service_flag']) {
-            case MedicServiceFlag::LABORATORY->value:
+            case Label::LABORATORY->value:
                 $schema = 'lab_treatment';
                 break;
-            case MedicServiceFlag::RADIOLOGY->value:
+            case Label::RADIOLOGY->value:
                 $schema = 'radiology_treatment';
                 break;
-            case MedicServiceFlag::OUTPATIENT->value:
+            case Label::OUTPATIENT->value:
                 $schema = 'clinical_treatment';
                 break;
-            case MedicServiceFlag::MCU->value:
+            case Label::MCU->value:
                 $schema = 'clinical_treatment';
                 break;
         }
