@@ -2,7 +2,7 @@
 
 namespace Hanafalah\ModulePatient\Contracts\Schemas;
 
-use Hanafalah\LaravelSupport\Contracts\Supports\DataManagement;
+use Hanafalah\ModuleMedicService\Contracts\Schemas\MedicService;
 use Hanafalah\ModulePatient\Contracts\Data\PatientTypeData;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method array viewPatientTypePaginate(?PaginateData $paginate_dto = null)
  * @method array storePatientType(?PatientTypeData $patient_type_dto = null)
  */
-interface PatientType extends DataManagement {
+interface PatientType extends MedicService {
     public function prepareStorePatientType(PatientTypeData $patient_type_dto): Model;
     public function patientType(mixed $conditionals = null): Builder;
 }

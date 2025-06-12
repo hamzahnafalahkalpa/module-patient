@@ -3,11 +3,10 @@
 namespace Hanafalah\ModulePatient\Models\Patient;
 
 use Hanafalah\ModulePatient\Resources\PatientTypeService\{ViewPatientTypeService, ShowPatientTypeService};
-use Hanafalah\ModulePatient\Models\Patient\PatientType;
 
 class PatientTypeService extends PatientType
 {
-    protected $table = 'patient_types';
+    protected $table = 'medic_services';
 
     protected static function booted(): void
     {

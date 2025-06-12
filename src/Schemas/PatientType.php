@@ -2,15 +2,16 @@
 
 namespace Hanafalah\ModulePatient\Schemas;
 
-use Hanafalah\LaravelSupport\Supports\PackageManagement;
+use Hanafalah\ModuleMedicService\Schemas\MedicService;
 use Hanafalah\ModulePatient\Contracts\Data\PatientTypeData;
 use Hanafalah\ModulePatient\Contracts\Schemas\PatientType as ContractsPatientType;
+use Hanafalah\ModulePatient\Enums\PatientType\Flag;
 use Illuminate\Database\Eloquent\{
     Builder,
     Model
 };
 
-class PatientType extends PackageManagement implements ContractsPatientType
+class PatientType extends MedicService implements ContractsPatientType
 {
     protected string $__entity = 'PatientType';
     public static $patient_type_model;
@@ -20,32 +21,18 @@ class PatientType extends PackageManagement implements ContractsPatientType
         'index' => [
             'name'     => 'patient-type',
             'tags'     => ['patient-type', 'patient-type-index'],
-            'forever'  => true
+            'duration' => 24 * 60
         ]
     ];
 
-    public function prepareStorePatientType(PatientTypeData $patient_type_dto): Model
-    {
-        $add = [
-            'name'  => $patient_type_dto->name,
-            'flag'  => $patient_type_dto->flag,
-            'label' => $patient_type_dto->label ?? 'Umum'
-        ];
-        if (isset($patient_type_dto->id)){
-            $guard  = ['id' => $patient_type_dto->id];
-            $create = [$add,$guard];
-        }else{
-            $create = [$add];
+    public function prepareStorePatientType(PatientTypeData $patient_type_dto): Model{
+        if ($patient_type_dto->flag == Flag::IDENTITY->value){
+            $patient_type_dto->label ??= 'Umum';
         }
-        $patient_type = $this->usingEntity()->updateOrCreate(...$create);
-        $this->fillingProps($patient_type, $patient_type_dto->props);
-        $patient_type->save();
-        return static::$patient_type_model = $patient_type;
+        return static::$patient_type_model = $this->prepareStoreMedicService($patient_type_dto);
     }
 
     public function patientType(mixed $conditionals = null): Builder{
-        return $this->generalSchemaModel($conditionals)->when(isset(request()->flag),function($query){
-            $query->flagIn(request()->flag);
-        });
+        return parent::medicService($conditionals);
     }
 }

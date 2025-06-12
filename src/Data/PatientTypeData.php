@@ -2,39 +2,24 @@
 
 namespace Hanafalah\ModulePatient\Data;
 
-use Hanafalah\LaravelSupport\Supports\Data;
+use Hanafalah\ModuleMedicService\Data\MedicServiceData;
 use Hanafalah\ModulePatient\Contracts\Data\PatientTypeData as DataPatientTypeData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
 
-class PatientTypeData extends Data implements DataPatientTypeData{
-    #[MapInputName('id')]
-    #[MapName('id')]
-    public mixed $id = null;
-    
-    #[MapInputName('parent_id')]
-    #[MapName('parent_id')]
-    public mixed $parent_id = null;
-
-    #[MapInputName('name')]
-    #[MapName('name')]
-    public string $name;
-    
-    #[MapInputName('flag')]
-    #[MapName('flag')]
-    public string $flag;
-
+class PatientTypeData extends MedicServiceData implements DataPatientTypeData{
     #[MapInputName('label')]
     #[MapName('label')]
-    public string $label = 'UMUM';
+    public ?string $label = 'UMUM';
     
     #[MapInputName('childs')]
     #[MapName('childs')]
     #[DataCollectionOf(PatientTypeData::class)]
     public array $childs = [];
 
-    #[MapInputName('props')]
-    #[MapName('props')]
-    public ?array $props = [];
+    public static function after(mixed $data): PatientTypeData{
+        $data->flag = 'IDENTITY';
+        return $data;
+    }
 }
