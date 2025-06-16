@@ -2,24 +2,16 @@
 
 namespace Hanafalah\ModulePatient\Schemas;
 
-use Hanafalah\LaravelSupport\Supports\BasePackageManagement;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
+use Hanafalah\ModulePatient\Contracts\Data\PatientData;
 use Hanafalah\ModulePatient\Contracts\Schemas\Patient as ContractsPatient;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Hanafalah\ModulePatient\Enums\Patient\CardIdentity;
-use Hanafalah\ModulePatient\Resources\Patient\{
-    ShowPatient,
-    ViewPatient
-};
-use Hanafalah\ModulePeople\Schemas\People;
 
 class Patient extends PackageManagement implements ContractsPatient
 {
-    protected array $__guard   = ['id', 'reference_id', 'reference_type'];
-    protected array $__add     = ['reference_id', 'reference_type'];
     protected string $__entity = 'Patient';
     public static $patient_model;
 
@@ -28,59 +20,19 @@ class Patient extends PackageManagement implements ContractsPatient
             'name'     => 'patient',
             'tags'     => ['patient', 'patient-index'],
             'forever'  => true
-        ],
-        'show' => [
-            'name'     => 'patient',
-            'tags'     => ['patient', 'patient-show'],
-            'duration' => 60 * 2
         ]
     ];
 
-    public function getPatientByUUID(?array $attributes = null): Model
-    {
-        $attributes ??= request()->all();
-        return $this->patient()->with($this->showUsingRelation())
-            ->whereHas('userReference', fn($q) => $q->where('uuid', $attributes['uuid']))
-            ->firstOrFail();
-    }
-
-    public function prepareShowPatient(?Model $model = null): Model
-    {
-        $this->booting();
-        $model ??= $this->getPatient();
-        if (!isset($model)) {
-            $uuid = request()->uuid;
-            if (!request()->has('uuid')) throw new \Exception('No UUID provided', 422);
-            $this->addSuffixCache($this->__cache['show'], 'patient-show', $uuid);
-            $model = $this->cacheWhen(!$this->isSearch(), $this->__cache['show'], function () use ($uuid) {
-                return $this->getPatientByUUID(['uuid' => $uuid]);
-            });
-        } else {
-            $model->load($this->showUsingRelation());
-        }
-        static::$patient_model = $model;
-        return $model;
-    }
-
-    public function showPatient(?Model $model = null): array
-    {
-        return $this->transforming($this->__resources['show'], function () use ($model) {
-            return $this->prepareShowPatient($model);
-        });
-    }
-
-    public function prepareStorePatient(?array $attributes = null): Model
-    {
-        $attributes ??= request()->all();
+    public function prepareStorePatient(PatientData $patient_dto): Model{
         $patient = isset(request()->id) ? $this->patient()->with('reference')->find(request()->id) : $this->PatientModel();
 
         $reference_type = $this->getPatientReferenceType($patient);
         switch ($reference_type) {
             case 'ANIMAL':
-                break;
+            break;
             default:
                 $reference = $this->createPeople($patient, $attributes);
-                break;
+            break;
         }
 
         $patient->refresh();
@@ -103,8 +55,7 @@ class Patient extends PackageManagement implements ContractsPatient
         return $patient;
     }
 
-    protected function createFamilyRelationship(Model &$patient, Model $reference, $attributes)
-    {
+    protected function createFamilyRelationship(Model &$patient, Model $reference, $attributes){
         $is_delete = true;
         if (isset($attributes['family_relationship'])) {
             $attribute = $attributes['family_relationship'];
@@ -123,15 +74,13 @@ class Patient extends PackageManagement implements ContractsPatient
         if ($is_delete) $patient->familyRelationship()->delete();
     }
 
-    protected function getPatientReferenceType(Model $patient)
-    {
+    protected function getPatientReferenceType(Model $patient){
         $reference = $patient->reference ?? null;
         if (isset($patient->reference)) $reference_type = $reference->reference_type;
         return $reference_type ??= request()->reference_type;
     }
 
-    protected function createPeople(Model &$patient, $attributes): Model
-    {
+    protected function createPeople(Model &$patient, $attributes): Model{
         $reference = $patient->reference ?? null;
         $people    = $this->schemaContract('people')->prepareStorePeople($this->assocRequest(
             'reference_id',
@@ -170,8 +119,7 @@ class Patient extends PackageManagement implements ContractsPatient
         return $people;
     }
 
-    private function setPatientReference(Model &$patient, $reference): self
-    {
+    private function setPatientReference(Model &$patient, $reference): self{
         if (!$patient->id || !$patient->exists) {
             $patient->reference_id   = $reference->getKey();
             $patient->reference_type = $reference->getMorphClass();
@@ -179,8 +127,7 @@ class Patient extends PackageManagement implements ContractsPatient
         return $this;
     }
 
-    protected function setPatientPayer(Model &$patient, $attributes): self
-    {
+    protected function setPatientPayer(Model &$patient, $attributes): self{
         if (isset($attributes['company_id'])) {
             $company = $this->CompanyModel()->findOrFail($attributes['company_id']);
 
@@ -192,62 +139,10 @@ class Patient extends PackageManagement implements ContractsPatient
             $patient->sync($company, ['id', 'name']);
         } else {
             $patient->setAttribute('company', null);
-            $patient->modelHasOrganization()->where('organization_type', $this->CompanyModel()->getMorphClass())
-                ->delete();
+            $patient->modelHasOrganization()
+                    ->where('organization_type', $this->CompanyModel()->getMorphClass())
+                    ->delete();
         }
-        return $this;
-    }
-
-    public function storePatient(mixed $attributes = null): array
-    {
-        return $this->transaction(function () {
-            return $this->showPatient($this->prepareStorePatient());
-        });
-    }
-
-    public function prepareViewPatientList(): LengthAwarePaginator
-    {
-        return $this->cacheWhen(!$this->isSearch(), $this->__cache['index'], function () {
-            return $this->patient()->withParameters($this->getParamLogic())->with('reference.cardIdentities')
-                ->orderBy('props->name', 'asc')->paginate(50);
-        });
-    }
-
-    public function prepareViewFullPatientList(): LengthAwarePaginator
-    {
-        return $this->cacheWhen(!$this->isSearch(), $this->__cache['index'], function () {
-            return $this->patient()->withParameters('or')->with($this->showUsingRelation())->orderBy('props->name', 'asc')->paginate(10);
-        });
-    }
-
-    public function viewFullPatientList(): array
-    {
-        return $this->transforming($this->__resources['show'], function () {
-            return $this->prepareViewFullPatientList();
-        }, ['rows_per_page' => [10]]);
-    }
-
-    public function viewPatientList(): array
-    {
-        return $this->transforming($this->__resources['view'], function () {
-            return $this->prepareViewPatientList();
-        }, ['rows_per_page' => [50]]);
-    }
-
-    public function patient(mixed $conditionals = null): Builder
-    {
-        return $this->PatientModel()->with(['reference', 'userReference'])->conditionals($conditionals);
-    }
-
-    public function getPatients(mixed $conditionals = null): LengthAwarePaginator
-    {
-        $datas =  $this->patient($conditionals)->paginate(request('per_page'))->appends(request()->all());
-        return $datas;
-    }
-
-    public function addOrChange(?array $attributes = []): self
-    {
-        $this->updateOrCreate($attributes);
         return $this;
     }
 }

@@ -20,23 +20,12 @@ use Hanafalah\ModulePayment\Concerns\HasDeposit;
 
 class Patient extends BaseModel
 {
-    use HasProps,
-        SoftDeletes,
-        HasCardIdentity,
-        HasUserReference,
-        HasLocation,
-        HasDeposit;
+    use HasProps, SoftDeletes,
+        HasCardIdentity, HasUserReference,
+        HasLocation, HasDeposit;
 
     protected $list = ['id', 'reference_type', 'reference_id', 'medical_record', 'patient_type_id', 'props'];
     protected $show = [];
-
-    protected $identity_flags = [
-        'MR',
-        'BPJS_CODE',
-        'OLD_MR',
-        'NIK',
-        'PASSPORT'
-    ];
 
     protected $casts = [
         'name'           => 'string',
@@ -54,7 +43,7 @@ class Patient extends BaseModel
             'last_name'        => 'props->prop_people->last_name',
             'dob'              => 'props->prop_people->dob',
             'occupation_name'  => 'props->prop_occupation->name',
-            'medical_record'   => 'props->medical_record'
+            'medical_record'   => 'medical_record'
         ];
     }
 
@@ -67,7 +56,6 @@ class Patient extends BaseModel
             'dob',
             'pob',
             'email',
-            'phone_number',
             'father_name',
             'marital_status',
             'nationality',
@@ -131,11 +119,6 @@ class Patient extends BaseModel
     public function scopeUUID($builder, $uuid, $uuid_name = "props->uuid")
     {
         return $builder->where($uuid_name, $uuid);
-    }
-
-    public function getIdentityFlags(): array
-    {
-        return $this->identity_flags;
     }
 
     public function patientType()

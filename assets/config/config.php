@@ -23,9 +23,12 @@ return [
         'models' => [
         ]
     ],
+    'patient_types' => [
+        'People', 'Animal'
+    ],
     'commands' => [
         ModulePatientCommands\InstallMakeCommand::class
     ],
-    'practitioner' => \App\Models\User::class,
-    'head_doctor'  => \App\Models\User::class
+    'practitioner' => 'User',
+    'head_doctor'  => 'User'
 ];
