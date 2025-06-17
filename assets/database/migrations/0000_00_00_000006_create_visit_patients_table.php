@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 use Hanafalah\MicroTenant\Models\Tenant\Tenant;
 use Hanafalah\ModulePatient\Enums\VisitPatient\VisitStatus;
 use Hanafalah\ModulePatient\Models\{
-    Emr\VisitPatient,
+    EMR\VisitPatient,
     Patient\Patient
 };
 

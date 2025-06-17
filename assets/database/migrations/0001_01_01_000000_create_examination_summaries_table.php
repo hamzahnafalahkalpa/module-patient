@@ -26,7 +26,7 @@ return new class extends Migration
         $table_name = $this->__table->getTable();
         if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
-                $table->ulid('id')->collation("utf8mb4_bin")->primary();
+                $table->ulid('id')->primary();
                 $table->string("reference_type", 50)->nullable(false);
                 $table->string("reference_id", 36)->nullable(false);
                 $table->json('props')->nullable();
@@ -36,11 +36,11 @@ return new class extends Migration
             });
 
             Schema::table($table_name, function (Blueprint $table) {
-                $table->foreignIdFor($this->__table, 'parent_id')->collation("utf8mb4_bin")
+                $table->foreignIdFor($this->__table, 'parent_id')
                     ->nullable()->after($this->__table->getKeyName())
                     ->index()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
 
-                $table->foreignIdFor($this->__table, 'group_summary_id')->collation("utf8mb4_bin")
+                $table->foreignIdFor($this->__table, 'group_summary_id')
                     ->nullable()->after('parent_id')
                     ->index()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             });

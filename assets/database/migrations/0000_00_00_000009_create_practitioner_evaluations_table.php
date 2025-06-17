@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 use Hanafalah\ModulePatient\Models\EMR\VisitExamination;
 use Hanafalah\ModulePatient\Enums\EvaluationEmployee\Commit;
 use Hanafalah\ModulePatient\Models\{
-    Emr\PractitionerEvaluation,
+    EMR\PractitionerEvaluation,
 };
 
 return new class extends Migration
@@ -32,7 +32,7 @@ return new class extends Migration
             Schema::create($table_name, function (Blueprint $table) {
                 $visitExamination = app(config('database.models.VisitExamination', VisitExamination::class));
 
-                $table->ulid('id')->collation('utf8mb4_bin')->primary();
+                $table->ulid('id')->primary();
                 $table->foreignIdFor($visitExamination)
                     ->constrained($visitExamination->getTable(), $visitExamination->getKeyName(), 've_pe_fk')
                     ->cascadeOnUpdate()->restrictOnDelete();

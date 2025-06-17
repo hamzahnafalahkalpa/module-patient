@@ -29,7 +29,7 @@ return new class extends Migration
             Schema::create($table_name, function (Blueprint $table) {
                 $medic_service = app(config('database.models.MedicService', MedicService::class));
 
-                $table->ulid('id')->collation('utf8mb4_bin')->primary();
+                $table->ulid('id')->primary();
                 $table->foreignIdFor($medic_service::class)->nullable(false)
                     ->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
                 $table->json('props')->nullable();

@@ -3,6 +3,7 @@
 use Hanafalah\ModulePatient\{
     Commands as ModulePatientCommands,
 };
+use Hanafalah\ModulePatient\Enums\Patient\CardIdentity;
 
 return [
     'namespace' => 'Hanafalah\ModulePatient',
@@ -23,8 +24,14 @@ return [
         'models' => [
         ]
     ],
+    'patient_identities' => CardIdentity::cases(),
     'patient_types' => [
-        'people', 'animal'
+        'people' => [
+            'schema' => 'PatientPeople',
+        ], 
+        'animal' => [
+            'schema' => null,
+        ]
     ],
     'commands' => [
         ModulePatientCommands\InstallMakeCommand::class

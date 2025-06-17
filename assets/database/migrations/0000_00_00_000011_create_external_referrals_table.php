@@ -29,7 +29,7 @@ return new class extends Migration
             Schema::create($table_name, function (Blueprint $table) {
                 $visit_patient = app(config('database.models.VisitPatient', VisitPatient::class));
 
-                $table->ulid('id')->collation('utf8mb4_bin')->primary();
+                $table->ulid('id')->primary();
                 $table->foreignIdFor($visit_patient::class)
                     ->nullable(false)->constrained()
                     ->cascadeOnUpdate()

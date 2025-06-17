@@ -3,14 +3,19 @@
 namespace Hanafalah\ModulePatient\Schemas;
 
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
-use Hanafalah\ModulePatient\Contracts\Data\PatientData;
+use Hanafalah\ModulePatient\Contracts\Data\{
+    CardIdentityData,
+    PatientData,
+    ProfilePatientData,
+    ProfilePhotoData,
+};
 use Hanafalah\ModulePatient\Contracts\Schemas\Patient as ContractsPatient;
-use Illuminate\Database\Eloquent\Builder;
+use Hanafalah\ModulePatient\Contracts\Schemas\ProfilePatient;
+use Hanafalah\ModulePatient\Contracts\Schemas\ProfilePhoto;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
-use Hanafalah\ModulePatient\Enums\Patient\CardIdentity;
+use Illuminate\Support\Str;
 
-class Patient extends PackageManagement implements ContractsPatient
+class Patient extends PackageManagement implements ContractsPatient, ProfilePatient, ProfilePhoto
 {
     protected string $__entity = 'Patient';
     public static $patient_model;
@@ -23,36 +28,123 @@ class Patient extends PackageManagement implements ContractsPatient
         ]
     ];
 
-    public function prepareStorePatient(PatientData $patient_dto): Model{
-        $patient = isset(request()->id) ? $this->patient()->with('reference')->find(request()->id) : $this->PatientModel();
+    protected function prepareStore(PatientData &$patient_dto){
+        $reference_type   = $patient_dto->reference_type;
+        $reference_schema = config('module-patient.patient_types.'.$reference_type.'.schema');        
 
-        $reference_type = $this->getPatientReferenceType($patient);
-        switch ($reference_type) {
-            case 'ANIMAL':
-            break;
-            default:
-                $reference = $this->createPeople($patient, $attributes);
-            break;
-        }
-
+        if (isset($reference_schema)) $reference = $this->schemaContract(Str::studly($reference_schema))->prepareStore($patient_dto);
+        
+        $add = ['medical_record' => $patient_dto->medical_record ?? null];
+        $guard = isset($patient_dto->id) 
+            ? ['id' => $patient_dto->id]
+            : [
+                'reference_type' => $patient_dto->reference_type, 
+                'reference_id' => $patient_dto->reference_id
+            ];
+        $patient = $this->PatientModel()->updateOrCreate($guard, $add);
         $patient->refresh();
+        $this->setPatientPayer($patient, $patient_dto);
 
-        if (isset($attributes['medical_record'])) {
-            $patient->setCardIdentity(CardIdentity::MEDICAL_RECORD->value, $patient->medical_record);
+        if (isset($patient_dto->card_identity)){            
+            $this->patientIdentity(
+                $patient, $patient_dto->card_identity,
+                array_column(config('module-patient.patient_identities'),'value')
+            );
         }
-
-        if (request()->hasFile('profile')) {
-            $name = $patient->uuid . '.jpg';
-            $path = request()->file('profile')->storeAs('profile', $name, ['disk' => 's3']);
-            $patient->profile = Storage::disk('s3')->url($path);
-            $patient->save();
-        }
-        $patient->sync($reference);
-
-        if (isset($attributes['OLD_MR'])) $patient->setCardIdentity(CardIdentity::OLD_MEDICAL_RECORD->value, $attributes['OLD_MR'] ?? "");
-        $this->forgetTags('patient');
-
         return $patient;
+    }
+
+    public function prepareStorePatient(PatientData $patient_dto): Model{
+        $patient = $this->prepareStore($patient_dto);
+
+        $this->prepareStoreProfilePhoto($patient_dto->profile_dto ?? $this->requestDTO(ProfilePhotoData::class,[
+            'id'      => $patient->getKey(),
+            'profile' => $patient_dto->profile
+        ]));
+
+        if (isset($reference)) $patient->sync($reference);
+        return $patient;
+    }
+
+    protected function patientIdentity(Model &$patient, CardIdentityData $card_identity_dto, array $types){
+        $card_identity = [];
+        foreach ($types as $type) {
+            $lower_type = Str::lower($type);
+            $value = $card_identity_dto->{$lower_type} ?? null;
+            if (isset($value)) $patient->setCardIdentity($type, $card_identity_dto->{$lower_type});
+            $card_identity[$lower_type] = $value;
+        }
+        $patient->setAttribute('prop_card_identity',$card_identity);
+    }
+
+    public function prepareStoreProfilePhoto(ProfilePhotoData $profile_photo_dto): Model{
+        if (!isset($profile_photo_dto->id)) throw new \Exception('id not found');
+        $patient          = $this->patient()->findOrFail($profile_photo_dto->id);
+        $patient->profile = $patient->setProfilePhoto($profile_photo_dto->profile);
+        $patient->save();
+        return static::$patient_model = $patient;
+    }
+
+    public function storeProfilePhoto(?ProfilePhotoData $profile_photo_dto = null): array{
+        return $this->transaction(function() use ($profile_photo_dto){
+            return $this->showProfilePhoto($this->prepareStoreProfilePhoto($profile_photo_dto ?? $this->requestDTO(ProfilePhotoData::class)));
+        });
+    }
+
+    public function prepareShowProfilePhoto(? Model $model = null, ?array $attributes = null): mixed{
+        $attributes ??= \request()->all();
+        $model ??= $this->getPatient();
+        if (!isset($model)){
+            $id   = $attributes['id'] ?? null;
+            if (!isset($id)) throw new \Exception('id not found');
+            $model = $this->patient()->with($this->showUsingRelation())->firstOrFail();
+        }
+        static::$patient_model = $model;
+        if (isset($attributes['is_direct_photo']) && $attributes['is_direct_photo']) {
+            return $model->getProfilePhoto();
+        }else{
+            return $model;
+        }
+    }
+
+    public function showProfilePhoto(? Model $model = null): mixed{
+        $is_direct_photo = (strpos(request()->header('accept'), 'image/*') === 0);
+        if (!$is_direct_photo){
+            return $this->transforming($this->usingEntity()->getViewFileResource(),function() use ($model){
+                return $this->prepareShowProfilePhoto($model,request()->all());
+            });
+        }else{
+            $attributes = \request()->all();
+            $attributes['is_direct_photo'] = true;
+            return $this->prepareShowProfilePhoto($model,$attributes);
+        }
+    }
+
+    public function prepareStoreProfile(ProfilePatientData $profile_patient_dto): Model{
+        if (!isset($profile_patient_dto->id) && !isset($profile_patient_dto->uuid)) throw new \Exception('id or uuid not found');
+
+        list($patient,$people) = $this->prepareStore($profile_patient_dto);
+        return static::$patient_model = $patient;
+    }
+
+    public function storeProfile(? ProfilePatientData $profile_patient_dto = null): array{
+        return $this->transaction(function() use ($profile_patient_dto){
+            return $this->showPatient($this->prepareStoreProfile($profile_patient_dto ?? $this->requestDTO(ProfilePatientData::class)));
+        });
+    }
+
+    public function prepareShowProfile(?Model $model = null, ?array $attributes = null): Model{
+        $attributes ??= \request()->all();
+        if (!isset($attributes['uuid'])) throw new \Exception('uuid not found');
+        return static::$patient_model = $this->patient()->with($this->showUsingRelation())->whereHas('userReference',function($query) use ($attributes){
+            $query->uuid($attributes['uuid']);
+        })->firstOrFail();
+    }
+
+    public function showProfile(?Model $model = null): array{
+        return $this->showEntityResource(function() use ($model){
+            return $this->prepareShowProfile($model);
+        });
     }
 
     protected function createFamilyRelationship(Model &$patient, Model $reference, $attributes){
@@ -74,73 +166,17 @@ class Patient extends PackageManagement implements ContractsPatient
         if ($is_delete) $patient->familyRelationship()->delete();
     }
 
-    protected function getPatientReferenceType(Model $patient){
-        $reference = $patient->reference ?? null;
-        if (isset($patient->reference)) $reference_type = $reference->reference_type;
-        return $reference_type ??= request()->reference_type;
-    }
-
-    protected function createPeople(Model &$patient, $attributes): Model{
-        $reference = $patient->reference ?? null;
-        $people    = $this->schemaContract('people')->prepareStorePeople($this->assocRequest(
-            'reference_id',
-            'nik',
-            'passport',
-            'residence_same_ktp',
-            'addresses',
-            'email',
-            'father_name',
-            'mother_name',
-            'nationality',
-            ...$this->diff($this->PeopleModel()->getFillable(), ['id', 'name', 'props']),
-            ...[
-                'phones' => $attributes['phones'] ?? [],
-                'id'   => isset($reference) ? $reference->getKey() : null,
-                'name' => trim(($attributes['first_name'] ?? '') . ' ' . ($attributes['last_name'] ?? '')),
-            ],
-        ));
-
-        $patient->ihs_number     = $attributes['ihs_number'] ?? null;
-        if (isset($attributes['medical_record'])) {
-            $patient->medical_record = $attributes['medical_record'] ?? null;
-        }
-        $patient->father_name    = $attributes['father_name'] ?? null;
-        $patient->mother_name    = $attributes['mother_name'] ?? null;
-        $patient->bpjs_code      = $attributes['BPJS_CODE'] ?? null;
-        $patient->nik            = $attributes['nik'] ?? null;
-        $patient->passport       = $attributes['passport'] ?? null;
-        $patient->nationality    = $attributes['nationality'] ?? null;
-        $this->setPatientReference($patient, $people);
-        $patient->save();
-
-        $payer = $this->setPatientPayer($patient, $attributes);
-        if (isset($attributes['BPJS_CODE'])) $patient->setCardIdentity(CardIdentity::BPJS_CODE->value, $attributes['BPJS_CODE'] ?? "");
-        $this->createFamilyRelationShip($patient, $people, $attributes);
-        return $people;
-    }
-
-    private function setPatientReference(Model &$patient, $reference): self{
-        if (!$patient->id || !$patient->exists) {
-            $patient->reference_id   = $reference->getKey();
-            $patient->reference_type = $reference->getMorphClass();
-        }
-        return $this;
-    }
-
-    protected function setPatientPayer(Model &$patient, $attributes): self{
-        if (isset($attributes['company_id'])) {
-            $company = $this->CompanyModel()->findOrFail($attributes['company_id']);
+    protected function setPatientPayer(Model &$patient, PatientData $patient_dto): self{
+        if (isset($patient_dto->payer)) {
+            $payer = $this->schemaContract('Payer')->prepareStorePayer($patient_dto->payer);
 
             $patient->modelHasOrganization()->updateOrCreate([
-                'organization_id'   => $company->getKey(),
-                'organization_type' => $company->getMorphClass(),
+                'organization_id'   => $payer->getKey(),
+                'organization_type' => $payer->getMorphClass(),
             ]);
-
-            $patient->sync($company, ['id', 'name']);
         } else {
-            $patient->setAttribute('company', null);
             $patient->modelHasOrganization()
-                    ->where('organization_type', $this->CompanyModel()->getMorphClass())
+                    ->where('organization_type', $this->PayerModel()->getMorphClass())
                     ->delete();
         }
         return $this;

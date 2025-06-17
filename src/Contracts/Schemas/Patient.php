@@ -22,5 +22,5 @@ use Illuminate\Database\Eloquent\Model;
  * @method Builder patient(mixed $conditionals = null)
  */
 interface Patient extends DataManagement {
-    // public function prepareStorePatient(PatientData $patient_dto): Model;
+    public function prepareStorePatient(PatientData $patient_dto): Model;
 }

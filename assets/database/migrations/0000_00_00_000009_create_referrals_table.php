@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 use Projects\Klinik\Models\Patient\EMR\VisitExamination;
 use Hanafalah\ModulePatient\Enums\EvaluationEmployee\Commit;
 use Hanafalah\ModulePatient\Models\{
-    Emr\PractitionerEvaluation,
+    EMR\PractitionerEvaluation,
 };
 use Hanafalah\ModulePatient\Models\EMR\Referral;
 use Hanafalah\ModulePatient\Models\EMR\VisitRegistration;
@@ -19,7 +19,6 @@ return new class extends Migration
 
     public function __construct()
     {
-        $this->__table = app(config('database.models.Referral', Referral::class));
         $this->__table = app(config('database.models.Referral', Referral::class));
     }
 
@@ -34,7 +33,7 @@ return new class extends Migration
         if (!$this->isTableExists()) {
             $visit_registration = app(config('database.models.VisitRegistration', VisitRegistration::class));
             Schema::create($table_name, function (Blueprint $table) use ($visit_registration) {
-                $table->ulid('id')->collation('utf8mb4_bin')->primary();
+                $table->ulid('id')->primary();
                 $table->string('referral_code', 50)->nullable(false);
                 $table->string('reference_type', 50)->nullable(false);
                 $table->string('reference_id', 36)->nullable(false);

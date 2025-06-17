@@ -3,8 +3,8 @@
 namespace Hanafalah\ModulePatient\Models\Patient;
 
 use Hanafalah\LaravelHasProps\Concerns\HasProps;
+use Hanafalah\LaravelSupport\Concerns\Support\HasProfilePhoto;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Projects\Klinik\Enums\Encoding\EnumEncoding;
 use Hanafalah\LaravelSupport\Models\BaseModel;
 use Hanafalah\ModuleCardIdentity\Concerns\HasCardIdentity;
 use Hanafalah\ModulePatient\Enums\Patient\CardIdentity;
@@ -17,33 +17,43 @@ use Hanafalah\ModulePatient\Resources\Patient\{
 use Hanafalah\ModuleEncoding\Concerns\HasEncoding;
 
 use Hanafalah\ModulePayment\Concerns\HasDeposit;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 class Patient extends BaseModel
 {
-    use HasProps, SoftDeletes,
+    use HasUlids, HasProps, SoftDeletes,
         HasCardIdentity, HasUserReference,
-        HasLocation, HasDeposit;
+        HasLocation, HasDeposit,
+        HasProfilePhoto;
 
-    protected $list = ['id', 'reference_type', 'reference_id', 'medical_record', 'patient_type_id', 'props'];
+    public $incrementing = false;
+    protected $keyType = 'string';
+    protected $primaryKey = 'id';
+    protected $list = [
+        'id', 'uuid', 'reference_type', 'reference_id', 'medical_record', 
+        'profile', 'patient_type_id', 'props'
+    ];
     protected $show = [];
 
     protected $casts = [
-        'name'           => 'string',
-        'first_name'     => 'string',
-        'last_name'      => 'string',
-        'dob'            => 'immutable_date',
-        'medical_record' => 'string'
+        'name'                    => 'string',
+        'first_name'              => 'string',
+        'last_name'               => 'string',
+        'dob'                     => 'immutable_date',
+        'medical_record'          => 'string',
+        'patient_occupation_name' => 'string',
+        'payer_name'              => 'string'
     ];
 
     public function getPropsQuery(): array
     {
         return [
-            'name'             => 'props->prop_people->name',
-            'first_name'       => 'props->prop_people->first_name',
-            'last_name'        => 'props->prop_people->last_name',
-            'dob'              => 'props->prop_people->dob',
-            'occupation_name'  => 'props->prop_occupation->name',
-            'medical_record'   => 'medical_record'
+            'name'                     => 'props->prop_people->name',
+            'first_name'               => 'props->prop_people->first_name',
+            'last_name'                => 'props->prop_people->last_name',
+            'dob'                      => 'props->prop_people->dob',
+            'patient_occupation_name'  => 'props->prop_patient_occupation->name',
+            'payer_name'               => 'props->prop_payer->name'
         ];
     }
 
@@ -60,8 +70,7 @@ class Patient extends BaseModel
             'marital_status',
             'nationality',
             'sex'
-        ],
-        'UserReference'     => ['uuid']
+        ]
     ];
 
     public static function booted(): void
