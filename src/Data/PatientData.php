@@ -23,6 +23,10 @@ class PatientData extends Data implements DataPatientData{
     #[MapName('reference_id')]
     public mixed $reference_id = null;
 
+    #[MapInputName('patient_model')]
+    #[MapName('patient_model')]
+    public mixed $patient_model = null;
+
     #[MapInputName('card_identity')]
     #[MapName('card_identity')]
     public ?CardIdentityData $card_identity = null;
@@ -38,12 +42,15 @@ class PatientData extends Data implements DataPatientData{
     public static function after(self $data): self{
         $new = static::new();
         if (isset($data->id)){
-            $patient_model            = $new->PatientModel()->with('reference')->findOrFail($data->id);
+            $data->patient_model = $patient_model = $new->PatientModel()->with('reference')->findOrFail($data->id);
             $patient_ref              = Str::snake($patient_model->reference_type);
             $data->{$patient_ref}->id = $patient_model->reference_id;
         }else{
-            $data->fill(request()->only(array_keys(request()->all())));
-            $data->reference_type ??= request()->reference_type;
+            $data->patient_model = $new->PatientModel();
+            $config_keys = config('module-patient.patient_types');
+            $keys = array_intersect(array_keys(request()->all()),$config_keys);
+            $key  = array_shift($keys);
+            $data->reference_type ??= request()->reference_type ?? $key;
         }
         return $data;
     }

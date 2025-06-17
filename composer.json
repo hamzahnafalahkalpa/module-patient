@@ -19,7 +19,8 @@
         "hanafalah/module-medic-service": "1.x-dev as 1.0",
         "hanafalah/module-payer": "1.x-dev as 1.0",
         "hanafalah/module-organization": "1.x-dev as 1.0",
-        "hanafalah/module-examination": "1.x-dev as 1.0"
+        "hanafalah/module-examination": "1.x-dev as 1.0",
+        "hanafalah/module-profession": "1.x-dev as 1.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": false

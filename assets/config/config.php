@@ -24,7 +24,7 @@ return [
         ]
     ],
     'patient_types' => [
-        'People', 'Animal'
+        'people', 'animal'
     ],
     'commands' => [
         ModulePatientCommands\InstallMakeCommand::class
