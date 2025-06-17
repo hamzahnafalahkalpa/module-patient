@@ -31,7 +31,10 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
     protected function prepareStore(PatientData &$patient_dto){
         $reference_type   = $patient_dto->reference_type;
         $reference_schema = config('module-patient.patient_types.'.Str::snake($reference_type).'.schema');        
-        if (isset($reference_schema)) $reference = $this->schemaContract(Str::studly($reference_schema))->prepareStore($patient_dto);
+        if (isset($reference_schema)) {
+            $schema_reference = $this->schemaContract(Str::studly($reference_schema));
+            $reference = $schema_reference->prepareStore($patient_dto);
+        }
         
         $add = ['medical_record' => $patient_dto->medical_record ?? null];
         $guard = isset($patient_dto->id) 
@@ -50,6 +53,10 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
                 array_column(config('module-patient.patient_identities'),'value')
             );
         }
+        if (isset($reference_schema) && method_exists($schema_reference, 'afterPatientCreated')) {
+            $schema_reference->afterPatientCreated($patient, $reference, $patient_dto);
+        }
+
         return $patient;
     }
 
@@ -144,25 +151,6 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         return $this->showEntityResource(function() use ($model){
             return $this->prepareShowProfile($model);
         });
-    }
-
-    protected function createFamilyRelationship(Model &$patient, Model $reference, $attributes){
-        $is_delete = true;
-        if (isset($attributes['family_relationship'])) {
-            $attribute = $attributes['family_relationship'];
-            if (isset($attribute['role']) || isset($attribute['phone'])) {
-                $patient->familyRelationship()->updateOrCreate([
-                    "patient_id" => $patient->getKey(),
-                    "people_id"  => $reference->getKey()
-                ], [
-                    'role'  => $attribute['role'] ?? null,
-                    'name'  => $attribute['name'] ?? null,
-                    'phone' => $attribute['phone'] ?? null,
-                ]);
-                $is_delete = false;
-            }
-        }
-        if ($is_delete) $patient->familyRelationship()->delete();
     }
 
     protected function setPatientPayer(Model &$patient, PatientData $patient_dto): self{

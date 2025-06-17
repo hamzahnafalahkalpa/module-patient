@@ -5,6 +5,7 @@ namespace Hanafalah\ModulePatient\Schemas;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Hanafalah\ModulePatient\Contracts\Data\PatientData;
 use Hanafalah\ModulePatient\Contracts\Schemas\PatientPeople as ContractsPatientPeople;
+use Illuminate\Database\Eloquent\Model;
 
 class PatientPeople extends PackageManagement implements ContractsPatientPeople
 {
@@ -19,43 +20,34 @@ class PatientPeople extends PackageManagement implements ContractsPatientPeople
         ]
     ];
 
-    public function prepareStore(PatientData &$patient_dto){
+    public function prepareStore(PatientData &$patient_dto): Model{
         $reference = $this->schemaContract('people')->prepareStorePeople($patient_dto->people);
         $patient_dto->reference_type = $reference->getMorphClass();
         $patient_dto->reference_id   = $reference->getKey();
-        // $this->createFamilyRelationShip($patient, $people, $attributes);
+        return $reference;
     }
 
-    // $reference = $patient->reference ?? null;
-    // $people    = $this->schemaContract('people')->prepareStorePeople($this->assocRequest(
-    //     'reference_id',
-    //     'nik',
-    //     'passport',
-    //     'residence_same_ktp',
-    //     'addresses',
-    //     'email',
-    //     'father_name',
-    //     'mother_name',
-    //     'nationality',
-    //     ...$this->diff($this->PeopleModel()->getFillable(), ['id', 'name', 'props']),
-    //     ...[
-    //         'phones' => $attributes['phones'] ?? [],
-    //         'id'   => isset($reference) ? $reference->getKey() : null,
-    //         'name' => trim(($attributes['first_name'] ?? '') . ' ' . ($attributes['last_name'] ?? '')),
-    //     ],
-    // ));
+    public function afterPatientCreated(Model $patient, Model $reference, PatientData $patient_dto){
+        $this->createFamilyRelationShip($patient, $reference, $patient_dto);
+    }
 
-    // $patient->father_name    = $attributes['father_name'] ?? null;
-    // $patient->mother_name    = $attributes['mother_name'] ?? null;
-    // $patient->bpjs_code      = $attributes['BPJS_CODE'] ?? null;
-    // $patient->nik            = $attributes['nik'] ?? null;
-    // $patient->passport       = $attributes['passport'] ?? null;
-    // $patient->nationality    = $attributes['nationality'] ?? null;
-    // $this->setPatientReference($patient, $people);
-    // $patient->save();
-
-    // $payer = $this->setPatientPayer($patient, $attributes);
-    // if (isset($attributes['BPJS_CODE'])) $patient->setCardIdentity(CardIdentity::BPJS_CODE->value, $attributes['BPJS_CODE'] ?? "");
-    // $this->createFamilyRelationShip($patient, $people, $attributes);
-    // return $people;
+    protected function createFamilyRelationship(Model $patient, Model $reference,PatientData $patient_dto){
+        $is_delete = true;
+        if (isset($patient_dto->family_relationship)) {
+            $attribute = $patient_dto->family_relationship;
+            if (isset($attribute->role) || isset($attribute->phone)) {
+                $reference->familyRelationship()->updateOrCreate([
+                    'id' => isset($attribute->id) ? $attribute->id : null
+                ], [
+                    // "patient_id" => $patient->getKey(),
+                    "people_id"  => $reference->getKey(),
+                    'role'       => $attribute->role ?? null,
+                    'name'       => $attribute->name ?? null,
+                    'phone'      => $attribute->phone ?? null,
+                ]);
+                $is_delete = false;
+            }
+        }
+        if ($is_delete) $reference->familyRelationship()->delete();
+    }
 }

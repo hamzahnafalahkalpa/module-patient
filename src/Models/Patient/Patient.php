@@ -15,7 +15,6 @@ use Hanafalah\ModulePatient\Resources\Patient\{
     ViewPatient
 };
 use Hanafalah\ModuleEncoding\Concerns\HasEncoding;
-
 use Hanafalah\ModulePayment\Concerns\HasDeposit;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
@@ -23,8 +22,8 @@ class Patient extends BaseModel
 {
     use HasUlids, HasProps, SoftDeletes,
         HasCardIdentity, HasUserReference,
-        HasLocation, HasDeposit,
-        HasProfilePhoto;
+        HasLocation, HasDeposit, 
+        HasProfilePhoto; 
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -45,9 +44,7 @@ class Patient extends BaseModel
         'payer_name'              => 'string'
     ];
 
-    public function getPropsQuery(): array
-    {
-        return [
+    public function getPropsQuery(): array{return [
             'name'                     => 'props->prop_people->name',
             'first_name'               => 'props->prop_people->first_name',
             'last_name'                => 'props->prop_people->last_name',
@@ -73,9 +70,7 @@ class Patient extends BaseModel
         ]
     ];
 
-    public static function booted(): void
-    {
-        parent::booted();
+    public static function booted(): void{parent::booted();
         static::creating(function ($query) {
             if (!isset($query->medical_record)) {
                 $medical_record = HasEncoding::generateCode('MEDICAL_RECORD');
@@ -122,56 +117,21 @@ class Patient extends BaseModel
     }
 
     public function getViewResource(){return ViewPatient::class;}
-
     public function getShowResource(){return ShowPatient::class;}
-
-    public function scopeUUID($builder, $uuid, $uuid_name = "props->uuid")
-    {
-        return $builder->where($uuid_name, $uuid);
-    }
-
-    public function patientType()
-    {
-        return $this->belongsToModel('PatientType');
-    }
-    public function people()
-    {
-        return $this->belongsToModel('People');
-    }
-    public function reference()
-    {
-        return $this->morphTo();
-    }
-    public function familyRelationships()
-    {
-        return $this->hasManyModel('FamilyRelationship');
-    }
-    public function familyRelationship()
-    {
-        return $this->hasOneModel('FamilyRelationship');
-    }
-    public function cardIdentity()
-    {
-        return $this->morphOneModel('CardIdentity', 'reference');
-    }
-    public function cardIdentities()
-    {
-        return $this->morphManyModel('CardIdentity', 'reference');
-    }
-    public function visitPatient()
-    {
-        return $this->hasOneModel('VisitPatient');
-    }
-    public function patientSummary()
-    {
-        return $this->hasOneModel('PatientSummary');
-    }
-    public function boat()
-    {
-        return $this->hasOneModel("ModelHasOrganization");
-    }
-    public function invoice()
-    {
-        return $this->morphOneModel('Invoice', 'consument');
+    public function scopeUUID($builder, $uuid, $uuid_name = "props->uuid"){return $builder->where($uuid_name, $uuid);}
+    public function patientType(){return $this->belongsToModel('PatientType');}
+    public function people(){return $this->belongsToModel('People');}
+    public function reference(){return $this->morphTo();}
+    public function familyRelationships(){return $this->hasManyModel('FamilyRelationship');}
+    public function familyRelationship(){return $this->hasOneModel('FamilyRelationship');}
+    public function cardIdentity(){return $this->morphOneModel('CardIdentity', 'reference');}
+    public function cardIdentities(){return $this->morphManyModel('CardIdentity', 'reference');}
+    public function visitPatient(){return $this->hasOneModel('VisitPatient');}
+    public function patientSummary(){return $this->hasOneModel('PatientSummary');}
+    public function boat(){return $this->hasOneModel("ModelHasOrganization");}
+    public function invoice(){return $this->morphOneModel('Invoice', 'consument');}
+    public function modelHasOrganization(){return $this->morphOneModel('ModelHasOrganization','model');}
+    public function payer(){
+        return $this->morphOneModel('ModelHasOrganization','model');
     }
 }

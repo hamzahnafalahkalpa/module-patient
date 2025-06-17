@@ -35,10 +35,11 @@ return new class extends Migration
                 $table->string('reference_type', 50)->nullable(false);
                 $table->string('reference_id', 36)->nullable(false);
                 $table->string('medical_record', 50)->nullable();
+                $table->string('profile',255)->nullable();
                 $table->json('props')->nullable();
                 $table->timestamps();
                 $table->softDeletes();
-
+                
                 $table->index(['reference_type', 'reference_id']);
             });
 
