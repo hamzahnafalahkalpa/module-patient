@@ -26,6 +26,7 @@ return [
     ],
     'patient_identities' => CardIdentity::cases(),
     'patient_types' => [
+        //THIS KEY SAME WITH MODEL NAME USING SNAKE CASE
         'people' => [
             'schema' => 'PatientPeople',
         ], 

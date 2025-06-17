@@ -30,8 +30,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
 
     protected function prepareStore(PatientData &$patient_dto){
         $reference_type   = $patient_dto->reference_type;
-        $reference_schema = config('module-patient.patient_types.'.$reference_type.'.schema');        
-
+        $reference_schema = config('module-patient.patient_types.'.Str::snake($reference_type).'.schema');        
         if (isset($reference_schema)) $reference = $this->schemaContract(Str::studly($reference_schema))->prepareStore($patient_dto);
         
         $add = ['medical_record' => $patient_dto->medical_record ?? null];

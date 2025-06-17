@@ -67,7 +67,7 @@ class PatientData extends Data implements DataPatientData{
             $patient_ref   = Str::snake($patient_model->reference_type);
             $data->{$patient_ref}->id = $patient_model->reference_id;
         }else{
-            $config_keys = config('module-patient.patient_types');
+            $config_keys = array_keys(config('module-patient.patient_types'));
             $keys        = array_intersect(array_keys(request()->all()),$config_keys);
             $key         = array_shift($keys);
             $data->reference_type ??= request()->reference_type ?? $key;
