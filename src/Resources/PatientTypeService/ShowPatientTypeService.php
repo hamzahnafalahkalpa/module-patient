@@ -9,7 +9,7 @@ class ShowPatientTypeService extends ViewPatientTypeService
     public function toArray(\Illuminate\Http\Request $request): array
     {
         $arr = [];
-        $show = $this->resolveNow(ShowPatientType::class);
+        $show = $this->resolveNow(new ShowPatientType($this));
         $arr = $this->mergeArray(parent::toArray($request), $show, $arr);
         return $arr;
     }

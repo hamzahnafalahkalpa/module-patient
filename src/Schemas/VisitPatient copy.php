@@ -26,13 +26,47 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         ]
     ];
 
-    public function visitPatient(mixed $conditionals = null): Builder{
-        return $this->generalSchemaModel($conditionals)->when(isset(request()->patient_id), function ($query) {
-                return $query->where('patient_id', request()->patient_id);
-            })->withParameters('or');
+    public function preparePushLifeCycleActivity(Model $visit_patient, Model $visit_patient_model, mixed $activity_status, int|array $statuses): self{
+        $visit_patient->refresh();
+        $prop_activity  = $visit_patient->prop_activity;
+
+        $visit_patient_model->refresh();
+        $visit_prop_activity  = $visit_patient_model->prop_activity;
+
+        $statuses = $this->mustArray($statuses);
+        $var_life_cycle = Activity::PATIENT_LIFE_CYCLE->value;
+        $life_cycle = $prop_activity[$var_life_cycle] ?? [];
+
+        foreach ($statuses as $key => $status) {
+            if (!is_numeric($key)) {
+                $message = $status;
+                $status = $key;
+            } else {
+                $message = $visit_prop_activity[$activity_status][$status]['message'] ?? null;
+            }
+            $activity_subject = &$visit_prop_activity[$activity_status];
+            $activity_subject[$status] ??= [];
+            $visit_model_prop = (array) $activity_subject[$status];
+            $activity_by_status = $prop_activity[$activity_status][$status] ?? $visit_model_prop;
+            if (isset($message)) {
+                $activity_by_status['message'] = $message;
+            }
+            $existing_activity = collect($life_cycle)->first(function ($activity) use ($status, $message) {
+                return isset($activity[$status]) && (isset($message) ? $activity[$status]['message'] == $message : true);
+            });
+            if (isset($existing_activity)) continue;
+            $life_cycle[] = [$status => $activity_by_status];
+        }
+        $prop_activity[$var_life_cycle] = $life_cycle;
+        $visit_patient->setAttribute('prop_activity', $prop_activity);
+        $visit_patient->save();
+        return $this;
     }
 
-    public function prepareStoreVisitPatient(VisitPatientData $visit_patient_dto): Model{
+    public function prepareStoreVisitPatient(VisitPatientData $visit_patient_dto): Model
+    {
+        $attributes ??= request()->all();
+
         $attributes['flag'] ??= $this->VisitPatientModel()::CLINICAL_VISIT;
         $visit_patient_model = ($attributes['flag'] == $this->VisitPatientModel()::CLINICAL_VISIT) ? $this->VisitPatientModel() : $this->PharmacySaleModel();
         if (isset($attributes['id'])) {
@@ -80,47 +114,8 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         return $visit_patient_model;
     }
 
-
-    public function preparePushLifeCycleActivity(Model $visit_patient, Model $visit_patient_model, mixed $activity_status, int|array $statuses): self{
-        $visit_patient->refresh();
-        $prop_activity  = $visit_patient->prop_activity;
-
-        $visit_patient_model->refresh();
-        $visit_prop_activity  = $visit_patient_model->prop_activity;
-
-        $statuses = $this->mustArray($statuses);
-        $var_life_cycle = Activity::PATIENT_LIFE_CYCLE->value;
-        $life_cycle = $prop_activity[$var_life_cycle] ?? [];
-
-        foreach ($statuses as $key => $status) {
-            if (!is_numeric($key)) {
-                $message = $status;
-                $status = $key;
-            } else {
-                $message = $visit_prop_activity[$activity_status][$status]['message'] ?? null;
-            }
-            $activity_subject = &$visit_prop_activity[$activity_status];
-            $activity_subject[$status] ??= [];
-            $visit_model_prop = (array) $activity_subject[$status];
-            $activity_by_status = $prop_activity[$activity_status][$status] ?? $visit_model_prop;
-            if (isset($message)) {
-                $activity_by_status['message'] = $message;
-            }
-            $existing_activity = collect($life_cycle)->first(function ($activity) use ($status, $message) {
-                return isset($activity[$status]) && (isset($message) ? $activity[$status]['message'] == $message : true);
-            });
-            if (isset($existing_activity)) continue;
-            $life_cycle[] = [$status => $activity_by_status];
-        }
-        $prop_activity[$var_life_cycle] = $life_cycle;
-        $visit_patient->setAttribute('prop_activity', $prop_activity);
-        $visit_patient->save();
-        return $this;
-    }
-
-
-
-    protected function newVisitPatient(Model $visit_patient_model, array &$attributes): Model{
+    protected function newVisitPatient(Model $visit_patient_model, array &$attributes): Model
+    {
         $patient = $this->PatientModel()->find($attributes['patient_id']);
         if (!isset($patient)) throw new \Exception('Patient not found.', 422);
 
@@ -176,7 +171,8 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         return $visit_patient_model;
     }
 
-    protected function createConsumentTransaction(Model $visit_model, array $attributes): self{
+    protected function createConsumentTransaction(Model $visit_model, array $attributes): self
+    {
         $transaction = $visit_model->transaction;
         if (isset($transaction)) {
             $add = [
@@ -217,7 +213,8 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         return $this;
     }
 
-    protected function updatePaymentSummary(Model &$model, array $attributes, ?Model $patient, ?string $message = null): self{
+    protected function updatePaymentSummary(Model &$model, array $attributes, ?Model $patient, ?string $message = null): self
+    {
         $attributes['payer_id'] ??= request()->payer_id;
         if (!isset($attributes['payer_id']) && isset($patient)) {
             $patient->modelHasOrganization()->where('organization_type', $this->PayerModelMorph())->delete();
@@ -248,7 +245,8 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         return $this;
     }
 
-    protected function createModelHasOrganization(Model &$model, array $attributes){
+    protected function createModelHasOrganization(Model &$model, array $attributes)
+    {
         $model->modelHasOrganization()->updateOrCreate([
             'reference_id'       => $model->getKey(),
             'reference_type'     => $model->getMorphClass()
@@ -269,7 +267,8 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         return $this;
     }
 
-    protected function createAgent(Model &$model, array $attributes): self{
+    protected function createAgent(Model &$model, array $attributes): self
+    {
         if (isset($attributes['agent_id'])) {
             $model->modelHasOrganization()->updateOrCreate([
                 'reference_id'       => $model->getKey(),
@@ -282,6 +281,24 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             $model->sync($agent, ['id', 'name']);
         }
         return $this;
+    }
+
+    public function prepareShowVisitPatient(?Model $model = null, ?array $attributes = null): Model{
+        $attributes ??= request()->all();
+
+        $model ??= $this->getVisitPatient();
+        if (!isset($model)) {
+            $id = $attributes['id'] ?? null;
+            if (!isset($id)) throw new \Exception('Visit Patient not found.', 422);
+            $model = $this->visitPatient()->with($this->showUsingRelation())
+                ->where(function ($query) use ($attributes) {
+                    $query->where('id', $attributes['id'])
+                        ->orWhere('visit_code', $attributes['id']);
+                })->firstOrFail();
+        } else {
+            $model->load($this->showUsingRelation());
+        }
+        return static::$visit_patient = $model;
     }
 
     protected function createInvoice($model){
@@ -313,6 +330,11 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         throw new \Exception('Data cannot be cancelled anymore.', 422);
     }
 
-
+    public function visitPatient(mixed $conditionals = null): Builder{
+        return $this->usingEntity()->conditionals($conditionals)
+            ->when(isset(request()->patient_id), function ($query) {
+                $query->where('patient_id', request()->patient_id);
+            })->withParameters('or');
+    }
 
 }
