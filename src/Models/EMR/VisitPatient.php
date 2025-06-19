@@ -34,7 +34,7 @@ class VisitPatient extends BaseModel
     use HasProps, HasActivity, HasPaymentSummary;
 
     const CLINICAL_VISIT = 'CLINICAL_VISIT';
-    public static $flag  = 'CLINICAL_VISIT';
+    const STATUS_ACTIVE  = 'ACTIVE';
 
     public $incrementing  = false;
     protected $keyType    = 'string';
@@ -51,6 +51,7 @@ class VisitPatient extends BaseModel
         'queue_number',
         'visited_at',
         'reported_at',
+        'patient_type_id',
         'status',
         'props'
     ];
@@ -64,7 +65,9 @@ class VisitPatient extends BaseModel
         'dob'            => 'immutable_date',
         'medical_record' => 'string',
         'visited_at'     => 'datetime',
-        'reported_at'    => 'datetime'
+        'reported_at'    => 'datetime',
+        'consument_name'  => 'string',
+        'consument_phone' => 'string',
     ];
 
     public function getPropsQuery(): array
@@ -72,7 +75,7 @@ class VisitPatient extends BaseModel
         return [
             'name'           => 'props->prop_patient->prop_people->name',
             'dob'            => 'props->prop_patient->prop_people->dob',
-            'nik'            => 'props->prop_patient->nik',
+            // 'nik'            => 'props->prop_patient->prop_people->nik',
             'medical_record' => 'props->prop_patient->medical_record'
         ];
     }
@@ -80,22 +83,20 @@ class VisitPatient extends BaseModel
     protected static function booted(): void
     {
         parent::booted();
-        static::addGlobalScope(self::CLINICAL_VISIT, function ($query) {
-            $query->where('flag', static::$flag);
+        static::addGlobalScope('flag', function ($query) {
+            $query->where('flag', self::CLINICAL_VISIT);
         });
         static::creating(function ($query) {
-            if (!isset($query->visit_code)) {
-                $query->visit_code = static::hasEncoding('VISIT_PATIENT');
-            }
-            if (!isset($query->flag))   $query->flag   = self::CLINICAL_VISIT;
-            if (!isset($query->status)) $query->status = VisitStatus::ACTIVE->value;
+            $query->visit_code ??= static::hasEncoding('VISIT_PATIENT');
+            $query->flag       ??= self::CLINICAL_VISIT;
+            $query->status     ??= self::getVisitStatus('ACTIVE');
             if (!isset($query->reservation_id) && $query->visited_at === null) {
                 $query->visited_at = now();
             }
         });
         static::updated(function ($query) {
             //WHEN DELETING
-            if ($query->isDirty('status') && $query->status == VisitStatus::CANCELLED->value) {
+            if ($query->isDirty('status') && $query->status ==self::getVisitStatus('CANCELLED')) {
                 $payment_summary = $query->paymentSummary;
                 if (isset($payment_summary)) {
                     if ($payment_summary->total_amount == $payment_summary->total_debt) {
@@ -105,19 +106,25 @@ class VisitPatient extends BaseModel
 
                 $query->load([
                     'visitRegistrations' => function ($query) {
-                        $query->whereNot('status', RegistrationStatus::CANCELLED->value);
+                        $query->whereNot('status', static::getRegistrationStatus('CANCELLED'));
                     }
                 ]);
                 $visit_registrations = $query->visitRegistrations;
                 foreach ($visit_registrations as $visit_registration) {
-                    $visit_registration->status = RegistrationStatus::CANCELLED->value;
-
+                    $visit_registration->status = static::getRegistrationStatus('CANCELLED');
                     $visit_registration->pushActivity(VisitRegistrationActivity::POLI_SESSION->value, [VisitRegistrationActivityStatus::POLI_SESSION_CANCEL->value]);
-
                     $visit_registration->save();
                 }
             }
         });
+    }
+
+    public static function getVisitStatus(string $status){
+        return VisitStatus::from($status)->value;
+    }
+
+    public static function getRegistrationStatus(string $status){
+        return RegistrationStatus::from($status)->value;
     }
 
     public function viewUsingRelation(): array{
@@ -126,16 +133,16 @@ class VisitPatient extends BaseModel
 
     public function showUsingRelation(): array{
         return [
-            'patient',
-            'reservation',
+            'patient', 
+            // 'reservation',
             'visitRegistrations' => function ($query) {
-                $query->with(['medicService.service', 'patientType', 'headDoctor', 'visitExamination', "visitPatient"]);
+                // $query->with(['medicService.service', 'patientType', 'headDoctor', 'visitExamination', "visitPatient"]);
             },
-            'organizations',
-            'transaction.consument',
-            'services',
-            'payer',
-            'agent'
+            // 'organizations',
+            // 'transaction.consument',
+            // 'services',
+            // 'payer',
+            // 'agent'
         ];
     }
     
@@ -192,8 +199,7 @@ class VisitPatient extends BaseModel
         )->where('reference_type', $this->getMorphClass())
             ->select([$organization_table . '.*', $model_has_table_name . '.*', $organization_table . '.id as id']);
     }
-    public function organizations()
-    {
+    public function organizations(){
         $organization_table = $this->OrganizationModel()->getTableName();
         $model_has_table_name = $this->ModelHasOrganizationModel()->getTableName();
         return $this->hasManyThroughModel(
@@ -232,6 +238,7 @@ class VisitPatient extends BaseModel
             'service_id'
         )->where('model_has_services.reference_type', $this->getMorphClass());
     }
+    public function patientType(){return $this->belongsToModel('PatientType');}
 
     public static array $activityList = [
         Activity::ADM_VISIT->value . '_' . ActivityStatus::ADM_START->value     => ['flag' => 'ADM_START', 'message' => 'Administrasi dibuat'],

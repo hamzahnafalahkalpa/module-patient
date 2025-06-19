@@ -20,6 +20,10 @@ class PatientData extends Data implements DataPatientData{
     #[MapName('id')]
     public mixed $id = null;
 
+    #[MapInputName('name')]
+    #[MapName('name')]
+    public ?string $name = null;
+
     #[MapInputName('reference_type')]
     #[MapName('reference_type')]
     public ?string $reference_type = null;
@@ -28,6 +32,10 @@ class PatientData extends Data implements DataPatientData{
     #[MapName('reference_id')]
     public mixed $reference_id = null;
 
+    #[MapInputName('reference')]
+    #[MapName('reference')]
+    public array|object $reference;
+
     #[MapInputName('patient_type_id')]
     #[MapName('patient_type_id')]
     public mixed $patient_type_id = null;
@@ -35,10 +43,6 @@ class PatientData extends Data implements DataPatientData{
     #[MapInputName('card_identity')]
     #[MapName('card_identity')]
     public ?CardIdentityData $card_identity = null;
-
-    #[MapInputName('people')]
-    #[MapName('people')]
-    public ?PeopleData $people;
 
     #[MapInputName('payer_id')]
     #[MapName('payer_id')]
@@ -60,19 +64,26 @@ class PatientData extends Data implements DataPatientData{
     #[MapName('props')]
     public ?array $props = null;
 
-    public static function after(self $data): self{
+    public static function before(array &$attributes){
         $new = static::new();
-        if (isset($data->id)){
-            $patient_model = $new->PatientModel()->with('reference')->findOrFail($data->id);
-            $patient_ref   = Str::snake($patient_model->reference_type);
-            $data->{$patient_ref}->id = $patient_model->reference_id;
+        if (isset($attributes['id'])){
+            $patient_model   = $new->PatientModel()->with('reference')->findOrFail($attributes['id']);
+            $attributes['reference_id']   = $reference['id'] = $patient_model->reference_id;
+            $attributes['reference_type'] = $patient_model->reference_type;
         }else{
             $config_keys = array_keys(config('module-patient.patient_types'));
             $keys        = array_intersect(array_keys(request()->all()),$config_keys);
             $key         = array_shift($keys);
-            $data->reference_type ??= request()->reference_type ?? $key;
-            $data->reference_type = Str::studly($data->reference_type);
+            $attributes['reference_type'] ??= request()->reference_type ?? $key;
+            $attributes['reference_type'] = Str::studly($attributes['reference_type']);
         }
+    }
+
+    public static function after(self $data): self{
+        $new = static::new();
+        $reference = &$data->reference;
+        $reference = self::transformToData($data->reference_type, $reference);
+        $data->name = $reference->name;
         $data->props['prop_payer'] = [
             'id'   => $data->payer_id ?? null,
             'name' => null,
@@ -88,5 +99,10 @@ class PatientData extends Data implements DataPatientData{
             $data->payer->props['is_payer_able'] = true;
         }
         return $data;
+    }
+
+    private static function transformToData(string $entity,array $attributes){
+        $new = static::new();
+        return $new->requestDTO(config('app.contracts.'.$entity.'Data'),$attributes);
     }
 }

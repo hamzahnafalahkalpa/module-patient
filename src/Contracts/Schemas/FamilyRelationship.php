@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @see \Hanafalah\ModulePatient\Schemas\FamilyRelationship
+ * @method self setParamLogic(string $logic, bool $search_value = false, ?array $optionals = [])
  * @method self conditionals(mixed $conditionals)
  * @method bool deleteFamilyRelationship()
  * @method bool prepareDeleteFamilyRelationship(? array $attributes = null)

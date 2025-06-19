@@ -32,6 +32,7 @@ return new class extends Migration
             Schema::create($table_name, function (Blueprint $table) {
                 $table->ulid('id')->primary();
                 $table->string('uuid')->nullable();
+                $table->string('name', 100)->nullable(false);
                 $table->string('reference_type', 50)->nullable(false);
                 $table->string('reference_id', 36)->nullable(false);
                 $table->string('medical_record', 50)->nullable();

@@ -9,6 +9,7 @@ use Hanafalah\ModulePatient\Models\{
     EMR\VisitPatient,
     Patient\Patient
 };
+use Hanafalah\ModulePatient\Models\Patient\PatientTypeService;
 
 return new class extends Migration
 {
@@ -33,6 +34,7 @@ return new class extends Migration
             Schema::create($table_name, function (Blueprint $table) {
                 $patient = app(config('database.models.Patient', Patient::class));
                 $tenant  = app(config('database.models.Tenant', Tenant::class));
+                $patient_type_service  = app(config('database.models.PatientTypeService', PatientTypeService::class));
 
                 $table->ulid('id')->primary();
                 $table->foreignIdFor($patient::class)->nullable()->index()
@@ -42,6 +44,9 @@ return new class extends Migration
                 $table->string('flag', 60)->nullable(false);
                 $table->string('visit_code', 100)->nullable();
                 $table->string('reservation_id', 36)->nullable();
+                $table->foreignIdFor($patient_type_service::class)->nullable(false)
+                      ->index()->constrained($patient_type_service->getTable(),'patient_type_service_id','pts_vp')
+                      ->cascadeOnUpdate()->restrictOnDelete();
                 $table->string('queue_number', 10)->nullable();
                 $table->timestamp('visited_at');
                 $table->timestamp('reported_at')->nullable();

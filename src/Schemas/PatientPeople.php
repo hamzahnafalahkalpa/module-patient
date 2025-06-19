@@ -21,7 +21,7 @@ class PatientPeople extends PackageManagement implements ContractsPatientPeople
     ];
 
     public function prepareStore(PatientData &$patient_dto): Model{
-        $reference = $this->schemaContract('people')->prepareStorePeople($patient_dto->people);
+        $reference = $this->schemaContract('people')->prepareStorePeople($patient_dto->reference);
         $patient_dto->reference_type = $reference->getMorphClass();
         $patient_dto->reference_id   = $reference->getKey();
         return $reference;

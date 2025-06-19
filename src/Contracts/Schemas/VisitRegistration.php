@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @see \Hanafalah\ModulePatient\Schemas\VisitRegistration
+ * @method self setParamLogic(string $logic, bool $search_value = false, ?array $optionals = [])
  * @method self conditionals(mixed $conditionals)
  * @method bool deleteVisitRegistration()
  * @method bool prepareDeleteVisitRegistration(? array $attributes = null)

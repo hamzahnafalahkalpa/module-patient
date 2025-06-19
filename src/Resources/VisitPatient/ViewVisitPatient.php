@@ -57,7 +57,6 @@ class ViewVisitPatient extends ApiResource
                 });
             }),
             'patient' => $this->relationValidation('patient', function () {
-                // return $this->patient->toShowApi();
                 $patient = $this->patient;
                 $arr = [
                     'id'     => $patient->getKey(),

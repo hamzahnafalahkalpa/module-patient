@@ -36,7 +36,10 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
             $reference = $schema_reference->prepareStore($patient_dto);
         }
         
-        $add = ['medical_record' => $patient_dto->medical_record ?? null];
+        $add = [
+            'name'           => $patient_dto->name,
+            'medical_record' => $patient_dto->medical_record ?? null
+        ];
         $guard = isset($patient_dto->id) 
             ? ['id' => $patient_dto->id]
             : [
@@ -56,6 +59,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         if (isset($reference_schema) && method_exists($schema_reference, 'afterPatientCreated')) {
             $schema_reference->afterPatientCreated($patient, $reference, $patient_dto);
         }
+        if (isset($reference)) $patient->sync($reference,$reference->toViewApi()->resolve());
 
         return $patient;
     }
@@ -68,7 +72,8 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
             'profile' => $patient_dto->profile
         ]));
 
-        if (isset($reference)) $patient->sync($reference);
+        $this->fillingProps($patient,$patient_dto->props);
+        $patient->save();
         return $patient;
     }
 
@@ -129,7 +134,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
     public function prepareStoreProfile(ProfilePatientData $profile_patient_dto): Model{
         if (!isset($profile_patient_dto->id) && !isset($profile_patient_dto->uuid)) throw new \Exception('id or uuid not found');
 
-        list($patient,$people) = $this->prepareStore($profile_patient_dto);
+        $patient = $this->prepareStore($profile_patient_dto);
         return static::$patient_model = $patient;
     }
 

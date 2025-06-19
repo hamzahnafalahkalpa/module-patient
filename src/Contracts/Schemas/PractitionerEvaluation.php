@@ -11,6 +11,7 @@ use Hanafalah\ModulePatient\Contracts\Data\PractitionerEvaluationData;
 
 /**
  * @see \Hanafalah\ModulePatient\Schemas\PractitionerEvaluation
+ * @method self setParamLogic(string $logic, bool $search_value = false, ?array $optionals = [])
  * @method self conditionals(mixed $conditionals)
  * @method bool deletePractitionerEvaluation()
  * @method bool prepareDeletePractitionerEvaluation(? array $attributes = null)

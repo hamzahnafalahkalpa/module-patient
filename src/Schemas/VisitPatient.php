@@ -16,7 +16,7 @@ use Hanafalah\ModulePatient\ModulePatient;
 class VisitPatient extends ModulePatient implements ContractsVisitPatient
 {
     protected string $__entity = 'VisitPatient';
-    public static $visit_patient;
+    public static $visit_patient_model;
 
     protected array $__cache = [
         'show' => [
@@ -27,56 +27,42 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
     ];
 
     public function visitPatient(mixed $conditionals = null): Builder{
-        return $this->generalSchemaModel($conditionals)->when(isset(request()->patient_id), function ($query) {
+        return $this->generalSchemaModel($conditionals)
+            ->when(isset(request()->patient_id), function ($query) {
                 return $query->where('patient_id', request()->patient_id);
-            })->withParameters('or');
+            })
+            ->withParameters('or');
     }
 
     public function prepareStoreVisitPatient(VisitPatientData $visit_patient_dto): Model{
-        $attributes['flag'] ??= $this->VisitPatientModel()::CLINICAL_VISIT;
-        $visit_patient_model = ($attributes['flag'] == $this->VisitPatientModel()::CLINICAL_VISIT) ? $this->VisitPatientModel() : $this->PharmacySaleModel();
-        if (isset($attributes['id'])) {
-            $visit_patient_model = $visit_patient_model->withoutGlobalScope($this->VisitPatientModel()::CLINICAL_VISIT)
-                ->where(function ($query) use ($attributes) {
-                    $query->where('id', $attributes['id'])
-                        ->orWhere('visit_code', $attributes['id']);
-                })->firstOrFail();
-            $attributes['id'] = $visit_patient_model->getKey();
-            if ($visit_patient_model->flag != $attributes['flag']) {
-                $visit_patient_model = ($attributes['flag'] == $this->VisitPatientModel()::CLINICAL_VISIT) ? $this->VisitPatientModel() : $this->PharmacySaleModel();
-                $visit_patient_model = $visit_patient_model->findOrFail($attributes['id']);
-            }
-
-            $attributes['patient_id'] = $visit_patient_model->patient_id;
-            $attributes['reference_id']   = $visit_patient_model->reference_id ?? null;
-            $attributes['reference_type'] = $visit_patient_model->reference_type ?? null;
-            $this->createAgent($visit_patient_model, $attributes);
-            //ADD TREATMENT
-            if (isset($attributes['medic_services'])) {
-                $visit_registration = $visit_patient_model->visitRegistration()->whereNull('parent_id')->first();
-                $attributes['visit_registration_parent_id']        = $visit_registration->getKey();
-                $attributes['visit_registration_medic_service_id'] = $visit_registration->medic_service_id;
-                $attributes['visit_patient_id']                    = $visit_patient_model->getKey();
-                $attributes['visit_patient_type']                  = $visit_patient_model->getMorphClass();
-                $attributes['patient_type_id']                     = $visit_patient_model->prop_patienttype['id'] ?? null;
-
-                $this->schemaContract('visit_registration')->storeServices($attributes);
-            }
-            $visit_patient_model->save();
-        } else {
-            $visit_patient_model = $this->newVisitPatient($visit_patient_model, $attributes);
+        $add = [
+            'parent_id'      => $visit_patient_dto->parent_id,
+            'patient_id'     => $visit_patient_dto->patient_id,
+            'reference_id'   => $visit_patient_dto->reference_id,
+            'reference_type' => $visit_patient_dto->reference_type,
+            'flag'           => $visit_patient_dto->flag,
+            'reservation_id' => $visit_patient_dto->reservation_id,
+            'queue_number'   => $visit_patient_dto->queue_number,
+        ];
+        if (isset($visit_patient_dto->id)){
+            $guard = ['id' => $visit_patient_dto->id];
+            $create = [$guard,$add];
+        }else{
+            $create = [$add];
         }
+        $visit_patient_model = $this->usingEntity()->updateOrCreate(...$create);
 
-        $transaction = $visit_patient_model->transaction()->firstOrCreate();
-        if (isset($visit_patient_model->patient_id)) {
-            $patient = $visit_patient_model->patient;
-
-            $transaction->sync($visit_patient_model, ['prop_patient']);
-            $transaction->consument_name = $patient->prop_people['name'];
-            $transaction->save();
+        //PROCESS VISIT REGISTRATIONS
+        $visit_registrations = $visit_patient_dto?->visit_registrations;
+        if (isset($visit_registrations) && count($visit_registrations) > 0){
+            foreach ($visit_registrations as $visit_registration_dto) {
+                $visit_registration_dto->visit_patient_id          = $visit_patient_model->getKey();
+                $visit_registration_dto->visit_patient_type        = $visit_patient_model->getMorphClass();
+                $visit_registration_dto->patient_type_service_id ??= $visit_patient_model->patient_type_service_id;
+            }
         }
-
-        $this->forgetTags('visit-patient');
+        $this->fillingProps($visit_patient_model, $visit_patient_dto->props);
+        $visit_patient_model->save();
         return $visit_patient_model;
     }
 

@@ -30,6 +30,7 @@ class VisitRegistration extends BaseModel
         'visit_patient_id',
         'visit_patient_type',
         'medic_service_id',
+        'service_cluster_id',
         'patient_type_id',
         'referral_id',
         'status',

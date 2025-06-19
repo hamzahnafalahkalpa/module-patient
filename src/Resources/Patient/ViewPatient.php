@@ -13,6 +13,7 @@ class ViewPatient extends ApiResource
         $arr = [
             'id'               => $this->id,
             'uuid'             => $this->uuid,
+            'name'             => $this->name,
             'profile'          => $this->profile ?? null,
             'medical_record'   => $this->medical_record,
             'profile'          => $this->profile ?? null,

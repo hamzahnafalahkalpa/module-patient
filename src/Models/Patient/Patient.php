@@ -16,6 +16,7 @@ use Hanafalah\ModulePatient\Resources\Patient\{
 };
 use Hanafalah\ModuleEncoding\Concerns\HasEncoding;
 use Hanafalah\ModulePayment\Concerns\HasDeposit;
+use Hanafalah\ModulePeople\Resources\People\ViewPeople;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
 class Patient extends BaseModel
@@ -29,7 +30,7 @@ class Patient extends BaseModel
     protected $keyType = 'string';
     protected $primaryKey = 'id';
     protected $list = [
-        'id', 'uuid', 'reference_type', 'reference_id', 'medical_record', 
+        'id', 'uuid', 'name', 'reference_type', 'reference_id', 'medical_record', 
         'profile', 'patient_type_id', 'props'
     ];
     protected $show = [];
@@ -45,7 +46,6 @@ class Patient extends BaseModel
     ];
 
     public function getPropsQuery(): array{return [
-            'name'                     => 'props->prop_people->name',
             'first_name'               => 'props->prop_people->first_name',
             'last_name'                => 'props->prop_people->last_name',
             'dob'                      => 'props->prop_people->dob',
@@ -55,19 +55,7 @@ class Patient extends BaseModel
     }
 
     protected $prop_attributes = [
-        'People'            => [
-            'id',
-            'name',
-            'first_name',
-            'last_name',
-            'dob',
-            'pob',
-            'email',
-            'father_name',
-            'marital_status',
-            'nationality',
-            'sex'
-        ]
+        'People' => ViewPeople::class
     ];
 
     public static function booted(): void{parent::booted();

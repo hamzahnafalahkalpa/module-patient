@@ -7,9 +7,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Hanafalah\ModulePatient\Models\{
     EMR\VisitRegistration,
-    Patient\PatientType,
 };
-use Hanafalah\ModulePatient\Models\EMR\Referral;
+use Hanafalah\ModulePatient\Models\Patient\PatientTypeService;
 
 return new class extends Migration
 {
@@ -32,16 +31,16 @@ return new class extends Migration
         $table_name = $this->__table->getTable();
         if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
-                $patient_type    = app(config('database.models.PatientType', PatientType::class));
-                $medic_service   = app(config('database.models.MedicService', MedicService::class));
-                $service_cluster = app(config('database.models.ServiceCluster', ServiceCluster::class));
+                $patient_type_service = app(config('database.models.PatientTypeService', PatientTypeService::class));
+                $medic_service        = app(config('database.models.MedicService', MedicService::class));
+                $service_cluster      = app(config('database.models.ServiceCluster', ServiceCluster::class));
 
                 $table->ulid('id')->primary();
                 $table->string('visit_registration_code', 100)->nullable();
                 $table->string('visit_patient_type', 50)->nullable(false);
                 $table->string('visit_patient_id', 36)->nullable(false);
 
-                $table->foreignIdFor($patient_type::class)
+                $table->foreignIdFor($patient_type_service::class)
                     ->nullable(true)->index()
                     ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
 
