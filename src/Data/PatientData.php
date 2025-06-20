@@ -7,7 +7,6 @@ use Hanafalah\LaravelSupport\Supports\Data;
 use Hanafalah\ModulePatient\Contracts\Data\PatientData as DataPatientData;
 use Hanafalah\ModulePatient\Contracts\Data\ProfilePhotoData;
 use Hanafalah\ModulePayer\Contracts\Data\PayerData;
-use Hanafalah\ModulePeople\Contracts\Data\PeopleData;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
 use Illuminate\Http\UploadedFile;
