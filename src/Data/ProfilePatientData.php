@@ -16,6 +16,10 @@ class ProfilePatientData extends PatientData implements DataProfilePatientData{
     #[MapInputName('uuid')]
     #[MapName('uuid')]
     public ?string $uuid = null;
+    
+    #[MapInputName('name')]
+    #[MapName('name')]
+    public ?string $name = null;
 
     #[MapInputName('people')]
     #[MapName('people')]
