@@ -112,7 +112,11 @@ class VisitPatient extends BaseModel
                 $visit_registrations = $query->visitRegistrations;
                 foreach ($visit_registrations as $visit_registration) {
                     $visit_registration->status = static::getRegistrationStatus('CANCELLED');
-                    $visit_registration->pushActivity(VisitRegistrationActivity::POLI_SESSION->value, [VisitRegistrationActivityStatus::POLI_SESSION_CANCEL->value]);
+                    $visit_registration->pushActivity(
+                        VisitRegistrationActivity::POLI_SESSION->value, [
+                            VisitRegistrationActivityStatus::POLI_SESSION_CANCEL->value
+                        ]
+                    );
                     $visit_registration->save();
                 }
             }
@@ -150,9 +154,9 @@ class VisitPatient extends BaseModel
     public function getShowResource(){return ShowVisitPatient::class;}    
 
     public function patient(){return $this->belongsToModel('Patient');}
+    public function reservation(){return $this->belongsToModel('Reservation');}
     public function visitRegistration(){return $this->morphOneModel('VisitRegistration', 'visit_patient');}
     public function visitRegistrations(){return $this->morphManyModel('VisitRegistration', 'visit_patient');}
-    public function reservation(){return $this->belongsToModel('Reservation');}
     public function patientDischarge(){return $this->hasOneModel('PatientDischarge', 'visit_patient_id');}
     public function modelHasOrganization(){return $this->morphOneModel('ModelHasOrganization', 'reference');}
     public function modelHasOrganizations(){return $this->morphManyModel('ModelHasOrganization', 'reference');}

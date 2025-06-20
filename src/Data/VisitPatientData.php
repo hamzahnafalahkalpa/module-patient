@@ -72,7 +72,7 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     public static function after(self $data): self{
         $new = static::new();
         $patient = $new->PatientModel()->findOrFail($data->patient_id)->toViewApi()->resolve();
-        $data->props->patient = $patient;
+        $data->props->prop_patient = $patient;
 
         $props = &$data->props->props;
         $patient_type_service = $new->PatientTypeServiceModel();
