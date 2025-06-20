@@ -45,7 +45,7 @@ return new class extends Migration
                 $table->string('visit_code', 100)->nullable();
                 $table->string('reservation_id', 36)->nullable();
                 $table->foreignIdFor($patient_type_service::class)->nullable(false)
-                      ->index()->constrained($patient_type_service->getTable(),'patient_type_service_id','pts_vp')
+                      ->index()->constrained($patient_type_service->getTable(),'id','pts_vp')
                       ->cascadeOnUpdate()->restrictOnDelete();
                 $table->string('queue_number', 10)->nullable();
                 $table->timestamp('visited_at');
