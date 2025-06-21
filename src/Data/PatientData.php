@@ -83,7 +83,10 @@ class PatientData extends Data implements DataPatientData{
         $reference = &$data->reference;
         $reference = self::transformToData($data->reference_type, $reference);
         $data->name = $reference->name;
-        $data->props['prop_payer'] = [
+
+        $props = &$data->props;
+
+        $props['prop_payer'] = [
             'id'   => $data->payer_id ?? null,
             'name' => null,
             'flag' => null
@@ -97,6 +100,10 @@ class PatientData extends Data implements DataPatientData{
             }
             $data->payer->props['is_payer_able'] = true;
         }
+
+        $patient_type = $new->PatientTypeModel();
+        $patient_type = (isset($data->patient_type_id)) ? $patient_type->findOrFail($data->patient_type_id) : $patient_type;
+        $props['prop_patient_type'] = $patient_type->toViewApi()->resolve();
         return $data;
     }
 

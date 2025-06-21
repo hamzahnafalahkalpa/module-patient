@@ -6,7 +6,7 @@ use Hanafalah\ModulePatient\Resources\PatientTypeService\{ViewPatientTypeService
 
 class PatientTypeService extends PatientType
 {
-    protected $table = 'medic_services';
+    protected $table = 'unicodes';
 
     protected static function booted(): void
     {

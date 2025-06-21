@@ -6,7 +6,7 @@ use Hanafalah\ModuleProfession\Models\Occupation\Occupation;
 
 class PatientOccupation extends Occupation
 {
-    protected $table = 'professions';
+    protected $table = 'unicodes';
 
     public static function getFlag(): string{
         return 'PatientOccupation';

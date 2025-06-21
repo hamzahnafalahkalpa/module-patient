@@ -33,7 +33,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         $reference_schema = config('module-patient.patient_types.'.Str::snake($reference_type).'.schema');        
         if (isset($reference_schema)) {
             $schema_reference = $this->schemaContract(Str::studly($reference_schema));
-            $reference = $schema_reference->prepareStore($patient_dto);
+            $reference = $schema_reference->prepareStore($patient_dto->reference);
         }
         
         $add = [
@@ -66,7 +66,6 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
 
     public function prepareStorePatient(PatientData $patient_dto): Model{
         $patient = $this->prepareStore($patient_dto);
-
         $this->prepareStoreProfilePhoto($patient_dto->profile_dto ?? $this->requestDTO(ProfilePhotoData::class,[
             'id'      => $patient->getKey(),
             'profile' => $patient_dto->profile
