@@ -34,6 +34,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         if (isset($reference_schema)) {
             $schema_reference = $this->schemaContract(Str::studly($reference_schema));
             $reference = $schema_reference->prepareStore($patient_dto->reference);
+            $patient_dto->reference_id = $reference->getKey();
         }
         
         $add = [
