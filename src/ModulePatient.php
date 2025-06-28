@@ -90,8 +90,7 @@ class ModulePatient extends PackageManagement implements Contracts\ModulePatient
         return $payment_summary;
     }
 
-    public function getMedicServiceByServiceId(mixed $service_id): Model
-    {
+    public function getMedicServiceByServiceId(mixed $service_id): Model{
         return $this->ServiceModel()->with('reference')->findOrFail($service_id);
     }
 
@@ -103,13 +102,11 @@ class ModulePatient extends PackageManagement implements Contracts\ModulePatient
             ->firstOrFail();
     }
 
-    public function getMedicService(mixed $medic_service_id): Model
-    {
+    public function getMedicService(mixed $medic_service_id): Model{
         return $this->MedicServiceModel()->with('service')->findOrFail($medic_service_id);
     }
 
-    public function getMedicServiceByFlag(string $flag = null): Model
-    {
+    public function getMedicServiceByFlag(?string $flag = null): Model{
         return $this->MedicServiceModel()->flagIn($flag ?? Label::OUTPATIENT->value)
             ->firstOrFail();
     }

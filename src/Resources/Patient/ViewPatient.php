@@ -21,15 +21,6 @@ class ViewPatient extends ApiResource
             $reference_type    => $this->{'prop_'.$reference_type} ?? null,
             'card_identity'    => $this->prop_card_identity
         ];
-        // if (class_exists(\Hanafalah\ModulePeople\Models\People\People::class)) {
-        //     if ($this->reference_type == $this->PeopleModel()->getMorphClass()) {
-        //         $arr['people']            = $this->propResource($this->reference, \Hanafalah\ModulePeople\Resources\People\ViewPeople::class);
-        //         $arr['people']['phone_1'] = $this->phone_1;
-        //         $arr['people']['phone_2'] = $this->phone_2;
-        //     }
-        // }
-
-
         return $arr;
     }
 }

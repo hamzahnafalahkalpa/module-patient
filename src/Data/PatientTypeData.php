@@ -19,7 +19,7 @@ class PatientTypeData extends MedicServiceData implements DataPatientTypeData{
     public array $childs = [];
 
     public static function after(mixed $data): PatientTypeData{
-        $data->flag = 'IDENTITY';
+        $data->flag = 'PatientType';
         return $data;
     }
 }
