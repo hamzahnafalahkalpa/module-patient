@@ -41,13 +41,13 @@ class ViewVisitRegistration extends ApiResource
             }),
             'visit_patient_type'     => $this->visit_patient_type,
             'visit_patient'          => $this->relationValidation('visitPatient', function () {
-                return $this->visitPatient->toShowApi();
+                return $this->visitPatient->toShowApi()->resolve();
             }),
             'head_doctor'          => $this->relationValidation('headDoctor', function () {
-                return $this->headDoctor->toShowApi();
+                return $this->headDoctor->toShowApi()->resolve();
             }),
             'visit_examination'  => $this->relationValidation('visitExamination', function () {
-                return $this->visitExamination->toViewApi();
+                return $this->visitExamination->toViewApi()->resolve();
             }),
             'activity'           => $this->sortActivity(),
             'service_labels'     => $this->prop_service_labels ?? [],

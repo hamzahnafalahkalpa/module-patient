@@ -19,7 +19,7 @@ class ViewVisitPatient extends ApiResource
             "id"                 => $this->id,
             'visit_code'         => $this->visit_code,
             'transaction' => $this->relationValidation('transaction', function () {
-                return $this->transaction->toViewApi();
+                return $this->transaction->toViewApi()->resolve();
             }),
             "reservation_id"     => $this->reservation_id,
             "queue_number"       => $this->queue_number,
@@ -27,25 +27,25 @@ class ViewVisitPatient extends ApiResource
             "visited_at"         => $this->visited_at,
             "reported_at"        => $this->reported_at,
             "reference"          => $this->relationValidation('reference', function () {
-                return $this->reference->toViewApi();
+                return $this->reference->toViewApi()->resolve();
             }),
             "status"             => $this->status,
             "payer"       => $this->relationValidation("payer", function () {
-                return $this->payer->toViewApi();
+                return $this->payer->toViewApi()->resolve();
             }),
             "agent"       => $this->relationValidation("agent", function () {
-                return $this->agent->toViewApi();
+                return $this->agent->toViewApi()->resolve();
             }),
             "organization"       => $this->relationValidation("organization", function () {
-                return $this->organization->toViewApi();
+                return $this->organization->toViewApi()->resolve();
             }),
             "visit_registration" => $this->relationValidation("visitRegistration", function () {
                 $this->visitRegistration->load("medicService");
-                return $this->visitRegistration->toViewApi();
+                return $this->visitRegistration->toViewApi()->resolve();
             }),
             "visit_registrations" => $this->relationValidation("visitRegistrations", function () {
                 return $this->visitRegistrations->transform(function ($visitRegistration) {
-                    return $visitRegistration->toViewApi();
+                    return $visitRegistration->toViewApi()->resolve();
                 });
             }),
             "services"           => $this->relationValidation('services', function () {

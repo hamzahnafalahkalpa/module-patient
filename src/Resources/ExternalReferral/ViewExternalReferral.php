@@ -11,7 +11,7 @@ class ViewExternalReferral extends ApiResource
         $arr = [
             'id'                => $this->id,
             'visit_patient'     => $this->relationValidation('visitPatient', function () {
-                return $this->visitPatient->toViewApi();
+                return $this->visitPatient->toViewApi()->resolve();
             }),
             'doctor_name'       => $this->doctor_name,
             'note'              => $this->note

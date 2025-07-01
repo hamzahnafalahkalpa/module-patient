@@ -15,7 +15,7 @@ class ViewPatientType extends ApiResource
             'flag'       => $this->flag,
             'label'      => $this->label,
             'service'    => $this->relationValidation('service',function(){
-                return $this->service->toViewApi();
+                return $this->service->toViewApi()->resolve();
             }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at

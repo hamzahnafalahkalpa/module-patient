@@ -8,10 +8,10 @@ class ShowReferral extends ViewReferral
     {
         $arr = [
             'reference'             => $this->relationValidation('reference', function () {
-                return $this->reference->toShowApi();
+                return $this->reference->toShowApi()->resolve();
             }),
             'visit_registration' => $this->relationValidation('visitRegistration', function () {
-                return $this->visitRegistration->toShowApi();
+                return $this->visitRegistration->toShowApi()->resolve();
             })
         ];
 

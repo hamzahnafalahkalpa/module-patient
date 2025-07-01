@@ -10,7 +10,7 @@ class ShowInternalReferral extends ViewInternalReferral
     {
         $arr = [
             'referral'          => $this->relationValidation('referral', function () {
-                return $this->referral->toShowApi();
+                return $this->referral->toShowApi()->resolve();
             })
         ];
         $arr = array_merge(parent::toArray($request), $arr);

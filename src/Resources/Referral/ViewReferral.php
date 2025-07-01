@@ -14,10 +14,10 @@ class ViewReferral extends ApiResource
             'status'                => $this->status,
             'reference_type'        => $this->reference_type,
             'reference'             => $this->relationValidation('reference', function () {
-                return $this->reference->toViewApi();
+                return $this->reference->toViewApi()->resolve();
             }),
             'visit_registration'    => $this->relationValidation('visitRegistration', function () {
-                return $this->visitRegistration->toViewApi();
+                return $this->visitRegistration->toViewApi()->resolve();
             })
         ];
 

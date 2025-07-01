@@ -19,7 +19,7 @@ class ViewQueuePatient extends ApiResource
       "uuid"               => $this->uuid,
       "transaction_code"   => $this->transaction_code,
       "reference"          => $this->relationValidation("reference", function () {
-        return $this->reference->toShowApi();
+        return $this->reference->toShowApi()->resolve();
       }),
     ];
 

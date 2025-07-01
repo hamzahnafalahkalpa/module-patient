@@ -9,12 +9,12 @@ class ShowVisitRegistration extends ViewVisitRegistration
         $arr = [
             'services'            => $this->relationValidation('services', function () {
                 return $this->services->transform(function ($service) {
-                    return $service->toViewApi();
+                    return $service->toViewApi()->resolve();
                 });
             }),
             'visit_registrations' => $this->relationValidation('visitRegistrations', function () {
                 return $this->visitRegistrations->transform(function ($visitRegistration) {
-                    return $visitRegistration->toShowApi();
+                    return $visitRegistration->toShowApi()->resolve();
                 });
             })
         ];

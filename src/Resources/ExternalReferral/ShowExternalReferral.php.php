@@ -10,7 +10,7 @@ class ShowExternalReferral extends ViewExternalReferral
     {
         $arr = [
             'visit_patient'     => $this->relationValidation('visitPatient', function () {
-                return $this->visitPatient->toShowApi();
+                return $this->visitPatient->toShowApi()->resolve();
             }),
             'doctor_name'       => $this->doctor_name,
             'note'              => $this->note

@@ -11,10 +11,10 @@ class ViewInternalReferral extends ApiResource
         $arr = [
             'id'                => $this->id,
             'referral'          => $this->relationValidation('referral', function () {
-                return $this->referral->toViewApi();
+                return $this->referral->toViewApi()->resolve();
             }),
             'medic_service'     => $this->relationValidation('medicService', function () {
-                return $this->medicService->toViewApi();
+                return $this->medicService->toViewApi()->resolve();
             })
         ];
 

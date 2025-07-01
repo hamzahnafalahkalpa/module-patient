@@ -10,18 +10,18 @@ class ShowVisitPatient extends ViewVisitPatient
     {
         $arr = [
             'transaction'   => $this->relationValidation('transaction', function () {
-                return $this->transaction->toShowApi();
+                return $this->transaction->toShowApi()->resolve();
             }),
             "organizations" => $this->relationValidation("organizations", function () {
                 return $this->organizations->transform(function ($organization) {
-                    return $organization->toViewApi();
+                    return $organization->toViewApi()->resolve();
                 });
             }),
             "payer"       => $this->relationValidation("payer", function () {
-                return $this->payer->toShowApi();
+                return $this->payer->toShowApi()->resolve();
             }),
             "agent"       => $this->relationValidation("agent", function () {
-                return $this->agent->toShowApi();
+                return $this->agent->toShowApi()->resolve();
             }),
         ];
         $arr = array_merge(parent::toArray($request), $arr);

@@ -10,7 +10,7 @@ class ShowPractitionerEvaluation extends ViewPractitionerEvaluation
     {
         $arr = [
             'practitioner_reference' => $this->relationValidation('practitioner', function () {
-                return $this->practitioner->toShowApi();
+                return $this->practitioner->toShowApi()->resolve();
             })
         ];
         $arr = array_merge(parent::toArray($request), $arr);

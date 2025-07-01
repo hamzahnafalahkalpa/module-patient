@@ -8,13 +8,13 @@ class ShowVisitExamination extends ViewVisitExamination
     {
         $arr = [
             'visit_registration' => $this->relationValidation('visitRegistration', function () {
-                return $this->visitRegistration->toShowApi();
+                return $this->visitRegistration->toShowApi()->resolve();
             }),
             'screenings' => [],
             'forms'      => [],
             "addendum"   =>  $this->examinationSummary->addendum ?? null,
             'examination_summary' => $this->relationValidation('examinationSummary', function () {
-                return $this->examinationSummary->toShowApi();
+                return $this->examinationSummary->toShowApi()->resolve();
             })
         ];
         if (isset($this->screenings)) {

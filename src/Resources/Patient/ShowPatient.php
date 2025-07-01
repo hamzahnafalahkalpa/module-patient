@@ -12,7 +12,7 @@ class ShowPatient extends ViewPatient
         $arr = [
             'patient_occupation' => $this->props_patient_occupation,
             $reference_type => $this->relationValidation('reference', function () {
-                return $this->reference->toShowApi();
+                return $this->reference->toShowApi()->resolve();
             })
         ];
 
@@ -21,7 +21,7 @@ class ShowPatient extends ViewPatient
         //         $arr['people'] = $this->relationValidation('reference', function () {
         //             $this->reference->phone_1 =  $this->phone_1;
         //             $this->reference->phone_2 =  $this->phone_2;
-        //             return $this->reference->toShowApi();
+        //             return $this->reference->toShowApi()->resolve();
         //         });
         //     }
         // }
