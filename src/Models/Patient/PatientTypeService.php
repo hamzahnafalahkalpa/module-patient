@@ -8,17 +8,6 @@ class PatientTypeService extends PatientType
 {
     protected $table = 'unicodes';
 
-    protected static function booted(): void
-    {
-        parent::booted();
-        static::addGlobalScope('flag',function($query){
-            $query->where('flag','SERVICE');
-        });
-        static::creating(function ($query) {
-            $query->flag = 'SERVICE';
-        });
-    }
-
     public function getViewResource(){
         return ViewPatientTypeService::class;
     }
