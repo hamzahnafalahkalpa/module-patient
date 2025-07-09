@@ -2,4 +2,6 @@
 
 namespace Hanafalah\ModulePatient\Contracts\Data;
 
-interface PractitionerEvaluationData {} 
+use Spatie\LaravelData\Contracts\BaseData;
+
+interface PractitionerEvaluationData extends BaseData{} 

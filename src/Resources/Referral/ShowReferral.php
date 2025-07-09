@@ -10,13 +10,12 @@ class ShowReferral extends ViewReferral
             'reference'             => $this->relationValidation('reference', function () {
                 return $this->reference->toShowApi()->resolve();
             }),
-            'visit_registration' => $this->relationValidation('visitRegistration', function () {
-                return $this->visitRegistration->toShowApi()->resolve();
+            'visit' => $this->relationValidation('visit', function () {
+                return $this->visit->toShowApi()->resolve();
             })
         ];
 
-        $arr = array_merge(parent::toArray($request), $arr);
-
+        $arr = $this->mergeArray(parent::toArray($request), $arr);
         return $arr;
     }
 }

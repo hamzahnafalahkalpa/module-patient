@@ -27,21 +27,16 @@ return new class extends Migration
         $table_name = $this->__table->getTable();
         if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
-                $visit_patient = app(config('database.models.VisitPatient', VisitPatient::class));
-
                 $table->ulid('id')->primary();
-                $table->foreignIdFor($visit_patient::class)
-                    ->nullable(false)->constrained()
-                    ->cascadeOnUpdate()
-                    ->cascadeOnDelete();
-
                 $table->date("date");
-                $table->string("doctor_name");
-                $table->string("phone")->nullable(true);
-                $table->string("facility_name")->nullable(true);
-                $table->string("unit_name")->nullable(true);
-                $table->string("initial_diagnose");
-                $table->string("note");
+                $table->string("doctor_name")->nullable();
+                $table->string("phone")->nullable();
+                $table->string("facility_name")->nullable();
+                $table->string("unit_name")->nullable();
+                $table->string("initial_diagnose")->nullable();
+                $table->string("note")->nullable();
+                $table->json('props')->nullable();
+                $table->timestamps();
                 $table->softDeletes();
             });
         }

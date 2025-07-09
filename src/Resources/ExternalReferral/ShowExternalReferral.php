@@ -15,7 +15,6 @@ class ShowExternalReferral extends ViewExternalReferral
             'doctor_name'       => $this->doctor_name,
             'note'              => $this->note
         ];
-
         return $arr;
     }
 }

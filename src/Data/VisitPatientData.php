@@ -21,7 +21,7 @@ class VisitPatientData extends Data implements DataVisitPatientData{
 
     #[MapInputName('patient_id')]
     #[MapName('patient_id')]
-    public mixed $patient_id = null;
+    public mixed $patient_id;
 
     #[MapInputName('reference_type')]
     #[MapName('reference_type')]
@@ -37,7 +37,7 @@ class VisitPatientData extends Data implements DataVisitPatientData{
 
     #[MapInputName('patient_type_service_id')]
     #[MapName('patient_type_service_id')]
-    public mixed $patient_type_service_id = null;
+    public mixed $patient_type_service_id;
 
     #[MapInputName('queue_number')]
     #[MapName('queue_number')]
@@ -56,6 +56,10 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[MapName('flag')]
     public string $flag;
 
+    #[MapInputName('external_referral')]
+    #[MapName('external_referral')]
+    public ?ExternalReferralData $external_referral = null;
+
     #[MapInputName('visit_registrations')]
     #[MapName('visit_registrations')]
     #[DataCollectionOf(VisitRegistrationData::class)]
@@ -71,13 +75,14 @@ class VisitPatientData extends Data implements DataVisitPatientData{
 
     public static function after(self $data): self{
         $new = static::new();
-        $patient = $new->PatientModel()->findOrFail($data->patient_id)->toViewApi()->resolve();
-        $data->props->prop_patient = $patient;
-
         $props = &$data->props->props;
+
+        $props['prop_patient'] = $new->PatientModel()->findOrFail($data->patient_id)->toViewApi()->resolve();
+
         $patient_type_service = $new->PatientTypeServiceModel();
         $patient_type_service = (isset($data->patient_type_service_id)) ? $patient_type_service->findOrFail($data->patient_type_service_id) : $patient_type_service;
         $props['prop_patient_type_service'] = $patient_type_service->toViewApi()->resolve();
+
         return $data;
     }
 }

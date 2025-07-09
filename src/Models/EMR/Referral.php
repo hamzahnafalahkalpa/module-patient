@@ -20,7 +20,10 @@ class Referral extends BaseModel
     public $incrementing  = false;
     protected $keyType    = 'string';
     protected $primaryKey = 'id';
-    protected $list       = ['id', 'referral_code', 'reference_type', 'reference_id', 'visit_registration_id', 'status', 'props'];
+    protected $list       = [
+        'id', 'referral_code', 'reference_type', 'reference_id', 
+        'visit_type', 'visit_id', 'status', 'props'
+    ];
     protected $show       = [];
 
     protected $casts = [
@@ -42,45 +45,27 @@ class Referral extends BaseModel
         ];
     }
 
-    protected static function booted(): void
-    {
+    protected static function booted(): void{
         parent::booted();
         static::creating(function ($query) {
-            if (!isset($query->referral_code)) {
-                $query->referral_code = static::hasEncoding('REFERRAL');
-            }
-            if (!isset($query->status)) $query->status = Status::CREATED->value;
+            $query->referral_code ??= static::hasEncoding('REFERRAL');
+            $query->status        ??= $query->getStatus('CREATED');
         });
     }
 
-    public function getViewResource()
-    {
-        return ViewReferral::class;
+    public function getStatus(string $status){
+        return Status::from($status)->value;
     }
 
-    public function getShowResource()
-    {
-        return ShowReferral::class;
-    }
+    public function getViewResource(){return ViewReferral::class;}
+    public function getShowResource(){return ShowReferral::class;}
 
-    public function reference()
-    {
-        return $this->morphTo();
-    }
-    public function visitRegistration()
-    {
-        return $this->belongsToModel('VisitRegistration');
-    }
-    public function visitRegistrations()
-    {
-        return $this->hasManyModel('VisitRegistration');
-    }
-    public function internalReferral()
-    {
-        return $this->hasOneModel("InternalReferral");
-    }
+    public function reference(){return $this->morphTo();}
+    public function visit(){return $this->morphTo();}
+    public function visitRegistrations(){return $this->hasManyModel('VisitRegistration');}
+    public function internalReferral(){return $this->hasOneModel("InternalReferral");}
 
-    public static array $activityList = [
+    public array $activityList = [
         Activity::REFERRAL_POLI->value . '_' . ActivityStatus::REFERRAL_CREATED->value    => ['flag' => 'REFERRAL_CREATED',   'message' => 'Pembuatan data Rujukan.'],
         Activity::REFERRAL_POLI->value . '_' . ActivityStatus::REFERRAL_PROCESSED->value  => ['flag' => 'REFERRAL_PROCESSED', 'message' => 'Rujukan di sedang dalam proses.'],
         Activity::REFERRAL_POLI->value . '_' . ActivityStatus::REFERRAL_DONE->value       => ['flag' => 'REFERRAL_DONE',      'message' => 'Rujukan Telah selesai di lakukan.'],

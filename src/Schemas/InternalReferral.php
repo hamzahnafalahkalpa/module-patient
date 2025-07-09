@@ -2,10 +2,9 @@
 
 namespace Hanafalah\ModulePatient\Schemas;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
+use Hanafalah\ModulePatient\Contracts\Data\InternalReferralData;
 use Hanafalah\ModulePatient\Contracts\Schemas\InternalReferral as ContractsInternalRefferal;
 
 class InternalReferral extends PackageManagement implements ContractsInternalRefferal
@@ -13,13 +12,7 @@ class InternalReferral extends PackageManagement implements ContractsInternalRef
     protected string $__entity = 'InternalReferral';
     public static $internal_referral;
 
-    public function getInternalReferral(): mixed
-    {
-        return static::$internal_referral;
-    }
-
-    public function prepareStoreInternalReferral(?array $attributes = null): Model
-    {
+    public function prepareStoreInternalReferral(InternalReferralData $internal_referral_dto): Model{
         $attributes ??= request()->all();
         $medic_service     = $this->ServiceModel()->findOrFail($attributes['medic_service_id']);
         $internal_referral = $this->InternalReferralModel()->whereHas('referral', fn($q) => $q->where('visit_registration_id', $attributes['visit_registration_id']))
@@ -48,27 +41,5 @@ class InternalReferral extends PackageManagement implements ContractsInternalRef
         $internal_referral->save();
 
         return static::$internal_referral = $internal_referral;
-    }
-
-    public function prepareViewInternalReferralList(?array $attributes = null): Collection
-    {
-        $attributes ??= request()->all();
-
-        return $this->internalReferral()->when(isset($attributes['visit_registration_id']), function ($query) use ($attributes) {
-            $query->where('visit_registration_id', $attributes['visit_registration_id']);
-        })->with('referral')->get();
-    }
-
-    public function viewInternalReferral(): array
-    {
-        return $this->transforming($this->__resources['view'], function () {
-            return $this->prepareViewInternalReferralList();
-        });
-    }
-
-    public function internalReferral(): Builder
-    {
-        $this->booting();
-        return $this->InternalReferralModel()->withParameters('or')->orderBy('created_at', 'desc');
     }
 }

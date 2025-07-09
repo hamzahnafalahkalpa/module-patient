@@ -7,10 +7,11 @@ use Hanafalah\LaravelHasProps\Concerns\HasProps;
 use Hanafalah\LaravelSupport\Models\BaseModel;
 use Hanafalah\ModulePatient\Resources\InternalReferral\ShowInternalReferral;
 use Hanafalah\ModulePatient\Resources\InternalReferral\ViewInternalReferral;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class InternalReferral extends BaseModel
 {
-    use HasUlids, HasProps;
+    use HasUlids, SoftDeletes, HasProps;
 
     //MEDIC SERVICE FLAG IN ENUM
     public $incrementing = false;
@@ -19,22 +20,8 @@ class InternalReferral extends BaseModel
     protected $list = ['id', 'medic_service_id', 'props'];
     protected $show = [];
 
-    public function getViewResource()
-    {
-        return ViewInternalReferral::class;
-    }
-
-    public function getShowResource()
-    {
-        return ShowInternalReferral::class;
-    }
-
-    public function referral()
-    {
-        return $this->morphOneModel('Referral', 'reference');
-    }
-    public function medicService()
-    {
-        return $this->belongsToModel("MedicService");
-    }
+    public function getViewResource(){return ViewInternalReferral::class;}
+    public function getShowResource(){return ShowInternalReferral::class;}
+    public function referral(){return $this->morphOneModel('Referral', 'reference');}
+    public function medicService(){return $this->belongsToModel("MedicService");}
 }

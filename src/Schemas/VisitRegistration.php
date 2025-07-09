@@ -22,10 +22,6 @@ use Hanafalah\ModulePatient\Enums\{
     VisitRegistration\Activity as VisitRegistrationActivity,
     VisitRegistration\ActivityStatus as VisitRegistrationActivityStatus
 };
-use Hanafalah\ModulePatient\Resources\VisitRegistration\{
-    ShowVisitRegistration,
-    ViewVisitRegistration
-};
 
 class VisitRegistration extends ModulePatient implements ContractsVisitRegistration
 {
@@ -34,246 +30,139 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
 
     protected array $__cache = [
         'index' => [
-            'name'     => 'visit-registration',
-            'tags'     => ['visit-registration', 'visit-registration-index'],
+            'name'     => 'visit_registration',
+            'tags'     => ['visit_registration', 'visit_registration-index'],
             'forever'  => true
         ],
         'show' => [
-            'name'     => 'visit-registration-show',
-            'tags'     => ['visit-registration', 'visit-registration-show'],
+            'name'     => 'visit_registration-show',
+            'tags'     => ['visit_registration', 'visit_registration-show'],
             'forever'  => true
         ]
     ];
 
-    protected function createVisitPatient($attributes)
-    {
-        $attributes['flag'] ??= 'CLINICAL_VISIT';
-        if (isset($attributes['visit_patient_id'])) {
-            $guard = ['id'          => $attributes['visit_patient_id']];
-            $add   = ['reported_at' => $attributes['reported_at'] ?? null];
-        } else {
-            $guard = [
-                'patient_id'     => $attributes['patient_id'] ?? null,
-                'parent_id'      => $attributes['parent_id'] ?? null,
-                'reference_id'   => $attributes['reference_id'] ?? null,
-                'reference_type' => $attributes['reference_type'] ?? null,
-                'flag'           => $attributes['flag'],
-                'reported_at'    => $attributes['reported_at'] ?? null
-            ];
-        }
-        $class_basename = ($attributes['flag'] == 'CLINICAL_VISIT') ? 'VisitPatient' : 'PharmacySale';
-        return $this->schemaContract(Str::snake($class_basename))
-            ->{'prepareStore' . $class_basename}($this->mergeArray($add ?? [], $guard, [
-                'payer_id' => $attributes['payer_id'] ?? null,
-                'agent_id' => $attributes['agent_id'] ?? null,
-                'patient_type_id' => $attributes['patient_type_id'] ?? null
-            ]));
-    }
-
     public function prepareStoreVisitRegistration(VisitRegistrationData $visit_registration_dto): Model{
-        $attributes ??= request()->all();
-        $visit_patient = $this->createVisitPatient($this->mergeArray([
-            'patient_id'      => $attributes['patient_id'] ?? null,
-            'payer_id'        => $attributes['payer_id'] ?? null,
-            'agent_id'        => $attributes['agent_id'] ?? null,
-            'patient_type_id' => $attributes['patient_type_id'] ?? null
-        ], $attributes['visit_patient'] ?? []));
+        $visit_registration = $this->prepareStore($visit_registration_dto);
 
+        // if ($visit_patient->flag == 'CLINICAL_VISIT') {
+        //     $this->setReportTransactionVisitPatient($visit_patient);
+        // }
 
-        static::$visit_registration_model = $this->newVisitRegistration($this->mergeArray([
-            'visit_patient_id'    => $visit_patient->getKey(),
-            'visit_patient_type'  => $visit_patient->getMorphClass(),
-            'visit_patient_model' => $visit_patient
-        ], $attributes));
-
-        if ($visit_patient->flag == 'CLINICAL_VISIT') {
-            $this->setReportTransactionVisitPatient($visit_patient);
-        }
-
-        return static::$visit_registration_model;
+        return static::$visit_registration_model = $visit_registration;
     }
 
-    public function setReportTransactionVisitPatient($visit_patient)
-    {
-        $transaction                = $visit_patient->transaction;
-        $transaction->reported_at ??= now();
-        $transaction->save();
-    }
+    // public function setReportTransactionVisitPatient($visit_patient)
+    // {
+    //     $transaction                = $visit_patient->transaction;
+    //     $transaction->reported_at ??= now();
+    //     $transaction->save();
+    // }
 
-    public function createVisitRegistration(array $attributes): Model
-    {
-        if (isset($attributes['id'])) {
-            $guard = ['id' => $attributes['id'] ?? null];
-        } else {
-            $guard = [
-                'visit_patient_id'   => $attributes['visit_patient_id'],
-                'visit_patient_type' => $attributes['visit_patient_type'],
-                'medic_service_id'   => $attributes['medic_service_id'],
-                'referral_id'        => $attributes['referral_id'] ?? null
-            ];
+    public function prepareStore(VisitRegistrationData $visit_registration_dto): Model{
+        $visit_registration = $this->createVisitRegistration($visit_registration_dto);
+        $visit_patient      = $visit_registration_dto->visit_patient_model;
+
+        if (isset($visit_registration_dto->visit_examination)){
+            $visit_examination_dto = &$visit_registration_dto->visit_examination;
+            $visit_examination_dto->visit_patient_id      = $visit_patient->getKey();
+            $visit_examination_dto->visit_registration_id = $visit_registration->getKey();
+            $visit_examination = $this->schemaContract('visit_examination')->prepareStoreVisitExamination($visit_examination_dto);
+            $visit_registration_dto->props->props['prop_visit_examination'] = $visit_examination->toViewApi()->resolve();
         }
 
-        if (isset($attributes['head_doctor_id'])) {
-            $attributes['head_doctor_type'] = app(config('module-patient.head_doctor'))->getMorphClass();
-        }
+        // $visit_examination_model = $this->appVisitExaminationSchema()->prepareStoreVisitExamination([
+        //     'services' => $attributes['services'] ?? [],
+        //     $visit_registration->getForeignKey() => $visit_registration->getKey(),
+        // ]);
 
-        $visit_registration = $this->VisitRegistrationModel()->updateOrCreate($guard, [
-            'visited_at'        => now(),
-            'status'            => RegistrationStatus::DRAFT->value,
-            'parent_id'         => $attributes['parent_id'] ?? null,
-            'patient_type_id'   => $attributes['patient_type_id'] ?? null,
-            'head_doctor_id'    => $attributes['head_doctor_id'] ?? null,
-            'head_doctor_type'  => $attributes['head_doctor_type'] ?? null
-        ]);
 
-        $visit_patient = (!isset($attributes['visit_patient_model']))
-            ? $visit_registration->visitPatient
-            : $attributes['visit_patient_model'];
-
-        $visit_patient_payment_summary        = $visit_patient->paymentSummary()->firstOrCreate();
-        $visit_reg_payment_summary            = $visit_registration->paymentSummary;
-        $visit_reg_payment_summary->parent_id = $visit_patient_payment_summary->getKey();
-        $visit_reg_payment_summary->save();
-
-        $visit_registration->name = $attributes['medic_service_name'];
-        $visit_registration->setAttribute('medic_service', [
-            'id'         => $attributes['medic_service_id'],
-            'name'       => $attributes['medic_service_name'],
-            'service_id' => $attributes['service_id']
-        ]);
+        // if (isset($attributes['medic_services']) && count($attributes['medic_services']) > 0) {
+        //     $attributes['visit_registration_parent_id']        = $visit_registration->getKey();
+        //     $attributes['visit_registration_medic_service_id'] = $visit_registration->medicService->service->getKey();
+        //     $this->storeServices($attributes);
+        // }
+        $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();
-        return $visit_registration;
-    }
 
-    public function newVisitRegistration(?array $attributes = null): Model
-    {
-        $attributes ??= request()->all();
-
-        if (!isset($attributes['medic_service_id'])) throw new \Exception('No medic service provided', 422);
-        $attributes['service_id']         = $attributes['medic_service_id'];
-        $medic_service                    = $this->getMedicServiceByServiceId($attributes['medic_service_id'])->reference;
-        $attributes['medic_service_id']   = $medic_service->getKey();
-        $attributes['medic_service_name'] = $medic_service->name;
-        $visit_registration               = $this->createVisitRegistration($attributes);
-        $transaction_visit_registration   = $visit_registration->transaction;
-
-        $visit_patient                    = $visit_registration->visitPatient;
-        $transaction_visit_patient        = $visit_patient->transaction;
-
-        $transaction_visit_registration->parent_id = $transaction_visit_patient->getKey();
-        $transaction_visit_registration->save();
-
-        $visit_patient_payment_summary         = $visit_patient->paymentSummary;
-        $attributes['visit_patient_type']      = $visit_patient->getMorphClass();
-
-        $visit_payment_summary                 = $visit_registration->paymentSummary;
-        $visit_payment_summary->transaction_id = $transaction_visit_registration->getKey();
-        $visit_payment_summary->parent_id      = $attributes['payment_summary_parent_id'] ?? $visit_patient_payment_summary->getKey();
-        $visit_payment_summary->name           = 'Total tagihan ' . $medic_service->name;
-        $visit_payment_summary->save();
-        $this->addTransactionIdTo($visit_patient, $visit_patient->transaction);
-
-        if (in_array($medic_service->flag, [
-            Label::OUTPATIENT->value,
-            Label::MCU->value,
-            Label::LABORATORY->value,
-            Label::RADIOLOGY->value
+        if (in_array($visit_registration->prop_medic_service['label'], [
+            Label::OUTPATIENT->value, Label::MCU->value,
+            Label::LABORATORY->value, Label::RADIOLOGY->value
         ])) {
             $visit_registration->pushActivity(VisitRegistrationActivity::POLI_EXAM->value, [VisitRegistrationActivityStatus::POLI_EXAM_QUEUE->value]);
-            $this->appVisitPatientSchema()->preparePushLifeCycleActivity($visit_patient, $visit_registration, 'POLI_EXAM', [
-                'POLI_EXAM_QUEUE' => 'Pasien dalam antrian ke poli ' . $medic_service->name
+            $this->schemaContract('visit_patient')->preparePushLifeCycleActivity($visit_patient, $visit_registration, 'POLI_EXAM', [
+                'POLI_EXAM_QUEUE' => 'Pasien dalam antrian ke poli '.$visit_registration->prop_medic_service['name']
             ]);
         }
-        $visit_examination_model = $this->appVisitExaminationSchema()->prepareStoreVisitExamination([
-            'services' => $attributes['services'] ?? [],
-            $visit_registration->getForeignKey() => $visit_registration->getKey(),
-        ]);
 
-        if (isset($attributes['head_doctor_id']) || isset($attributes['practitioner_id'])) {
-            $this->appPractitionerEvaluationSchema()->prepareStorePractitionerEvaluation([
-                'visit_examination_id' => $visit_examination_model->getKey(),
-                'practitioner_id'      => $attributes['head_doctor_id'] ?? $attributes['practitioner_id'] ?? null,
-                'role_as'              => $attributes['role_as'] ?? PIC::IS_PIC->value
-            ]);
-        }
-        if (isset($attributes['medic_services']) && count($attributes['medic_services']) > 0) {
-            $attributes['visit_registration_parent_id']        = $visit_registration->getKey();
-            $attributes['visit_registration_medic_service_id'] = $visit_registration->medicService->service->getKey();
-            $this->storeServices($attributes);
-        }
-        $visit_patient->refresh();
-        $visit_registration->refresh();
-        $visit_registration->load('paymentSummary');
-        $this->forgetTags('visit-registration');
-        return $visit_registration;
+        return static::$visit_registration_model = $visit_registration;
     }
 
-    public function storeServices($attributes)
-    {
-        $visit_registrations = [];
-        foreach ($attributes['medic_services'] as $medic_service) {
-            $service_model = $this->ServiceModel()->with('reference')->findOrFail($medic_service['id']);
-            $create = [
-                'services'           => $medic_service['services'] ?? [],
-                'visit_patient_id'   => $attributes['visit_patient_id'],
-                'visit_patient_type' => $attributes['visit_patient_type'],
-                'patient_type_id'    => $attributes['patient_type_id'] ?? null,
-                'medic_service_id'   => $service_model->getKey()
-            ];
-            if ($service_model->getKey() != $attributes['visit_registration_medic_service_id']) {
-                $create['parent_id'] = $attributes['visit_registration_parent_id'];
-                $internal_referral = $this->InternalReferralModel()->where('medic_service_id', $medic_service['id'])
-                    ->whereHas('referral', function ($query) use ($attributes) {
-                        $query->where('visit_registration_id', $attributes['visit_registration_parent_id']);
-                    })->first();
-                if (!isset($internal_referral)) {
-                    $referral_schema = $this->schemaContract('internal_referral');
-                    $internal_referral = $referral_schema->prepareStoreInternalReferral([
-                        'visit_registration_id' => $attributes['visit_registration_parent_id'],
-                        'medic_service_id'      => $service_model->getKey()
-                    ]);
-                }
-                $create['referral_id'] = $internal_referral->getKey();
-            }
-            $visit_registrations[] = $this->newVisitRegistration($create);
-        }
-        return $visit_registrations;
+    public function createVisitRegistration(VisitRegistrationData &$visit_registration_dto): Model{
+        $add = [
+            'visited_at'        => now(),
+            'name'              => $visit_registration_dto->name ?? null,
+            'parent_id'         => $visit_registration_dto->parent_id ?? null
+        ];
+
+        $guard = [
+            'id'                 => $visit_registration_dto->id ?? null,
+            'visit_patient_id'   => $visit_registration_dto->visit_patient_id,
+            'visit_patient_type' => $visit_registration_dto->visit_patient_type,
+            'medic_service_id'   => $visit_registration_dto->medic_service_id,
+            // 'referral_id'        => $visit_registration_dto->referral_id ?? null
+        ];
+
+        $visit_registration = $this->VisitRegistrationModel()->updateOrCreate($guard,$add);
+        $visit_registration->load(['paymentSummary', 'transaction']);
+        $visit_patient = $visit_registration_dto->visit_patient_model ??= $visit_registration->visitPatient;
+        
+        $trx_visit_patient                 = &$visit_patient->transaction;
+        $trx_visit_registration            = &$visit_registration->transaction;
+        $trx_visit_registration->parent_id = $trx_visit_patient->getKey();
+        $trx_visit_registration->save();
+
+        $vr_payment_summary                 = &$visit_registration->paymentSummary;
+        $vr_payment_summary->parent_id      = $visit_patient->paymentSummary->getKey();
+        $vr_payment_summary->transaction_id = $trx_visit_registration->getKey();
+        $vr_payment_summary->name           = 'Total tagihan ' . $visit_registration_dto->name;
+        $vr_payment_summary->save();
+
+        $this->fillingProps($visit_registration, $visit_registration_dto->props);
+        $visit_registration->save();
+        return static::$visit_registration_model = $visit_registration;
     }
 
-
-    public function getVisitRegistration(): mixed
-    {
-        return static::$visit_registration_model;
-    }
-
-    public function prepareShowVisitRegistration(?Model $model = null): ?Model
-    {
-        $this->booting();
-
-        $model ??= $this->getVisitRegistration();
-        if (!isset($model)) {
-            $id = request()->id;
-            if (!isset(request()->id)) throw new \Exception('No id provided', 422);
-
-            $model = $this->visitRegistration()->find($id);
-        }
-        $model->load($this->showUsingRelation());
-        return static::$visit_registration_model = $model;
-    }
-
-    public function showVisitRegistration(?Model $model = null): array
-    {
-        return $this->transforming($this->__resources['show'], function () use ($model) {
-            return $this->prepareShowVisitRegistration($model);
-        });
-    }
-
-    public function storeVisitRegistration(): array
-    {
-        return $this->transaction(function () {
-            return $this->showVisitRegistration($this->prepareStoreVisitRegistration());
-        });
-    }
+    // public function storeServices($attributes)
+    // {
+    //     $visit_registrations = [];
+    //     foreach ($attributes['medic_services'] as $medic_service) {
+    //         $service_model = $this->ServiceModel()->with('reference')->findOrFail($medic_service['id']);
+    //         $create = [
+    //             'services'           => $medic_service['services'] ?? [],
+    //             'visit_patient_id'   => $attributes['visit_patient_id'],
+    //             'visit_patient_type' => $attributes['visit_patient_type'],
+    //             'patient_type_id'    => $attributes['patient_type_id'] ?? null,
+    //             'medic_service_id'   => $service_model->getKey()
+    //         ];
+    //         if ($service_model->getKey() != $attributes['visit_registration_medic_service_id']) {
+    //             $create['parent_id'] = $attributes['visit_registration_parent_id'];
+    //             $internal_referral = $this->InternalReferralModel()->where('medic_service_id', $medic_service['id'])
+    //                 ->whereHas('referral', function ($query) use ($attributes) {
+    //                     $query->where('visit_registration_id', $attributes['visit_registration_parent_id']);
+    //                 })->first();
+    //             if (!isset($internal_referral)) {
+    //                 $referral_schema = $this->schemaContract('internal_referral');
+    //                 $internal_referral = $referral_schema->prepareStoreInternalReferral([
+    //                     'visit_registration_id' => $attributes['visit_registration_parent_id'],
+    //                     'medic_service_id'      => $service_model->getKey()
+    //                 ]);
+    //             }
+    //             $create['referral_id'] = $internal_referral->getKey();
+    //         }
+    //         $visit_registrations[] = $this->prepareStore($create);
+    //     }
+    //     return $visit_registrations;
+    // }
 
     public function visitRegistration(mixed $conditionals = null): Builder
     {
@@ -316,15 +205,6 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             });
     }
 
-    public function viewUsingRelation(): array
-    {
-        return [
-            'medicService',
-            'patientType',
-            'visitPatient.patient'
-        ];
-    }
-
     public function visitRegistrationCancellation(?array $attributes): Model
     {
         $attributes ??= request()->all();
@@ -359,20 +239,6 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
                 ...$this->arrayValues($paginate_options)
             )->appends(request()->all());
     }
-    public function prepareVisitRegistrationPaginate(int $perPage = 50, array $columns = ['*'], string $pageName = 'page', ?int $page = null, ?int $total = null): LengthAwarePaginator
-    {
-        $paginate_options = compact('perPage', 'columns', 'pageName', 'page', 'total');
-        return $this->commonPaginate($paginate_options);
-    }
-
-    public function viewVisitRegistrationPaginate(int $perPage = 50, array $columns = ['*'], string $pageName = 'page', ?int $page = null, ?int $total = null)
-    {
-        $paginate_options = compact('perPage', 'columns', 'pageName', 'page', 'total');
-        return $this->transforming($this->__resources['view'], function () use ($paginate_options) {
-            return $this->prepareVisitRegistrationPaginate(...$this->arrayValues($paginate_options));
-        });
-    }
-
 
     public function historyVisit($paginate_options): LengthAwarePaginator
     {
@@ -395,32 +261,5 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
     {
         $paginate_options = compact('perPage', 'columns', 'pageName', 'page', 'total');
         return $this->historyVisit($paginate_options);
-    }
-
-    public function viewVisitRegistrationHistoryPaginate(int $perPage = 50, array $columns = ['*'], string $pageName = 'page', ?int $page = null, ?int $total = null)
-    {
-        $paginate_options = compact('perPage', 'columns', 'pageName', 'page', 'total');
-        return $this->transforming($this->__resources['view'], function () use ($paginate_options) {
-            return $this->prepareVisitRegistrationHistoryPaginate(...$this->arrayValues($paginate_options));
-        });
-    }
-
-    public function getVisitRegistrations()
-    {
-        $data = $this->visitRegistration()->with([
-            'medicService.service',
-            'patientType',
-            'headDoctor',
-            'visitPatient.patient'
-        ])->whereHas('visitPatient', function ($q) {
-            $q->where('patient_id', request()->patient_id);
-        })->get();
-        return $data;
-    }
-
-    public function addOrChange(?array $attributes = []): self
-    {
-        $this->updateOrCreate($attributes);
-        return $this;
     }
 }

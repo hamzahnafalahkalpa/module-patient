@@ -2,7 +2,7 @@
 
 namespace Hanafalah\ModulePatient\Resources\ExternalReferral;
 
-use App\Http\Resources\ApiResource;
+use Hanafalah\LaravelSupport\Resources\ApiResource;
 
 class ViewExternalReferral extends ApiResource
 {
@@ -10,13 +10,10 @@ class ViewExternalReferral extends ApiResource
     {
         $arr = [
             'id'                => $this->id,
-            'visit_patient'     => $this->relationValidation('visitPatient', function () {
-                return $this->visitPatient->toViewApi()->resolve();
-            }),
+            'visit_patient'     => $this->prop_visit_patient,
             'doctor_name'       => $this->doctor_name,
             'note'              => $this->note
         ];
-
         return $arr;
     }
 }

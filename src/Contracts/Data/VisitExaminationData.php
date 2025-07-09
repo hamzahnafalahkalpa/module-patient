@@ -2,4 +2,6 @@
 
 namespace Hanafalah\ModulePatient\Contracts\Data;
 
-interface VisitExaminationData {}
+use Spatie\LaravelData\Contracts\BaseData;
+
+interface VisitExaminationData extends BaseData {}

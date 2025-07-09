@@ -18,9 +18,7 @@ class ViewVisitPatient extends ApiResource
         $arr = [
             "id"                 => $this->id,
             'visit_code'         => $this->visit_code,
-            'transaction' => $this->relationValidation('transaction', function () {
-                return $this->transaction->toViewApi()->resolve();
-            }),
+            'transaction'        => $this->prop_transaction,
             "reservation_id"     => $this->reservation_id,
             "queue_number"       => $this->queue_number,
             "flag"               => $this->flag,
@@ -30,18 +28,10 @@ class ViewVisitPatient extends ApiResource
                 return $this->reference->toViewApi()->resolve();
             }),
             "status"             => $this->status,
-            "payer"       => $this->relationValidation("payer", function () {
-                return $this->payer->toViewApi()->resolve();
-            }),
-            "agent"       => $this->relationValidation("agent", function () {
-                return $this->agent->toViewApi()->resolve();
-            }),
+            "payer"              => $this->prop_payer,
+            "agent"              => $this->prop_agent,
             "organization"       => $this->relationValidation("organization", function () {
                 return $this->organization->toViewApi()->resolve();
-            }),
-            "visit_registration" => $this->relationValidation("visitRegistration", function () {
-                $this->visitRegistration->load("medicService");
-                return $this->visitRegistration->toViewApi()->resolve();
             }),
             "visit_registrations" => $this->relationValidation("visitRegistrations", function () {
                 return $this->visitRegistrations->transform(function ($visitRegistration) {

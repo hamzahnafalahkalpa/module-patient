@@ -37,6 +37,5 @@ return [
     'commands' => [
         ModulePatientCommands\InstallMakeCommand::class
     ],
-    'practitioner' => 'User',
-    'head_doctor'  => 'User'
+    'practitioner' => 'User'
 ];

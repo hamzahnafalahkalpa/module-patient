@@ -16,12 +16,15 @@ use Hanafalah\ModulePatient\Enums\{
 };
 use Hanafalah\ModulePatient\Enums\VisitExamination\Activity;
 use Hanafalah\ModulePatient\Enums\VisitExamination\ActivityStatus;
+use Hanafalah\ModulePatient\Concerns\HasPractitionerEvaluation;
 use Hanafalah\ModuleExamination\Concerns\HasExaminationSummary;
+use Hanafalah\ModulePatient\Resources\VisitExamination\ShowVisitExamination;
+use Hanafalah\ModulePatient\Resources\VisitExamination\ViewVisitExamination;
 
 class VisitExamination extends BaseModel
 {
     use HasUlids, SoftDeletes, HasProps, HasActivity;
-    use HasExaminationSummary;
+    use HasExaminationSummary, HasPractitionerEvaluation;
 
     public $incrementing  = false;
     protected $keyType    = 'string';
@@ -29,6 +32,7 @@ class VisitExamination extends BaseModel
     protected $list       = [
         'id',
         'visit_examination_code',
+        'visit_patient_id',
         'visit_registration_id',
         'is_commit',
         'status',
@@ -83,36 +87,19 @@ class VisitExamination extends BaseModel
         });
     }
 
-    public function visitRegistration()
-    {
-        return $this->belongsToModel('VisitRegistration');
-    }
-    public function patientType()
-    {
-        return $this->belongsToModel('PatientType');
-    }
-    public function examinationTreatments()
-    {
-        return $this->hasManyModel('ExaminationTreatment');
-    }
-    public function assessments()
-    {
-        return $this->hasManyModel('Assessment');
-    }
-    public function pharmacySale()
-    {
-        return $this->morphOneModel('PharmacySale', 'reference');
-    }
-    public function pharmacySales()
-    {
-        return $this->morphMany('PharmacySale', 'reference');
-    }
-    public function examinationSummary()
-    {
-        return $this->morphOneModel('ExaminationSummary', 'reference');
-    }
+    public function getViewResource(){return ViewVisitExamination::class;}
+    public function getShowResource(){return ShowVisitExamination::class;}
 
-    public static array $activityList = [
+    public function visitPatient(){return $this->belongsToModel('VisitPatient');}
+    public function visitRegistration(){return $this->belongsToModel('VisitRegistration');}
+    public function patientType(){return $this->belongsToModel('PatientType');}
+    public function examinationTreatments(){return $this->hasManyModel('ExaminationTreatment');}
+    public function assessments(){return $this->hasManyModel('Assessment');}
+    public function pharmacySale(){return $this->morphOneModel('PharmacySale', 'reference');}
+    public function pharmacySales(){return $this->morphMany('PharmacySale', 'reference');}
+    public function examinationSummary(){return $this->morphOneModel('ExaminationSummary', 'reference');}
+
+    public array $activityList = [
         Activity::VISITATION->value . '_' . ActivityStatus::VISIT_CREATED->value  => ['flag' => 'VISIT_CREATED', 'message' => 'Data kunjungan dibuat'],
         Activity::VISITATION->value . '_' . ActivityStatus::VISITING->value       => ['flag' => 'VISITING', 'message' => 'Kunjungan dilakukan'],
         Activity::VISITATION->value . '_' . ActivityStatus::VISITED->value        => ['flag' => 'VISITED', 'message' => 'Kunjungan selesai'],

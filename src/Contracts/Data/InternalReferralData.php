@@ -2,4 +2,6 @@
 
 namespace Hanafalah\ModulePatient\Contracts\Data;
 
-interface InternalReferralData {} 
+use Spatie\LaravelData\Contracts\BaseData;
+
+interface InternalReferralData extends BaseData {} 

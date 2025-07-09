@@ -42,15 +42,37 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             'reference_type' => $visit_patient_dto->reference_type,
             'flag'           => $visit_patient_dto->flag,
             'reservation_id' => $visit_patient_dto->reservation_id,
+            'patient_type_service_id' => $visit_patient_dto->patient_type_service_id,
             'queue_number'   => $visit_patient_dto->queue_number,
         ];
         if (isset($visit_patient_dto->id)){
-            $guard = ['id' => $visit_patient_dto->id];
+            $guard  = ['id' => $visit_patient_dto->id];
             $create = [$guard,$add];
         }else{
+            $add['id'] = null;
             $create = [$add];
         }
         $visit_patient_model = $this->usingEntity()->updateOrCreate(...$create);
+        $visit_patient_model->load(['paymentSummary','transaction']);
+
+        if ($visit_patient_model->getMorphClass() == $this->VisitPatientModelMorph()) {
+            $visit_patient_model->pushActivity(Activity::ADM_VISIT->value, [ActivityStatus::ADM_START->value]);
+            $this->preparePushLifeCycleActivity($visit_patient_model, $visit_patient_model, 'ADM_VISIT', ['ADM_START']);
+
+            // if (isset($visit_patient_dto->external_referral)) {
+            //     $external_referral_dto = &$visit_patient_dto->external_referral;
+            //     $external_referral_dto->visit_patient_id     = $visit_patient_model->getKey();
+            //     $external_referral_dto->visit_patient_model  = $visit_patient_model;
+            //     $a = $this->schemaContract('external_referral')->prepareStoreExternalReferral($external_referral_dto);
+            //     dd($a);
+            // }
+        }
+        $trx_transaction = &$visit_patient_model->transaction;
+        $visit_patient_dto->props->props['prop_transaction'] = $trx_transaction->toViewApi()->resolve();
+
+        $payment_summary_model = &$visit_patient_model->paymentSummary;
+        $payment_summary_model->transaction_id = $trx_transaction->getKey();
+        $payment_summary_model->save();
 
         //PROCESS VISIT REGISTRATIONS
         $visit_registrations = $visit_patient_dto?->visit_registrations;
@@ -58,7 +80,9 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             foreach ($visit_registrations as $visit_registration_dto) {
                 $visit_registration_dto->visit_patient_id          = $visit_patient_model->getKey();
                 $visit_registration_dto->visit_patient_type        = $visit_patient_model->getMorphClass();
+                $visit_registration_dto->visit_patient_model       = $visit_patient_model;
                 $visit_registration_dto->patient_type_service_id ??= $visit_patient_model->patient_type_service_id;
+                $this->schemaContract('visit_registration')->prepareStoreVisitRegistration($visit_registration_dto);
             }
         }
         $this->fillingProps($visit_patient_model, $visit_patient_dto->props);

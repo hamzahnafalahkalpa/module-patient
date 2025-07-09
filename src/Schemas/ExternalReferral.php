@@ -18,7 +18,7 @@ class ExternalReferral extends PackageManagement implements ContractsExternalRef
         }else{
             $guard = ['visit_patient_id' => $external_referral_dto->visit_patient_id];
         }
-        $external = $this->ExternalReferralModel()->updateOrCreate($guard,[
+        $external = $this->usingEntity()->updateOrCreate($guard,[
                 "date"             => $external_referral_dto->date,
                 "doctor_name"      => $external_referral_dto->doctor_name,
                 "phone"            => $external_referral_dto->phone,
@@ -29,12 +29,12 @@ class ExternalReferral extends PackageManagement implements ContractsExternalRef
             ],
         );
 
-        $this->fillingProps($external, $external_referral_dto);
+        $this->fillingProps($external, $external_referral_dto->props);
         $external->save();
 
         $referral      = $external->referral;
         $visit_patient = $external->visitPatient;
-        $referral->setAttribute('prop_patient', $visit_patient->patient->getPropsKey());
+        $referral->setAttribute('prop_patient', $visit_patient->prop_patient);
         $referral->save();
 
         return static::$external_referral = $external;

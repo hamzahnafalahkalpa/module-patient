@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Hanafalah\LaravelHasProps\Concerns\HasProps;
 use Hanafalah\LaravelSupport\Concerns\Support\HasActivity;
 use Hanafalah\LaravelSupport\Models\BaseModel;
+use Hanafalah\ModulePatient\Concerns\HasPractitionerEvaluation;
 use Hanafalah\ModulePatient\Enums\VisitRegistration\RegistrationStatus;
 use Hanafalah\ModulePatient\Resources\VisitRegistration\ShowVisitRegistration;
 use Hanafalah\ModulePatient\Resources\VisitRegistration\ViewVisitRegistration;
@@ -19,6 +20,7 @@ class VisitRegistration extends BaseModel
 {
     use HasUlids, SoftDeletes, HasProps;
     use HasTransaction, HasPaymentSummary, HasActivity;
+    use HasPractitionerEvaluation;
 
     //MEDIC SERVICE FLAG IN ENUM
     public $incrementing  = false;
@@ -26,17 +28,17 @@ class VisitRegistration extends BaseModel
     protected $primaryKey = 'id';
     protected $list       = [
         'id',
+        'parent_id',
         'visit_registration_code',
         'visit_patient_id',
         'visit_patient_type',
         'medic_service_id',
         'service_cluster_id',
-        'patient_type_id',
-        'referral_id',
+        'internal_referral_id',
         'status',
         'props'
     ];
-    protected $show  = ['parent_id', 'head_doctor_id', 'head_doctor_type'];
+    protected $show  = [];
 
     protected $casts = [
         'name'                => 'string',
@@ -57,16 +59,8 @@ class VisitRegistration extends BaseModel
     {
         parent::booted();
         static::creating(function ($query) {
-            if (!isset($query->visit_registration_code)) {
-                $query->visit_registration_code = static::hasEncoding('VISIT_REGISTRATION');
-            }
-            if (!isset($query->status)) $query->status = RegistrationStatus::DRAFT->value;
-        });
-        static::created(function ($query) {
-            $visit_patient = $query->visitPatient;
-            $visit_patient->patientTypeHistory()->firstOrCreate([
-                'patient_type_id' => $query->patient_type_id
-            ]);
+            $query->visit_registration_code ??= static::hasEncoding('VISIT_REGISTRATION');
+            $query->status ??= $query->getRegistrationStatus('DRAFT');
         });
         static::updated(function ($query) {
             if ($query->isDirty('status') && $query->status == RegistrationStatus::CANCELLED->value) {
@@ -78,6 +72,9 @@ class VisitRegistration extends BaseModel
         });
     }
 
+    public function getRegistrationStatus(string $status): string{
+        return RegistrationStatus::from($status)->value;
+    }
 
     public function viewUsingRelation(){
         return [];
@@ -102,60 +99,15 @@ class VisitRegistration extends BaseModel
 
     public function getViewResource(){return ViewVisitRegistration::class;}
     public function getShowResource(){return ShowVisitRegistration::class;}
-
-
-    public function getStatusSpell()
-    {
-        switch ($this->status) {
-            case RegistrationStatus::DRAFT->value:
-                return 'DRAFT';
-                break;
-            case RegistrationStatus::PROCESSING->value:
-                return 'PROCESSING';
-                break;
-            case RegistrationStatus::CANCELLED->value:
-                return 'CANCELLED';
-                break;
-            case RegistrationStatus::COMPLETED->value:
-                return 'COMPLETED';
-                break;
-        }
-    }
-
-    public function visitPatient()
-    {
-        return $this->morphTo();
-    }
-    public function visitExamination()
-    {
-        return $this->hasOneModel('VisitExamination');
-    }
-    public function visitExaminations()
-    {
-        return $this->hasOneModel('VisitExamination');
-    }
-    public function medicService()
-    {
-        return $this->belongsToModel('MedicService');
-    }
-    public function patientType()
-    {
-        return $this->belongsToModel('PatientType');
-    }
-    public function headDoctor()
-    {
-        return $this->morphTo();
-    }
-    public function modelHasService()
-    {
-        return $this->morphOneModel('ModelHasService', 'reference');
-    }
-    public function modelHasServices()
-    {
-        return $this->morphManyModel('ModelHasService', 'reference');
-    }
-    public function services()
-    {
+    public function visitPatient(){return $this->morphTo();}
+    public function visitExamination(){return $this->hasOneModel('VisitExamination');}
+    public function visitExaminations(){return $this->hasOneModel('VisitExamination');}
+    public function medicService(){return $this->belongsToModel('MedicService');}
+    public function headDoctor(){return $this->morphTo();}
+    public function modelHasService(){return $this->morphOneModel('ModelHasService', 'reference');}
+    public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'reference');}
+    public function internalReferral(){return $this->belongsToModel('InternalReferral');}
+    public function services(){
         return $this->belongsToManyModel(
             'Service',
             'ModelHasService',
@@ -163,12 +115,8 @@ class VisitRegistration extends BaseModel
             'service_id'
         )->where($this->ModelHasServiceModel()->getTable() . '.reference_type', $this->getMorphClass());
     }
-    public function referral()
-    {
-        return $this->belongsToModel('Referral');
-    }
 
-    public static array $activityList = [
+    public array $activityList = [
         Activity::POLI_EXAM->value . '_' . ActivityStatus::POLI_EXAM_QUEUE->value         => ['flag' => 'POLI_EXAM_QUEUE', 'message' => 'Pasien menunggu pemeriksaan'],
         Activity::POLI_EXAM->value . '_' . ActivityStatus::POLI_EXAM_START->value         => ['flag' => 'POLI_EXAM_START', 'message' => 'Pemeriksaan dimulai'],
         Activity::POLI_EXAM->value . '_' . ActivityStatus::POLI_EXAM_END->value           => ['flag' => 'POLI_EXAM_END', 'message' => 'Pemeriksaan selesai'],

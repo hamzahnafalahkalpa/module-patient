@@ -31,7 +31,6 @@ return new class extends Migration
         $table_name = $this->__table->getTable();
         if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
-                $patient_type_service = app(config('database.models.PatientTypeService', PatientTypeService::class));
                 $medic_service        = app(config('database.models.MedicService', MedicService::class));
                 $service_cluster      = app(config('database.models.ServiceCluster', ServiceCluster::class));
 
@@ -39,10 +38,6 @@ return new class extends Migration
                 $table->string('visit_registration_code', 100)->nullable();
                 $table->string('visit_patient_type', 50)->nullable(false);
                 $table->string('visit_patient_id', 36)->nullable(false);
-
-                $table->foreignIdFor($patient_type_service::class)
-                    ->nullable(true)->index()
-                    ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
 
                 $table->foreignIdFor($medic_service::class)
                     ->nullable(true)->index()
@@ -52,16 +47,12 @@ return new class extends Migration
                     ->nullable(true)->index()
                     ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
 
-                $table->string('head_doctor_type', 50)->nullable(true);
-                $table->string('head_doctor_id', 36)->nullable(true);
-
                 $table->string('status', 50)->nullable(true);
                 $table->json('props')->nullable();
                 $table->timestamps();
                 $table->softDeletes();
 
                 $table->index(['visit_patient_id', 'visit_patient_type'], 'vr_visit_ref');
-                $table->index(['head_doctor_id', 'head_doctor_type'], 'vr_head_doctor');
             });
 
             Schema::table($table_name, function (Blueprint $table) {

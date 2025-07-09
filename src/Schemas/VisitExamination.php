@@ -32,7 +32,6 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
 {
 
     protected string $__entity = 'VisitExamination';
-
     public static $visit_examination_model;
 
     public function prepareCommitVisitExamination(?array $attributes = null): Model
@@ -54,50 +53,59 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         return $visit_examination;
     }
 
-    public function commitVisitExamination(): array
-    {
+    public function commitVisitExamination(): array{
         return $this->transaction(function () {
             return $this->showVisitExamination($this->prepareCommitVisitExamination());
         });
     }
 
     public function prepareStoreVisitExamination(VisitExaminationData $visit_examination_dto): Model{
-        $attributes ??= request()->all();
+        if (!isset($visit_examination_dto->visit_registration_id)) throw new \Exception("visit visit registration id is required");
 
-        $visit_registration_fk = $this->VisitRegistrationModel()->getForeignKey();
-        if (!isset($attributes[$visit_registration_fk])) {
-            throw new \Exception("visit $visit_registration_fk is required");
-        }
-
-        $visit_registration = $this->VisitRegistrationModel()->with('medicService')->findOrFail($attributes[$visit_registration_fk]);
+        $visit_registration = $visit_examination_dto->visit_registration_model ?? $this->VisitRegistrationModel()->with('medicService')->findOrFail($visit_examination_dto->visit_registration_id);
         $medic_service      = $visit_registration->medicService;
         if (!isset($medic_service)) throw new \Exception("medic service not found");
 
-        $visit_examination  = $visit_registration->visitExamination()->firstOrCreate();
-        $visit_examination->pushActivity(Activity::VISITATION->value, [ActivityStatus::VISIT_CREATED->value, ActivityStatus::VISITING->value]);
+        $add = [
+            'visit_registration_id' => $visit_examination_dto->visit_registration_id,
+            'visit_patient_id'      => $visit_examination_dto->visit_patient_id,
+        ];
 
+        if (isset($visit_examination_dto->id)){
+            $guard = ['id' => $visit_examination_dto->id];
+            $create = [$guard,$add];
+        }else{
+            $create = [$add];
+        }
+
+        $visit_examination  = $this->usingEntity()->firstOrCreate(...$create);
+        $visit_examination->pushActivity(Activity::VISITATION->value, [ActivityStatus::VISIT_CREATED->value, ActivityStatus::VISITING->value]);
+        
         if (in_array($medic_service->flag, [Label::OUTPATIENT->value, Label::MCU->value])) {
             //ADD DEFAULT SCREENING
-            $screenings = [];
-            $screening_models = $this->ScreeningModel()->whereHas('hasServices', function ($query) use ($medic_service) {
-                $query->where('service_id', $medic_service->service->getKey());
-            })->get();
-            if (isset($screening_models) && count($screening_models) > 0) {
-                foreach ($screening_models as $screening) {
-                    $screenings[] = [
-                        $screening->getKeyName() => $screening->getKey(),
-                        'name'                   => $screening->name
-                    ];
-                }
-                $visit_examination->setAttribute('screenings', $screenings);
-                $visit_examination->save();
-            }
+            // $screenings = [];
+            // $screening_models = $this->ScreeningModel()->whereHas('hasServices', function ($query) use ($medic_service) {
+            //     $query->where('service_id', $medic_service->service->getKey());
+            // })->get();
+            // if (isset($screening_models) && count($screening_models) > 0) {
+            //     foreach ($screening_models as $screening) {
+            //         $screenings[] = [
+            //             $screening->getKeyName() => $screening->getKey(),
+            //             'name'                   => $screening->name
+            //         ];
+            //     }
+            //     $visit_examination->setAttribute('screenings', $screenings);
+            //     $visit_examination->save();
+            // }
         }
 
-        if (isset($attributes['services']) && count($attributes['services']) > 0) {
-            $attributes['medic_service_flag'] ??= $medic_service->flag;
-            $this->storeServices($visit_examination, $attributes);
-        }
+        // if (isset($visit_examination_dto['services']) && count($attributes['services']) > 0) {
+        //     $attributes['medic_service_flag'] ??= $medic_service->flag;
+        //     $this->storeServices($visit_examination, $attributes);
+        // }
+
+        $this->fillingProps($visit_examination, $visit_examination_dto->props);
+        $visit_examination->save();
 
         return static::$visit_examination_model = $visit_examination;
     }
@@ -277,65 +285,19 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         }
     }
 
-    public function prepareViewVisitExaminationList(?array $attributes = null): Collection
-    {
-        $attributes ??= request()->all();
-        return $this->visitExamination()
-            ->get();
-    }
-
-    public function viewVisitExaminationList(): array
-    {
-        return $this->transforming($this->__resources['view'], function () {
-            return $this->prepareViewVisitExaminationList();
-        });
-    }
-
-    public function getVisitExamination(): mixed
-    {
-        return static::$visit_examination_model;
-    }
-
-    protected function showUsingRelation(): array
-    {
-        return [
-            'examinationSummary',
-            'visitRegistration' => function ($query) {
-                $query->with([
-                    'services',
-                    'visitPatient' => function ($query) {
-                        $query->with(['patient', "transaction.consument"]);
-                    },
-                    'medicService.service'
-                ]);
-            }
-        ];
-    }
-
-    public function prepareShowVisitExamination(Model|array|null $model = null): Model
-    {
-        $model ??= $this->getVisitExamination();
-        if (!isset($model) || is_array($model)) {
-            $id = request()->id ?? $model['id'];
-            if (!isset($id)) throw new \Exception('No id provided', 422);
-
-            $model = $this->visitExamination()->with($this->showUsingRelation())->findOrFail($id);
-        } else {
-            $model->load($this->showUsingRelation());
-        }
-        return static::$visit_examination_model = $model;
-    }
-
-    public function showVisitExamination(): array
-    {
-        return $this->transforming($this->__resources['show'], function () {
-            return $this->prepareShowVisitExamination();
-        });
-    }
-
-    public function visitExamination(mixed $conditionals = null): Builder
-    {
-        return $this->usingEntity()->withParameters()->conditionals($conditionals);
-    }
-
+    // protected function showUsingRelation(): array
+    // {
+    //     return [
+    //         'examinationSummary',
+    //         'visitRegistration' => function ($query) {
+    //             $query->with([
+    //                 'services',
+    //                 'visitPatient' => function ($query) {
+    //                     $query->with(['patient', "transaction.consument"]);
+    //                 },
+    //                 'medicService.service'
+    //             ]);
+    //         }
+    //     ];
+    // }
 }
