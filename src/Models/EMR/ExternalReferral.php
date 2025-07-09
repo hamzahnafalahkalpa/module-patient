@@ -25,6 +25,7 @@ class ExternalReferral extends BaseModel
         'facility_name',
         'unit_name',
         'initial_diagnose',
+        'primary_diagnose',
         'note',
         'props'
     ];

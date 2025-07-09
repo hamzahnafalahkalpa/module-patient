@@ -36,6 +36,10 @@ class ExternalReferralData extends Data implements DataExternalReferralData {
     #[MapName('initial_diagnose')]
     public ?string $initial_diagnose = null;
 
+    #[MapInputName('primary_diagnose')]
+    #[MapName('primary_diagnose')]
+    public ?string $primary_diagnose = null;
+
     #[MapInputName('note')]
     #[MapName('note')]
     public ?string $note = null;

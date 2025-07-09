@@ -20,7 +20,6 @@ class ViewPatientType extends ApiResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];
-
         return $arr;
     }
 }

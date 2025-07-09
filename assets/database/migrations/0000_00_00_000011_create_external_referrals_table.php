@@ -34,6 +34,7 @@ return new class extends Migration
                 $table->string("facility_name")->nullable();
                 $table->string("unit_name")->nullable();
                 $table->string("initial_diagnose")->nullable();
+                $table->string("primary_diagnose")->nullable();
                 $table->string("note")->nullable();
                 $table->json('props')->nullable();
                 $table->timestamps();

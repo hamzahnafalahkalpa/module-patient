@@ -36,14 +36,14 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
 
     public function prepareStoreVisitPatient(VisitPatientData $visit_patient_dto): Model{
         $add = [
-            'parent_id'      => $visit_patient_dto->parent_id,
-            'patient_id'     => $visit_patient_dto->patient_id,
-            'reference_id'   => $visit_patient_dto->reference_id,
-            'reference_type' => $visit_patient_dto->reference_type,
-            'flag'           => $visit_patient_dto->flag,
-            'reservation_id' => $visit_patient_dto->reservation_id,
+            'parent_id'               => $visit_patient_dto->parent_id,
+            'patient_id'              => $visit_patient_dto->patient_id,
+            'reference_id'            => $visit_patient_dto->reference_id,
+            'reference_type'          => $visit_patient_dto->reference_type,
+            'flag'                    => $visit_patient_dto->flag,
+            'reservation_id'          => $visit_patient_dto->reservation_id,
             'patient_type_service_id' => $visit_patient_dto->patient_type_service_id,
-            'queue_number'   => $visit_patient_dto->queue_number,
+            'queue_number'            => $visit_patient_dto->queue_number,
         ];
         if (isset($visit_patient_dto->id)){
             $guard  = ['id' => $visit_patient_dto->id];
@@ -55,17 +55,21 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         $visit_patient_model = $this->usingEntity()->updateOrCreate(...$create);
         $visit_patient_model->load(['paymentSummary','transaction']);
 
+        $this->fillingProps($visit_patient_model, $visit_patient_dto->props);
+        $visit_patient_model->save();
+
         if ($visit_patient_model->getMorphClass() == $this->VisitPatientModelMorph()) {
             $visit_patient_model->pushActivity(Activity::ADM_VISIT->value, [ActivityStatus::ADM_START->value]);
             $this->preparePushLifeCycleActivity($visit_patient_model, $visit_patient_model, 'ADM_VISIT', ['ADM_START']);
 
-            // if (isset($visit_patient_dto->external_referral)) {
-            //     $external_referral_dto = &$visit_patient_dto->external_referral;
-            //     $external_referral_dto->visit_patient_id     = $visit_patient_model->getKey();
-            //     $external_referral_dto->visit_patient_model  = $visit_patient_model;
-            //     $a = $this->schemaContract('external_referral')->prepareStoreExternalReferral($external_referral_dto);
-            //     dd($a);
-            // }
+            if (isset($visit_patient_dto->referral)) {
+                $referral_dto = &$visit_patient_dto->referral;
+                $referral_dto->visit_id     = $visit_patient_model->getKey();
+                $referral_dto->visit_type   = $visit_patient_model->getMorphClass();
+                $referral_dto->visit_model  = $visit_patient_model;
+                $referral = $this->schemaContract('referral')->prepareStoreReferral($referral_dto);
+                $visit_patient_dto->props->props['prop_referral'] = $referral->toViewApi()->resolve();
+            }
         }
         $trx_transaction = &$visit_patient_model->transaction;
         $visit_patient_dto->props->props['prop_transaction'] = $trx_transaction->toViewApi()->resolve();

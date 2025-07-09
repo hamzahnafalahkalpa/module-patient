@@ -10,9 +10,14 @@ class ViewExternalReferral extends ApiResource
     {
         $arr = [
             'id'                => $this->id,
-            'visit_patient'     => $this->prop_visit_patient,
-            'doctor_name'       => $this->doctor_name,
-            'note'              => $this->note
+            'date'              => $this->date,           
+            'doctor_name'       => $this->doctor_name,                  
+            'phone'             => $this->phone,            
+            'facility_name'     => $this->facility_name,                    
+            'unit_name'         => $this->unit_name,                
+            'initial_diagnose'  => $this->initial_diagnose,                       
+            'primary_diagnose'  => $this->primary_diagnose,                       
+            'note'              => $this->note,           
         ];
         return $arr;
     }

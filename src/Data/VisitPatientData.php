@@ -4,6 +4,7 @@ namespace Hanafalah\ModulePatient\Data;
 
 use Carbon\Carbon;
 use Hanafalah\LaravelSupport\Supports\Data;
+use Hanafalah\ModulePatient\Contracts\Data\ReferralData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitPatientData as DataVisitPatientData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapInputName;
@@ -56,9 +57,9 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[MapName('flag')]
     public string $flag;
 
-    #[MapInputName('external_referral')]
-    #[MapName('external_referral')]
-    public ?ExternalReferralData $external_referral = null;
+    #[MapInputName('referral')]
+    #[MapName('referral')]
+    public ?ReferralData $referral = null;
 
     #[MapInputName('visit_registrations')]
     #[MapName('visit_registrations')]
@@ -78,11 +79,9 @@ class VisitPatientData extends Data implements DataVisitPatientData{
         $props = &$data->props->props;
 
         $props['prop_patient'] = $new->PatientModel()->findOrFail($data->patient_id)->toViewApi()->resolve();
-
         $patient_type_service = $new->PatientTypeServiceModel();
         $patient_type_service = (isset($data->patient_type_service_id)) ? $patient_type_service->findOrFail($data->patient_type_service_id) : $patient_type_service;
         $props['prop_patient_type_service'] = $patient_type_service->toViewApi()->resolve();
-
         return $data;
     }
 }

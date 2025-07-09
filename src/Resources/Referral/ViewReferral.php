@@ -13,7 +13,8 @@ class ViewReferral extends ApiResource
             'referral_code'         => $this->referral_code,
             'status'                => $this->status,
             'patient'               => $this->prop_patient,
-            'visit'                 => $this->prop_visit,
+            'visit_type'            => $this->visit_type,
+            'visit_id'              => $this->visit_id,
             'reference_type'        => $this->reference_type,
             'reference'             => $this->prop_reference,
         ];

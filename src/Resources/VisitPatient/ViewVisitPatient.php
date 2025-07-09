@@ -24,6 +24,7 @@ class ViewVisitPatient extends ApiResource
             "flag"               => $this->flag,
             "visited_at"         => $this->visited_at,
             "reported_at"        => $this->reported_at,
+            "referral"           => $this->prop_referral,
             "reference"          => $this->relationValidation('reference', function () {
                 return $this->reference->toViewApi()->resolve();
             }),
@@ -46,24 +47,7 @@ class ViewVisitPatient extends ApiResource
                     return $arr;
                 });
             }),
-            'patient' => $this->relationValidation('patient', function () {
-                $patient = $this->patient;
-                $arr = [
-                    'id'     => $patient->getKey(),
-                    'card_identities' => $patient->cardIdentities->mapWithKeys(function ($cardIdentity) {
-                        return [$cardIdentity->flag => $cardIdentity->value];
-                    }),
-                    'user_reference' => [
-                        'uuid' => $patient->uuid
-                    ]
-                ];
-                if (class_exists(\Hanafalah\ModulePeople\Models\People\People::class)) {
-                    if ($patient->reference_type == $this->PeopleModel()->getMorphClass()) {
-                        $arr['people'] = $patient->propResource($patient->reference, \Hanafalah\ModulePeople\Resources\People\ViewPeople::class);
-                    }
-                }
-                return $arr;
-            }),
+            'patient'            => $this->prop_patient,
             'properties'         => $this->properties ?? null,
             'activity'           => $this->prop_activity ?? null,
             "created_at"         => $this->created_at,

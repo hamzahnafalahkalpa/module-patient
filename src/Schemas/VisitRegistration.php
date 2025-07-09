@@ -164,8 +164,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
     //     return $visit_registrations;
     // }
 
-    public function visitRegistration(mixed $conditionals = null): Builder
-    {
+    public function visitRegistration(mixed $conditionals = null): Builder{
         return $this->VisitRegistrationModel()
             ->with('visitPatient.patient')
             ->conditionals($this->mergeCondition($conditionals ?? []))
@@ -205,8 +204,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             });
     }
 
-    public function visitRegistrationCancellation(?array $attributes): Model
-    {
+    public function visitRegistrationCancellation(?array $attributes): Model{
         $attributes ??= request()->all();
         $visitRegistration         = $this->VisitRegistrationModel()->find($attributes['visit_registration_id']);
         $visitRegistration->status = RegistrationStatus::CANCELLED->value;
