@@ -38,7 +38,6 @@ class InstallMakeCommand extends EnvironmentCommand
             '--tag'      => 'migrations'
         ]);
         $this->info('✔️  Created migrations');
-
         $this->comment('hanafalah/module-patient installed successfully.');
     }
 }

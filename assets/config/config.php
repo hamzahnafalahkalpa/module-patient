@@ -3,13 +3,15 @@
 use Hanafalah\ModulePatient\{
     Commands as ModulePatientCommands,
 };
-use Hanafalah\ModulePatient\Enums\Patient\CardIdentity;
+
+use Hanafalah\ModuleExamination;
 
 return [
-    'namespace' => 'Hanafalah\ModulePatient',
+    'namespace' => 'Hanafalah\\ModuleExamination',
     'app' => [
         'contracts' => [
-        ],
+            //ADD YOUR CONTRACTS HERE
+        ]
     ],
     'libs' => [
         'model' => 'Models',
@@ -18,24 +20,15 @@ return [
         'database' => 'Database',
         'data' => 'Data',
         'resource' => 'Resources',
-        'migration' => '../assets/database/migrations',
+        'migration' => '../assets/database/migrations'
     ],
     'database' => [
         'models' => [
         ]
     ],
-    'patient_identities' => CardIdentity::cases(),
-    'patient_types' => [
-        //THIS KEY SAME WITH MODEL NAME USING SNAKE CASE
-        'people' => [
-            'schema' => 'PatientPeople',
-        ], 
-        'animal' => [
-            'schema' => null,
-        ]
-    ],
+    'practitioner' => \App\Models\User::class,
+    'head_doctor'  => \App\Models\User::class,
     'commands' => [
-        ModulePatientCommands\InstallMakeCommand::class
+        ModuleExamination\Commands\InstallMakeCommand::class
     ],
-    'practitioner' => 'User'
 ];
