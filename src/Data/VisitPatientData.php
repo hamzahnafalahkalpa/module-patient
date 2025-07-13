@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Hanafalah\LaravelSupport\Supports\Data;
 use Hanafalah\ModulePatient\Contracts\Data\ReferralData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitPatientData as DataVisitPatientData;
+use Hanafalah\ModulePayment\Contracts\Data\PaymentSummaryData;
+use Hanafalah\ModuleTransaction\Contracts\Data\TransactionData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
@@ -23,6 +25,14 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[MapInputName('patient_id')]
     #[MapName('patient_id')]
     public mixed $patient_id;
+
+    #[MapInputName('patient_model')]
+    #[MapName('patient_model')]
+    public ?object $patient_model = null;
+
+    #[MapInputName('transaction')]
+    #[MapName('transaction')]
+    public ?TransactionData $transaction = null;
 
     #[MapInputName('reference_type')]
     #[MapName('reference_type')]
@@ -66,19 +76,47 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[DataCollectionOf(VisitRegistrationData::class)]
     public ?array $visit_registrations;
 
+    #[MapInputName('payment_summary')]
+    #[MapName('payment_summary')]
+    public ?PaymentSummaryData $payment_summary;
+
     #[MapInputName('props')]
     #[MapName('props')]
     public ?VisitPatientPropsData $props = null;
 
     public static function before(array &$attributes){
+        $new = static::new();
         $attributes['flag'] ??= 'CLINICAL_VISIT';
+
+        $attributes['patient_model'] = $patient = $new->PatientModel()->with('reference')->findOrFail($attributes['patient_id']);
+        $attributes['prop_patient'] = $patient->toViewApi()->resolve();
+
+        $reference = $patient->reference;
+        if (\method_exists($reference, 'hasPhone')) $phone = $reference->hasPhone?->phone ?? null;
+        
+        $attributes['transaction'] = [
+            'id' => null,
+            "reference_type" => "VisitPatient",
+            'consument' => [
+                'id'             => null,
+                'phone'          => $phone ?? null,
+                'name'           => $patient->name,
+                'reference_type' => 'Patient',
+                'reference_id'   => $attributes['patient_id']
+            ]
+        ];
+
+        $attributes['payment_summary'] = [
+            "id" => null,
+            'name'           => 'Total Tagihan Pasien '.$patient->name,
+            "reference_type" => "VisitPatient"
+        ];
     }
 
     public static function after(self $data): self{
         $new = static::new();
         $props = &$data->props->props;
 
-        $props['prop_patient'] = $new->PatientModel()->findOrFail($data->patient_id)->toViewApi()->resolve();
         $patient_type_service = $new->PatientTypeServiceModel();
         $patient_type_service = (isset($data->patient_type_service_id)) ? $patient_type_service->findOrFail($data->patient_type_service_id) : $patient_type_service;
         $props['prop_patient_type_service'] = $patient_type_service->toViewApi()->resolve();

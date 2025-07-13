@@ -21,7 +21,7 @@ class Referral extends BaseModel
     protected $keyType    = 'string';
     protected $primaryKey = 'id';
     protected $list       = [
-        'id', 'referral_code', 'reference_type', 'reference_id', 
+        'id', 'referral_code', 'referral_type', 'medic_service_id', 
         'visit_type', 'visit_id', 'status', 'props'
     ];
     protected $show       = [];
@@ -64,6 +64,7 @@ class Referral extends BaseModel
     public function visit(){return $this->morphTo();}
     public function visitRegistrations(){return $this->hasManyModel('VisitRegistration');}
     public function internalReferral(){return $this->hasOneModel("InternalReferral");}
+    public function medicService(){return $this->belongsToModel('MedicService');}
 
     public array $activityList = [
         Activity::REFERRAL_POLI->value . '_' . ActivityStatus::REFERRAL_CREATED->value    => ['flag' => 'REFERRAL_CREATED',   'message' => 'Pembuatan data Rujukan.'],

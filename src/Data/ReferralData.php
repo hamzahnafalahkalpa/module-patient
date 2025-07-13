@@ -2,15 +2,13 @@
 
 namespace Hanafalah\ModulePatient\Data;
 
-use Hanafalah\LaravelSupport\Concerns\Support\HasRequestData;
 use Hanafalah\LaravelSupport\Supports\Data;
 use Hanafalah\ModulePatient\Contracts\Data\ReferralData as DataReferralData;
+use Hanafalah\ModulePatient\Contracts\Data\ReferralPropsData;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
 
 class ReferralData extends Data implements DataReferralData{
-    use HasRequestData;
-
     #[MapInputName('id')]
     #[MapName('id')]
     public mixed $id = null;
@@ -19,17 +17,9 @@ class ReferralData extends Data implements DataReferralData{
     #[MapName('referral_code')]
     public ?string $referral_code = null;
 
-    #[MapInputName('reference_type')]
-    #[MapName('reference_type')]
-    public ?string $reference_type = null;
-
-    #[MapInputName('reference_id')]
-    #[MapName('reference_id')]
-    public mixed $reference_id = null;
-
-    #[MapInputName('reference')]
-    #[MapName('reference')]
-    public null|array|object $reference = null;
+    #[MapInputName('referral_type')]
+    #[MapName('referral_type')]
+    public ?string $referral_type = null;
 
     #[MapInputName('visit_type')]
     #[MapName('visit_type')]
@@ -43,19 +33,24 @@ class ReferralData extends Data implements DataReferralData{
     #[MapName('visit_model')]
     public ?object $visit_model = null;
 
+    #[MapInputName('medic_service_id')]
+    #[MapName('medic_service_id')]
+    public mixed $medic_service_id = null;
+
     #[MapInputName('props')]
     #[MapName('props')]
-    public ?array $props = null;
+    public ?ReferralPropsData $props = null;
 
     public static function before(array &$attributes){
         $attributes['flag'] ??= 'CLINICAL_VISIT';
+        // $attributes['external_referral'] ??= [
+        //     'date' => null
+        // ];
     }
 
     public static function after(self $data): self{
         $new = static::new();
-        $props = &$data->props;
-
-        $data->reference = $new->requestDTO(($data->reference_type == 'ExternalReferral') ? ExternalReferralData::class : InternalReferralData::class,$data->reference);
+        $data->referral_type ??= 'INTERNAL';
         return $data;
     }
 }

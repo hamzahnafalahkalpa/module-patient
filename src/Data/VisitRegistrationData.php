@@ -8,6 +8,8 @@ use Hanafalah\ModulePatient\Contracts\Data\PractitionerEvaluationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitRegistrationData as DataVisitRegistrationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitRegistrationPropsData;
+use Hanafalah\ModulePayment\Contracts\Data\PaymentSummaryData;
+use Hanafalah\ModuleTransaction\Contracts\Data\TransactionData;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
 
@@ -16,9 +18,9 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     #[MapName('id')]
     public mixed $id = null;
 
-    #[MapInputName('name')]
-    #[MapName('name')]
-    public string $name;
+    #[MapInputName('transaction')]
+    #[MapName('transaction')]
+    public ?TransactionData $transaction = null;
 
     #[MapInputName('visit_patient_id')]
     #[MapName('visit_patient_id')]
@@ -52,6 +54,10 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     #[MapName('status')]
     public mixed $status = null;
 
+    #[MapInputName('payment_summary')]
+    #[MapName('payment_summary')]
+    public ?PaymentSummaryData $payment_summary;
+
     #[MapInputName('props')]
     #[MapName('props')]
     public ?VisitRegistrationPropsData $props = null;
@@ -60,7 +66,6 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
         $new = static::new();
         $medic_service = $new->MedicServiceModel()->findOrFail($attributes['medic_service_id']);
         $attributes['medic_service_model'] = $medic_service;
-        $attributes['name'] ??= $medic_service->name;
         $attributes['prop_medic_service'] = $medic_service->toViewApi()->resolve();
 
         $attributes['practitioner_evaluation'] ??= [];
@@ -78,6 +83,17 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
                 'practitioner_evaluations' => []
             ];
         }
+
+        $attributes['payment_summary'] = [
+            "id" => null,
+            'name' => 'Total Tagihan Kunjungan Poli '.$medic_service->name,
+            "reference_type" => "VisitRegistration"
+        ];
+
+        $attributes['transaction'] = [
+            'id' => null,
+            "reference_type" => "VisitPatient"
+        ];
     }
 
     public static function after(self $data): self{
@@ -86,7 +102,6 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
 
         $medic_service = $new->MedicServiceModel()->findOrFail($data->medic_service_id);
         $data->medic_service_model = $medic_service;
-        $data->name ??= $medic_service->name;
         $props['prop_medic_service'] = $medic_service->toViewApi()->resolve();
         return $data;
     }

@@ -18,7 +18,6 @@ use Hanafalah\ModulePatient\{
 };
 use Hanafalah\ModulePatient\Contracts\Data\VisitRegistrationData;
 use Hanafalah\ModulePatient\Enums\{
-    EvaluationEmployee\PIC,
     VisitRegistration\Activity as VisitRegistrationActivity,
     VisitRegistration\ActivityStatus as VisitRegistrationActivityStatus
 };
@@ -100,7 +99,6 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
     public function createVisitRegistration(VisitRegistrationData &$visit_registration_dto): Model{
         $add = [
             'visited_at'        => now(),
-            'name'              => $visit_registration_dto->name ?? null,
             'parent_id'         => $visit_registration_dto->parent_id ?? null
         ];
 
@@ -112,20 +110,11 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             // 'referral_id'        => $visit_registration_dto->referral_id ?? null
         ];
 
-        $visit_registration = $this->VisitRegistrationModel()->updateOrCreate($guard,$add);
+        $visit_registration = $this->usingEntity()->updateOrCreate($guard,$add);
         $visit_registration->load(['paymentSummary', 'transaction']);
-        $visit_patient = $visit_registration_dto->visit_patient_model ??= $visit_registration->visitPatient;
         
-        $trx_visit_patient                 = &$visit_patient->transaction;
-        $trx_visit_registration            = &$visit_registration->transaction;
-        $trx_visit_registration->parent_id = $trx_visit_patient->getKey();
-        $trx_visit_registration->save();
-
-        $vr_payment_summary                 = &$visit_registration->paymentSummary;
-        $vr_payment_summary->parent_id      = $visit_patient->paymentSummary->getKey();
-        $vr_payment_summary->transaction_id = $trx_visit_registration->getKey();
-        $vr_payment_summary->name           = 'Total tagihan ' . $visit_registration_dto->name;
-        $vr_payment_summary->save();
+        $this->initTransaction($visit_registration_dto, $visit_registration)
+             ->initPaymentSummary($visit_registration_dto, $visit_registration);
 
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();

@@ -40,6 +40,33 @@ class ModulePatient extends PackageManagement implements Contracts\ModulePatient
         return $result;
     }
 
+    protected function initTransaction(mixed &$dto, Model &$model): self{
+        if (isset($dto->transaction)){
+            $transaction_dto = &$dto->transaction;
+            $transaction_dto->reference_type  = $model->getMorphClass();
+            $transaction_dto->reference_id    = $model->getKey();
+            $transaction_dto->reference_model = $model;
+            $transaction = $this->schemaContract('transaction')->prepareStoreTransaction($transaction_dto);
+            $model->setRelation('transaction', $transaction);
+            $transaction_dto->id = $transaction->getKey();
+        }
+        return $this;
+    }
+
+    protected function initPaymentSummary(mixed &$dto, Model &$model): self{
+        if (isset($dto->payment_summary)){
+            $payment_summary_dto = &$dto->payment_summary;
+            $payment_summary_dto->reference_type  = $model->getMorphClass();
+            $payment_summary_dto->reference_id    = $model->getKey();
+            $payment_summary_dto->transaction_id  = $model->transaction->getKey();
+            $payment_summary_dto->reference_model = $model;
+            $payment_summary = $this->schemaContract('payment_summary')->prepareStorePaymentSummary($payment_summary_dto);
+            $model->setRelation('paymentSummary', $payment_summary);
+            $payment_summary_dto->id = $payment_summary->getKey();
+        }
+        return $this;
+    }
+
     protected function initPatientSummary($reference): self
     {
         if (isset($reference)) {

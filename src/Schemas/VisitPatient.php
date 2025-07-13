@@ -12,6 +12,7 @@ use Hanafalah\ModulePatient\Enums\VisitPatient\{
     VisitStatus
 };
 use Hanafalah\ModulePatient\ModulePatient;
+use Hanafalah\ModulePayment\Contracts\Data\InvoiceData;
 
 class VisitPatient extends ModulePatient implements ContractsVisitPatient
 {
@@ -26,37 +27,9 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         ]
     ];
 
-    public function visitPatient(mixed $conditionals = null): Builder{
-        return $this->generalSchemaModel($conditionals)
-            ->when(isset(request()->patient_id), function ($query) {
-                return $query->where('patient_id', request()->patient_id);
-            })
-            ->withParameters('or');
-    }
-
     public function prepareStoreVisitPatient(VisitPatientData $visit_patient_dto): Model{
-        $add = [
-            'parent_id'               => $visit_patient_dto->parent_id,
-            'patient_id'              => $visit_patient_dto->patient_id,
-            'reference_id'            => $visit_patient_dto->reference_id,
-            'reference_type'          => $visit_patient_dto->reference_type,
-            'flag'                    => $visit_patient_dto->flag,
-            'reservation_id'          => $visit_patient_dto->reservation_id,
-            'patient_type_service_id' => $visit_patient_dto->patient_type_service_id,
-            'queue_number'            => $visit_patient_dto->queue_number,
-        ];
-        if (isset($visit_patient_dto->id)){
-            $guard  = ['id' => $visit_patient_dto->id];
-            $create = [$guard,$add];
-        }else{
-            $add['id'] = null;
-            $create = [$add];
-        }
-        $visit_patient_model = $this->usingEntity()->updateOrCreate(...$create);
-        $visit_patient_model->load(['paymentSummary','transaction']);
-
-        $this->fillingProps($visit_patient_model, $visit_patient_dto->props);
-        $visit_patient_model->save();
+        $visit_patient_model = $this->createVisitPatient($visit_patient_dto);
+        $patient = &$visit_patient_model->patient;
 
         if ($visit_patient_model->getMorphClass() == $this->VisitPatientModelMorph()) {
             $visit_patient_model->pushActivity(Activity::ADM_VISIT->value, [ActivityStatus::ADM_START->value]);
@@ -73,19 +46,31 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         }
         $trx_transaction = &$visit_patient_model->transaction;
         $visit_patient_dto->props->props['prop_transaction'] = $trx_transaction->toViewApi()->resolve();
+        // $this->updatePaymentSummary($visit_patient_model, $attributes, $patient)
+        //     ->createAgent($visit_patient_model, $attributes)
+        //     ->createPatientType($visit_patient_model, $attributes)
+        //     ->createConsumentTransaction($visit_patient_model, [
+        //         'name'           => $patient->prop_people['name'],
+        //         'phone'          => $phone ?? null,
+        //         'reference_id'   => $patient->getKey(),
+        //         'reference_type' => $patient->getMorphClass(),
+        //         'patient'        => $patient
+        //     ]);
 
-        $payment_summary_model = &$visit_patient_model->paymentSummary;
-        $payment_summary_model->transaction_id = $trx_transaction->getKey();
-        $payment_summary_model->save();
+        // $payment_summary_model = &$visit_patient_model->paymentSummary;
+        // $payment_summary_model->transaction_id = $trx_transaction->getKey();
+        // $payment_summary_model->save();
 
         //PROCESS VISIT REGISTRATIONS
         $visit_registrations = $visit_patient_dto?->visit_registrations;
         if (isset($visit_registrations) && count($visit_registrations) > 0){
             foreach ($visit_registrations as $visit_registration_dto) {
-                $visit_registration_dto->visit_patient_id          = $visit_patient_model->getKey();
-                $visit_registration_dto->visit_patient_type        = $visit_patient_model->getMorphClass();
-                $visit_registration_dto->visit_patient_model       = $visit_patient_model;
-                $visit_registration_dto->patient_type_service_id ??= $visit_patient_model->patient_type_service_id;
+                $visit_registration_dto->visit_patient_id             = $visit_patient_model->getKey();
+                $visit_registration_dto->visit_patient_type           = $visit_patient_model->getMorphClass();
+                $visit_registration_dto->visit_patient_model          = $visit_patient_model;
+                $visit_registration_dto->patient_type_service_id    ??= $visit_patient_model->patient_type_service_id;
+                $visit_registration_dto->payment_summary->parent_id   = $visit_patient_model?->paymentSummary->getKey() ?? null;
+                $visit_registration_dto->transaction->parent_id       = $trx_transaction?->getKey() ?? null;
                 $this->schemaContract('visit_registration')->prepareStoreVisitRegistration($visit_registration_dto);
             }
         }
@@ -94,6 +79,34 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         return $visit_patient_model;
     }
 
+    protected function createVisitPatient(VisitPatientData $visit_patient_dto): Model{
+        $add = [
+            'parent_id'               => $visit_patient_dto->parent_id,
+            'patient_id'              => $visit_patient_dto->patient_id,
+            'reference_id'            => $visit_patient_dto->reference_id,
+            'reference_type'          => $visit_patient_dto->reference_type,
+            'flag'                    => $visit_patient_dto->flag,
+            'reservation_id'          => $visit_patient_dto->reservation_id,
+            'patient_type_service_id' => $visit_patient_dto->patient_type_service_id,
+            'queue_number'            => $visit_patient_dto->queue_number
+        ];
+        if (isset($visit_patient_dto->id)){
+            $guard  = ['id' => $visit_patient_dto->id];
+            $create = [$guard,$add];
+        }else{
+            $add['id'] = null;
+            $create = [$add];
+        }
+        $visit_patient_model = $this->usingEntity()->updateOrCreate(...$create);
+        $visit_patient_model->load(['transaction']);
+        $visit_patient_model->setRelation('patient', $visit_patient_dto->patient_model ?? $visit_patient_model->patient);
+        $this->initTransaction($visit_patient_dto, $visit_patient_model)
+             ->initPaymentSummary($visit_patient_dto, $visit_patient_model);
+
+        $this->fillingProps($visit_patient_model, $visit_patient_dto->props);
+        $visit_patient_model->save();
+        return static::$visit_patient_model = $visit_patient_model;
+    }
 
     public function preparePushLifeCycleActivity(Model $visit_patient, Model $visit_patient_model, mixed $activity_status, int|array $statuses): self{
         $visit_patient->refresh();
@@ -178,7 +191,6 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
 
         $this->updatePaymentSummary($visit_patient_model, $attributes, $patient)
             ->createAgent($visit_patient_model, $attributes)
-            ->createPatientType($visit_patient_model, $attributes)
             ->createConsumentTransaction($visit_patient_model, [
                 'name'           => $patient->prop_people['name'],
                 'phone'          => $phone ?? null,
@@ -232,21 +244,26 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
     }
 
     protected function updatePaymentSummary(Model &$model, array $attributes, ?Model $patient, ?string $message = null): self{
-        $attributes['payer_id'] ??= request()->payer_id;
-        if (!isset($attributes['payer_id']) && isset($patient)) {
-            $patient->modelHasOrganization()->where('organization_type', $this->PayerModelMorph())->delete();
+        $has_payer = isset($visit_patient_dto->payer_id);
+        if (!$has_payer && isset($patient)) {
+            $patient->modelHasOrganization()
+                    ->where('organization_type', $this->PayerModelMorph())
+                    ->delete();
         }
 
-        if (isset($attributes['payer_id'])) {
+        if ($has_payer) {
             $this->createModelHasOrganization($model, $attributes);
         } else {
             if (isset($patient)) {
-                $invoice_model = $patient;
-                $invoice       = $this->createInvoice($invoice_model);
-
-                $paymentSummary            = $invoice->paymentSummary()->firstOrCreate();
-                $paymentSummary->name      = $message ?? "Total Tagihan untuk {$patient->prop_people['name']}";
-                $paymentSummary->save();
+                $invoice = $this->schemaContract('invoice')->prepareStoreInvoice($this->requestDTO(InvoiceData::class,[
+                    'consument_id'   => $patient->getKey(),
+                    'consument_type' => $patient->getMorphClass(),
+                    'consument_model' => $patient,
+                    'payment_summary' => [
+                        'name' => $message  
+                    ],
+                    'billing_at'     => null
+                ]));
 
                 $transaction                         = $model->transaction()->firstOrCreate();
                 $trx_payment_summary                 = $transaction->paymentSummary;
@@ -272,15 +289,6 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         ]);
         $payer   = $this->PayerModel()->findOrFail($attributes['payer_id']);
         $model->sync($payer, ['id', 'name']);
-    }
-
-    protected function createPatientType(Model &$model, array $attributes): self{
-        if (isset($attributes['patient_type_id'])) {
-            $patientType = $this->PatientTypeModel()->findOrFail($attributes['patient_type_id']);
-            $model->patientTypeHistory()->firstOrCreate(['patient_type_id' => $attributes['patient_type_id']]);
-            $model->sync($patientType, ['id', 'name']);
-        }
-        return $this;
     }
 
     protected function createAgent(Model &$model, array $attributes): self{

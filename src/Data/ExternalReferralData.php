@@ -8,10 +8,6 @@ use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
 
 class ExternalReferralData extends Data implements DataExternalReferralData {
-    #[MapInputName('id')]
-    #[MapName('id')]
-    public mixed $id;
-    
     #[MapInputName('date')]
     #[MapName('date')]
     public ?string $date = null;

@@ -26,18 +26,20 @@ class Referral extends ModulePatient implements ContractsReferral
     ];
 
     public function prepareStoreReferral(ReferralData $referral_dto): Model{
-        $reference = $this->schemaContract($referral_dto->reference_type)->prepareStore($referral_dto->reference);
-
         $create = [
             'id'             => $referral_dto->id ?? null, 
-            'reference_type' => $referral_dto->reference_type, 
-            'reference_id'   => $reference->getKey(), 
             'visit_type'     => $referral_dto->visit_type, 
             'visit_id'       => $referral_dto->visit_id,
+            'referral_type'    => $referral_dto->referral_type,
+            'medic_service_id' => $referral_dto->medic_service_id
         ];
 
         $referral = $this->usingEntity()->firstOrCreate($create);
-        $referral_dto->props['prop_reference'] = $reference->toViewApi()->resolve();
+
+        if (isset($referral_dto->medic_service_id)){
+            $medic_service = $this->MedicServiceModel()->findOrFail($referral_dto->medic_service_id);
+            $referral_dto->props->props['prop_medic_service'] = $medic_service->toViewApi()->resolve();
+        }
 
         $this->fillingProps($referral,$referral_dto->props);
         $referral->save();

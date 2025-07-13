@@ -43,6 +43,8 @@ class VisitRegistration extends BaseModel
     protected $casts = [
         'name'                => 'string',
         'service_label_id'    => 'string',
+        'medic_service_name' => 'string',
+        'medic_service_label' => 'string',
         'created_at'          => 'date'
     ];
 
@@ -51,7 +53,11 @@ class VisitRegistration extends BaseModel
         return [
             //FOR HEAD DOCTOR
             'name' => 'props->prop_people->name',
-            'service_label_id' => 'props->prop_service_label_ids'
+            'service_label_id' => 'props->prop_service_label_ids',
+            'service_cluster_id' => 'props->prop_service_cluster->id',
+            'service_cluster_name' => 'props->prop_service_cluster->name',
+            'medic_service_id' => 'props->prop_medic_service->id',
+            'medic_service_name' => 'props->prop_medic_service->label'
         ];
     }
 

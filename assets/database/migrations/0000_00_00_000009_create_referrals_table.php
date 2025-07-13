@@ -1,5 +1,6 @@
 <?php
 
+use Hanafalah\ModuleMedicService\Models\MedicService;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -26,13 +27,16 @@ return new class extends Migration
         $table_name = $this->__table->getTable();
         if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
+                $medic_service = app(config('database.models.MedicService',MedicService::class));
+
                 $table->ulid('id')->primary();
                 $table->string('referral_code', 50)->nullable(false);
-                $table->string('reference_type', 50)->nullable(false);
-                $table->string('reference_id', 36)->nullable(false);
+                $table->string('referral_type', 50)->nullable(false);
                 $table->string('visit_type', 50)->nullable(false);
                 $table->string('visit_id', 36)->nullable(false);
                 $table->string('status', 50)->nullable(true);
+                $table->foreignIdFor($medic_service::class)->index()->constrained()
+                      ->cascadeOnUpdate()->restrictOnDelete();
                 $table->json('props')->nullable();
                 $table->timestamps();
                 $table->softDeletes();
