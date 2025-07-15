@@ -12,17 +12,17 @@
         }
     ],
     "require": {
-        "hanafalah/laravel-support": "1.x-dev as 1.0",
-        "hanafalah/module-user": "1.x-dev as 1.0",
-        "hanafalah/module-card-identity": "1.x-dev as 1.0",
-        "hanafalah/module-service": "1.x-dev as 1.0",
-        "hanafalah/module-medic-service": "1.x-dev as 1.0",
-        "hanafalah/module-payer": "1.x-dev as 1.0",
-        "hanafalah/module-organization": "1.x-dev as 1.0",
-        "hanafalah/module-examination": "1.x-dev as 1.0",
-        "hanafalah/module-profession": "1.x-dev as 1.0",
-        "hanafalah/module-transaction": "1.x-dev as 1.0",
-        "hanafalah/module-payment": "1.x-dev as 1.0"
+        "hanafalah/laravel-support": "dev-main",
+        "hanafalah/module-user": "dev-main",
+        "hanafalah/module-card-identity": "dev-main",
+        "hanafalah/module-service": "dev-main",
+        "hanafalah/module-medic-service": "dev-main",
+        "hanafalah/module-payer": "dev-main",
+        "hanafalah/module-organization": "dev-main",
+        "hanafalah/module-examination": "dev-main",
+        "hanafalah/module-profession": "dev-main",
+        "hanafalah/module-transaction": "dev-main",
+        "hanafalah/module-payment": "dev-main"
     },
     "minimum-stability": "dev",
     "prefer-stable": false
