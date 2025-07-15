@@ -63,7 +63,6 @@ class Referral extends BaseModel
     public function reference(){return $this->morphTo();}
     public function visit(){return $this->morphTo();}
     public function visitRegistrations(){return $this->hasManyModel('VisitRegistration');}
-    public function internalReferral(){return $this->hasOneModel("InternalReferral");}
     public function medicService(){return $this->belongsToModel('MedicService');}
 
     public array $activityList = [

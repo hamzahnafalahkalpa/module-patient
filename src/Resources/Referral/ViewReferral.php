@@ -17,6 +17,7 @@ class ViewReferral extends ApiResource
             'visit_id'              => $this->visit_id,
             'reference_type'        => $this->reference_type,
             'reference'             => $this->prop_reference,
+            'external_referral'     => $this->external_referral
         ];
         return $arr;
     }

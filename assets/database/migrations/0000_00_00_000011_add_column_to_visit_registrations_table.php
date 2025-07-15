@@ -1,6 +1,6 @@
 <?php
 
-use Hanafalah\ModulePatient\Models\EMR\InternalReferral;
+use Hanafalah\ModulePatient\Models\EMR\Referral;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -25,11 +25,11 @@ return new class extends Migration
     public function up(): void
     {
         $table_name = $this->__table->getTable();
-        if (!$this->isColumnExists('internal_referral_id')) {
+        if (!$this->isColumnExists('referral_id')) {
             Schema::table($table_name, function (Blueprint $table) {
-                $internalReferral = app(config('database.models.InternalReferral', InternalReferral::class));
+                $referral = app(config('database.models.Referral', Referral::class));
 
-                $table->foreignIdFor($internalReferral::class)->after('status')
+                $table->foreignIdFor($referral::class)->after('status')
                       ->nullable(true)->index()->constrained()->cascadeOnUpdate()->restrictOnDelete();
             });
         }

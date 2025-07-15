@@ -112,7 +112,6 @@ class VisitRegistration extends BaseModel
     public function headDoctor(){return $this->morphTo();}
     public function modelHasService(){return $this->morphOneModel('ModelHasService', 'reference');}
     public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'reference');}
-    public function internalReferral(){return $this->belongsToModel('InternalReferral');}
     public function services(){
         return $this->belongsToManyModel(
             'Service',
