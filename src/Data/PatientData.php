@@ -33,7 +33,7 @@ class PatientData extends Data implements DataPatientData{
 
     #[MapInputName('reference')]
     #[MapName('reference')]
-    public array|object $reference;
+    public array|object|null $reference = null;
 
     #[MapInputName('patient_type_id')]
     #[MapName('patient_type_id')]
@@ -80,9 +80,11 @@ class PatientData extends Data implements DataPatientData{
 
     public static function after(self $data): self{
         $new = static::new();
-        $reference = &$data->reference;
-        $reference = self::transformToData($data->reference_type, $reference);
-        $data->name = $reference->name;
+        if (isset($data->reference)){
+            $reference = &$data->reference;
+            $reference = self::transformToData($data->reference_type, $reference);
+            $data->name = $reference->name;
+        }
 
         $props = &$data->props;
 

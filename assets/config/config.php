@@ -26,8 +26,16 @@ return [
         'models' => [
         ]
     ],
-    'practitioner' => \App\Models\User::class,
-    'head_doctor'  => \App\Models\User::class,
+    'practitioner' => 'User',
+    'patient_types' => [
+        //THIS KEY SAME WITH MODEL NAME USING SNAKE CASE
+        'people' => [
+            'schema' => 'PatientPeople',
+        ], 
+        'animal' => [
+            'schema' => null,
+        ]
+    ],
     'commands' => [
         ModuleExamination\Commands\InstallMakeCommand::class
     ],
