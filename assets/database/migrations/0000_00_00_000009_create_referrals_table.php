@@ -35,7 +35,7 @@ return new class extends Migration
                 $table->string('visit_type', 50)->nullable(false);
                 $table->string('visit_id', 36)->nullable(false);
                 $table->string('status', 50)->nullable(true);
-                $table->foreignIdFor($medic_service::class)->index()->constrained()
+                $table->foreignIdFor($medic_service::class)->nullable()->index()->constrained()
                       ->cascadeOnUpdate()->restrictOnDelete();
                 $table->json('props')->nullable();
                 $table->timestamps();
