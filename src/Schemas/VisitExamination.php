@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\{
     Collection,
     Model
 };
-use Hanafalah\ModulePatient\Schemas\VisitRegistratxion;
 use Hanafalah\ModulePatient\{
     Enums\VisitExamination\CommitStatus,
     Enums\VisitExamination\ExaminationStatus,
@@ -18,8 +17,6 @@ use Hanafalah\ModulePatient\{
     Enums\EvaluationEmployee\Commit,
     Enums\VisitExamination\Activity,
     Enums\VisitExamination\ActivityStatus,
-    Resources\VisitExamination\ViewVisitExamination,
-    Resources\VisitExamination\ShowVisitExamination,
     Contracts\Schemas\VisitExamination as ContractsVisitExamination
 };
 use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationData;
@@ -284,20 +281,4 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             throw new \Exception("Visit Examination Not Found");
         }
     }
-
-    // protected function showUsingRelation(): array
-    // {
-    //     return [
-    //         'examinationSummary',
-    //         'visitRegistration' => function ($query) {
-    //             $query->with([
-    //                 'services',
-    //                 'visitPatient' => function ($query) {
-    //                     $query->with(['patient', "transaction.consument"]);
-    //                 },
-    //                 'medicService.service'
-    //             ]);
-    //         }
-    //     ];
-    // }
 }

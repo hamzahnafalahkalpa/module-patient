@@ -42,11 +42,6 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
 
     public function prepareStoreVisitRegistration(VisitRegistrationData $visit_registration_dto): Model{
         $visit_registration = $this->prepareStore($visit_registration_dto);
-
-        // if ($visit_patient->flag == 'CLINICAL_VISIT') {
-        //     $this->setReportTransactionVisitPatient($visit_patient);
-        // }
-
         return static::$visit_registration_model = $visit_registration;
     }
 

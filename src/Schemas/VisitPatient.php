@@ -4,7 +4,6 @@ namespace Hanafalah\ModulePatient\Schemas;
 
 use Hanafalah\ModulePatient\Contracts\Data\VisitPatientData;
 use Hanafalah\ModulePatient\Contracts\Schemas\VisitPatient as ContractsVisitPatient;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Hanafalah\ModulePatient\Enums\VisitPatient\{
     Activity,
@@ -20,6 +19,11 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
     public static $visit_patient_model;
 
     protected array $__cache = [
+        'index' => [
+            'name'     => 'visit_patient',
+            'tags'     => ['visit_patient', 'visit_patient-index'],
+            'duration' => 24 * 60
+        ],
         'show' => [
             'name'     => 'visit_patient',
             'tags'     => ['visit_patient', 'visit_patient-show'],
@@ -144,8 +148,6 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         $visit_patient->save();
         return $this;
     }
-
-
 
     protected function newVisitPatient(Model $visit_patient_model, array &$attributes): Model{
         $patient = $this->PatientModel()->find($attributes['patient_id']);
@@ -334,7 +336,5 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         }
         throw new \Exception('Data cannot be cancelled anymore.', 422);
     }
-
-
 
 }

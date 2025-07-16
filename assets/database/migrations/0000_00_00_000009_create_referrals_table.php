@@ -41,7 +41,7 @@ return new class extends Migration
                 $table->timestamps();
                 $table->softDeletes();
 
-                $table->index(['reference_type', 'reference_id'], 'referral_ref');
+                $table->index(['visit_type', 'visit_id'], 'visit_ref_mrph');
             });
         }
     }

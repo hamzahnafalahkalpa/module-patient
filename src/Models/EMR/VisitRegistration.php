@@ -97,9 +97,7 @@ class VisitRegistration extends BaseModel
                     'services'
                 ]);
             },
-            'medicService.service',
-            'patientType',
-            'headDoctor'
+            'medicService.service'
         ];
     }
 
@@ -109,7 +107,6 @@ class VisitRegistration extends BaseModel
     public function visitExamination(){return $this->hasOneModel('VisitExamination');}
     public function visitExaminations(){return $this->hasOneModel('VisitExamination');}
     public function medicService(){return $this->belongsToModel('MedicService');}
-    public function headDoctor(){return $this->morphTo();}
     public function modelHasService(){return $this->morphOneModel('ModelHasService', 'reference');}
     public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'reference');}
     public function services(){
