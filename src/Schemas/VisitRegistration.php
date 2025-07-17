@@ -2,7 +2,6 @@
 
 namespace Hanafalah\ModulePatient\Schemas;
 
-use Dompdf\Css\Content\Attr;
 use Hanafalah\ModuleMedicService\Enums\Label;
 use Illuminate\Database\Eloquent\{
     Builder,
@@ -10,7 +9,6 @@ use Illuminate\Database\Eloquent\{
 };
 use Illuminate\Pagination\LengthAwarePaginator;
 
-use Illuminate\Support\Str;
 use Hanafalah\ModulePatient\{
     Contracts\Schemas\VisitRegistration as ContractsVisitRegistration,
     Enums\VisitRegistration\RegistrationStatus,
@@ -31,12 +29,12 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         'index' => [
             'name'     => 'visit_registration',
             'tags'     => ['visit_registration', 'visit_registration-index'],
-            'forever'  => true
+            'duration'  => 24*1
         ],
         'show' => [
             'name'     => 'visit_registration-show',
             'tags'     => ['visit_registration', 'visit_registration-show'],
-            'forever'  => true
+            'duration'  => 24*1
         ]
     ];
 
@@ -148,45 +146,45 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
     //     return $visit_registrations;
     // }
 
-    public function visitRegistration(mixed $conditionals = null): Builder{
-        return $this->VisitRegistrationModel()
-            ->with('visitPatient.patient')
-            ->conditionals($this->mergeCondition($conditionals ?? []))
-            ->when(isset(request()->patient_id), function ($query) {
-                $query->whereHasMorph('visitPatient', ['*'], function ($query) {
-                    $query->where('patient_id', request()->patient_id);
-                });
-            })
-            ->when(isset(request()->search_value), function ($query) {
-                request()->merge([
-                    'search_medical_record' => request()->search_value,
-                    'search_name'           => request()->search_value,
-                    'search_nik'            => request()->search_value,
-                    'search_crew_id'        => request()->search_value,
-                    'search_dob'            => request()->search_value,
-                    'search_created_at'     => null,
-                    'search_value'          => null
-                ]);
-                $query->whereHasMorph('visitPatient', ['*'], function ($query) {
-                    $query->whereHas('patient', fn($q) => $q->withParameters('or'));
-                });
-            })
-            ->when(isset(request()->search_created_at) || isset(request()->search_service_label_id), function ($query) {
-                $query->withParameters();
-            })
-            ->when(isset(request()->flag), function ($query) {
-                $medic_services    = $this->MedicServiceModel()->flagIn(request()->flag)->get();
-                $medic_service_ids = $medic_services->pluck('id');
-                $query->whereIn('medic_service_id', $medic_service_ids);
-                if (!in_array(request()->flag, [
-                    Label::INPATIENT,
-                    Label::VERLOS_KAMER,
-                    Label::OPERATING_ROOM
-                ])) {
-                    $query->with('visitExamination');
-                }
-            });
-    }
+    // public function visitRegistration(mixed $conditionals = null): Builder{
+    //     return $this->VisitRegistrationModel()
+    //         ->with('visitPatient.patient')
+    //         ->conditionals($this->mergeCondition($conditionals ?? []))
+    //         ->when(isset(request()->patient_id), function ($query) {
+    //             $query->whereHasMorph('visitPatient', ['*'], function ($query) {
+    //                 $query->where('patient_id', request()->patient_id);
+    //             });
+    //         })
+    //         ->when(isset(request()->search_value), function ($query) {
+    //             request()->merge([
+    //                 'search_medical_record' => request()->search_value,
+    //                 'search_name'           => request()->search_value,
+    //                 'search_nik'            => request()->search_value,
+    //                 'search_crew_id'        => request()->search_value,
+    //                 'search_dob'            => request()->search_value,
+    //                 'search_created_at'     => null,
+    //                 'search_value'          => null
+    //             ]);
+    //             $query->whereHasMorph('visitPatient', ['*'], function ($query) {
+    //                 $query->whereHas('patient', fn($q) => $q->withParameters('or'));
+    //             });
+    //         })
+    //         ->when(isset(request()->search_created_at) || isset(request()->search_service_label_id), function ($query) {
+    //             $query->withParameters();
+    //         })
+    //         ->when(isset(request()->flag), function ($query) {
+    //             $medic_services    = $this->MedicServiceModel()->flagIn(request()->flag)->get();
+    //             $medic_service_ids = $medic_services->pluck('id');
+    //             $query->whereIn('medic_service_id', $medic_service_ids);
+    //             if (!in_array(request()->flag, [
+    //                 Label::INPATIENT,
+    //                 Label::VERLOS_KAMER,
+    //                 Label::OPERATING_ROOM
+    //             ])) {
+    //                 $query->with('visitExamination');
+    //             }
+    //         });
+    // }
 
     public function visitRegistrationCancellation(?array $attributes): Model{
         $attributes ??= request()->all();
@@ -199,28 +197,28 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         return $visitRegistration;
     }
 
-    public function commonPaginate($paginate_options): LengthAwarePaginator
-    {
-        return $this->visitRegistration()->with($this->viewUsingRelation())
-            ->when(isset(request()->medic_service_id), function ($query) {
-                $medic_service_id = $this->mustArray(request()->medic_service_id);
-                $services = $this->ServiceModel()->whereIn('id', $medic_service_id)->get();
-                $medic_service_ids = \array_column($services->toArray(), 'reference_id');
-                $query->whereIn('medic_service_id', $medic_service_ids);
-            })
-            ->when(isset(request()->activity), function ($query) {
-                $query->whereJsonContains('props->prop_activity');
-            })
-            ->where(function ($q) {
-                (isset(request()->history))
-                    ? $q->whereIn("status", [RegistrationStatus::CANCELLED->value, RegistrationStatus::COMPLETED->value])
-                    : $q->whereNotIn("status", [RegistrationStatus::CANCELLED->value, RegistrationStatus::COMPLETED->value]);
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(
-                ...$this->arrayValues($paginate_options)
-            )->appends(request()->all());
-    }
+    // public function commonPaginate($paginate_options): LengthAwarePaginator
+    // {
+    //     return $this->visitRegistration()->with($this->viewUsingRelation())
+    //         ->when(isset(request()->medic_service_id), function ($query) {
+    //             $medic_service_id = $this->mustArray(request()->medic_service_id);
+    //             $services = $this->ServiceModel()->whereIn('id', $medic_service_id)->get();
+    //             $medic_service_ids = \array_column($services->toArray(), 'reference_id');
+    //             $query->whereIn('medic_service_id', $medic_service_ids);
+    //         })
+    //         ->when(isset(request()->activity), function ($query) {
+    //             $query->whereJsonContains('props->prop_activity');
+    //         })
+    //         ->where(function ($q) {
+    //             (isset(request()->history))
+    //                 ? $q->whereIn("status", [RegistrationStatus::CANCELLED->value, RegistrationStatus::COMPLETED->value])
+    //                 : $q->whereNotIn("status", [RegistrationStatus::CANCELLED->value, RegistrationStatus::COMPLETED->value]);
+    //         })
+    //         ->orderBy('created_at', 'desc')
+    //         ->paginate(
+    //             ...$this->arrayValues($paginate_options)
+    //         )->appends(request()->all());
+    // }
 
     public function historyVisit($paginate_options): LengthAwarePaginator
     {
