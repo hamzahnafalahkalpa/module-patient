@@ -80,15 +80,14 @@ class VisitPatient extends BaseModel
         ];
     }
 
-    protected static function booted(): void
-    {
+    protected static function booted(): void{
         parent::booted();
         static::addGlobalScope('flag', function ($query) {
-            $query->where('flag', self::CLINICAL_VISIT);
+            $query->where('flag', (new static)->getMorphClass());
         });
         static::creating(function ($query) {
             $query->visit_code ??= static::hasEncoding('VISIT_PATIENT');
-            $query->flag       ??= self::CLINICAL_VISIT;
+            $query->flag       ??= $query->getMorphClass();
             $query->status     ??= self::getVisitStatus('ACTIVE');
             if (!isset($query->reservation_id) && $query->visited_at === null) {
                 $query->visited_at = now();
