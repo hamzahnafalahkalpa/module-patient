@@ -10,10 +10,10 @@ use Hanafalah\ModulePatient\Schemas\PatientType;
 class PatientTypeService extends PatientType implements Contracts\Schemas\PatientTypeService
 {
     protected string $__entity = 'PatientTypeService';
-    public static $patient_type_service_model;
+    public $patient_type_service_model;
     protected mixed $__order_by_created_at = false; //asc, desc, false
 
     public function prepareStorePatientTypeService(PatientTypeServiceData $patient_type_service_dto): Model{
-        return static::$patient_type_service_model = parent::prepareStorePatientType($patient_type_service_dto);
+        return $this->patient_type_service_model = parent::prepareStorePatientType($patient_type_service_dto);
     }
 }

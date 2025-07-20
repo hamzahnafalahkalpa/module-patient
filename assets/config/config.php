@@ -5,9 +5,10 @@ use Hanafalah\ModulePatient\{
 };
 
 use Hanafalah\ModuleExamination;
+use Hanafalah\ModulePatient\Enums\Patient\CardIdentity;
 
 return [
-    'namespace' => 'Hanafalah\\ModuleExamination',
+    'namespace' => 'Hanafalah\\ModulePatient',
     'app' => [
         'contracts' => [
             //ADD YOUR CONTRACTS HERE
@@ -34,8 +35,12 @@ return [
         ], 
         'animal' => [
             'schema' => null,
+        ],
+        'vehicle' => [
+            'schema' => null
         ]
     ],
+    'patient_identities' => CardIdentity::cases(),
     'commands' => [
         ModuleExamination\Commands\InstallMakeCommand::class
     ],

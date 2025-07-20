@@ -83,7 +83,7 @@ class VisitPatient extends BaseModel
     protected static function booted(): void{
         parent::booted();
         static::addGlobalScope('flag', function ($query) {
-            $query->where('flag', (new static)->getMorphClass());
+            $query->flagIn((new static)->getMorphClass());
         });
         static::creating(function ($query) {
             $query->visit_code ??= static::hasEncoding('VISIT_PATIENT');

@@ -29,7 +29,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
 {
 
     protected string $__entity = 'VisitExamination';
-    public static $visit_examination_model;
+    public $visit_examination_model;
 
     public function prepareCommitVisitExamination(?array $attributes = null): Model
     {
@@ -104,7 +104,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         $this->fillingProps($visit_examination, $visit_examination_dto->props);
         $visit_examination->save();
 
-        return static::$visit_examination_model = $visit_examination;
+        return $this->visit_examination_model = $visit_examination;
     }
 
     public function storeServices($visit_examination, $attributes)

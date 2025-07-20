@@ -9,7 +9,7 @@ use Hanafalah\ModulePatient\{
 
 class ExaminationVisitRegistration extends VisitRegistration implements ContractsVisitRegistration
 {
-    public static $exam_visit_registration_model;
+    public $exam_visit_registration_model;
 
     public function commonPaginate($paginate_options): LengthAwarePaginator
     {

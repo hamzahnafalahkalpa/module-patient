@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 class Referral extends ModulePatient implements ContractsReferral
 {
     protected string $__entity = 'Referral';
-    public static $referral_model;
+    public $referral_model;
 
     protected array $__cache = [
         'index' => [
@@ -43,6 +43,6 @@ class Referral extends ModulePatient implements ContractsReferral
 
         $this->fillingProps($referral,$referral_dto->props);
         $referral->save();
-        return static::$referral_model = $referral;
+        return $this->referral_model = $referral;
     }
 }

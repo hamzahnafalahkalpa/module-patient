@@ -23,7 +23,7 @@ use Hanafalah\ModulePatient\Enums\{
 class VisitRegistration extends ModulePatient implements ContractsVisitRegistration
 {
     protected string $__entity = 'VisitRegistration';
-    public static $visit_registration_model;
+    public $visit_registration_model;
 
     protected array $__cache = [
         'index' => [
@@ -40,7 +40,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
 
     public function prepareStoreVisitRegistration(VisitRegistrationData $visit_registration_dto): Model{
         $visit_registration = $this->prepareStore($visit_registration_dto);
-        return static::$visit_registration_model = $visit_registration;
+        return $this->visit_registration_model = $visit_registration;
     }
 
     // public function setReportTransactionVisitPatient($visit_patient)
@@ -86,7 +86,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             ]);
         }
 
-        return static::$visit_registration_model = $visit_registration;
+        return $this->visit_registration_model = $visit_registration;
     }
 
     public function createVisitRegistration(VisitRegistrationData &$visit_registration_dto): Model{
@@ -111,7 +111,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
 
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();
-        return static::$visit_registration_model = $visit_registration;
+        return $this->visit_registration_model = $visit_registration;
     }
 
     // public function storeServices($attributes)

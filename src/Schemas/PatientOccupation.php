@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class PatientOccupation extends Occupation implements ContractsPatientOccupation
 {
     protected string $__entity = 'PatientOccupation';
-    public static $patient_occupation_model;
+    public $patient_occupation_model;
 
     protected array $__cache = [
         'index' => [
@@ -24,7 +24,7 @@ class PatientOccupation extends Occupation implements ContractsPatientOccupation
     public function prepareStorePatientOccupation(PatientOccupationData $patient_occupation_dto): Model
     {
         $model = parent::prepareStoreProfession($patient_occupation_dto);
-        return static::$patient_occupation_model = $model;
+        return $this->patient_occupation_model = $model;
     }
 
     public function patientOccupation(mixed $conditionals = null): Builder{

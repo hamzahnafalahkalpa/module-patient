@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\{
 class PatientType extends MedicService implements ContractsPatientType
 {
     protected string $__entity = 'PatientType';
-    public static $patient_type_model;
+    public $patient_type_model;
     protected mixed $__order_by_created_at = false; //asc, desc, false
 
     protected array $__cache = [
@@ -29,7 +29,7 @@ class PatientType extends MedicService implements ContractsPatientType
         if ($patient_type_dto->flag == Flag::IDENTITY->value){
             $patient_type_dto->label ??= 'Umum';
         }
-        return static::$patient_type_model = $this->prepareStoreMedicService($patient_type_dto);
+        return $this->patient_type_model = $this->prepareStoreMedicService($patient_type_dto);
     }
 
     public function patientType(mixed $conditionals = null): Builder{

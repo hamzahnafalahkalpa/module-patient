@@ -18,7 +18,7 @@ use Hanafalah\ModulePatient\ModulePatient;
 class PractitionerEvaluation extends ModulePatient implements ContractsPractitionerEvaluation
 {
     protected string $__entity = 'PractitionerEvaluation';
-    public static $practitioner_evaluation;
+    public $practitioner_evaluation;
 
     public function prepareStorePractitionerEvaluation(PractitionerEvaluationData $practitioner_evaluation_dto): Model{
         if (!isset($practitioner_evaluation_dto->vsiit_registration_id)) throw new \Exception('visit_registration_id is required', 422);
@@ -45,7 +45,7 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
 
         $this->fillingProps($practitioner, $practitioner_evaluation_dto);
         $practitioner->save();
-        return static::$practitioner_evaluation = $practitioner;
+        return $this->practitioner_evaluation = $practitioner;
     }
 
     public function prepareCommitPractitionerEvaluation(?array $attributes = null): Model{

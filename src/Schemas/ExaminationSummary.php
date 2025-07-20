@@ -28,6 +28,6 @@ class ExaminationSummary extends PackageManagement implements ContractsExaminati
         $model = $this->usingEntity()->firstOrCreate($guard);
         $this->fillingProps($model, $examination_summary_dto);
         $model->save();
-        return static::$examination_summary = $model;
+        return $this->examination_summary = $model;
     }
 }

@@ -43,7 +43,7 @@ class VisitRegistration extends BaseModel
     protected $casts = [
         'name'                => 'string',
         'service_label_id'    => 'string',
-        'medic_service_name' => 'string',
+        'medic_service_name'  => 'string',
         'medic_service_label' => 'string',
         'created_at'          => 'date'
     ];

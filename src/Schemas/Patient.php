@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
 class Patient extends PackageManagement implements ContractsPatient, ProfilePatient, ProfilePhoto
 {
     protected string $__entity = 'Patient';
-    public static $patient_model;
+    public $patient_model;
 
     protected array $__cache = [
         'index' => [
@@ -33,7 +33,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         $reference_schema = config('module-patient.patient_types.'.Str::snake($reference_type).'.schema');        
         if (isset($reference_schema)) {
             $schema_reference = $this->schemaContract(Str::studly($reference_schema));
-            $reference = $schema_reference->prepareStore($patient_dto->reference);
+            $reference        = $schema_reference->prepareStore($patient_dto->reference);
             $patient_dto->reference_id = $reference->getKey();
         }
         
@@ -47,7 +47,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
                 'reference_type' => $patient_dto->reference_type, 
                 'reference_id' => $patient_dto->reference_id
             ];
-        $patient = $this->PatientModel()->updateOrCreate($guard, $add);
+        $patient = $this->usingEntity()->updateOrCreate($guard, $add);
         $patient->refresh();
         $this->setPatientPayer($patient, $patient_dto);
 
@@ -64,6 +64,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
 
         return $patient;
     }
+
 
     public function prepareStorePatient(PatientData $patient_dto): Model{
         $patient = $this->prepareStore($patient_dto);
@@ -93,7 +94,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         $patient          = $this->patient()->findOrFail($profile_photo_dto->id);
         $patient->profile = $patient->setProfilePhoto($profile_photo_dto->profile);
         $patient->save();
-        return static::$patient_model = $patient;
+        return $this->patient_model = $patient;
     }
 
     public function storeProfilePhoto(?ProfilePhotoData $profile_photo_dto = null): array{
@@ -135,7 +136,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         if (!isset($profile_patient_dto->id) && !isset($profile_patient_dto->uuid)) throw new \Exception('id or uuid not found');
 
         $patient = $this->prepareStore($profile_patient_dto);
-        return static::$patient_model = $patient;
+        return $this->patient_model = $patient;
     }
 
     public function storeProfile(? ProfilePatientData $profile_patient_dto = null): array{
@@ -147,7 +148,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
     public function prepareShowProfile(?Model $model = null, ?array $attributes = null): Model{
         $attributes ??= \request()->all();
         if (!isset($attributes['uuid'])) throw new \Exception('uuid not found');
-        return static::$patient_model = $this->patient()->with($this->showUsingRelation())->whereHas('userReference',function($query) use ($attributes){
+        return $this->patient_model = $this->patient()->with($this->showUsingRelation())->whereHas('userReference',function($query) use ($attributes){
             $query->uuid($attributes['uuid']);
         })->firstOrFail();
     }

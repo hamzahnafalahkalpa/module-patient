@@ -3,7 +3,6 @@
 namespace Hanafalah\ModulePatient;
 
 use Illuminate\Support\Str;
-use Hanafalah\ModuleMedicService\Enums\Label;
 use Illuminate\Database\Eloquent\Model;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Hanafalah\ModulePatient\Contracts;
@@ -71,74 +70,23 @@ class ModulePatient extends PackageManagement implements Contracts\ModulePatient
         return $this;
     }
 
-    protected function initPatientSummary($reference): self
-    {
-        if (isset($reference)) {
-            switch ($reference->getMorphClass()) {
-                case $this->PatientModel()->getMorphClass():
-                    static::$__patient_summary = static::$__patient->patientSummary()->firstOrCreate([
-                        'reference_id'   => static::$__patient->reference_id,
-                        'reference_type' => static::$__patient->reference_type
-                    ]);
-                    break;
-                case $this->VisitPatientModel()->getMorphClass():
-                    static::$__visit_patient = $reference;
-                    static::$__patient       = static::$__visit_patient->patient;
-                    $this->initPatientSummary(static::$__patient);
-                    break;
-                case $this->PharmacySaleModel()->getMorphClass():
-                    static::$__pharmacy_sale = $reference;
-                    static::$__visit_patient = $reference;
-                    if (isset($reference->patient_id)) {
-                        static::$__patient = static::$__visit_patient->patient;
-                        $this->initPatientSummary(static::$__patient);
-                    }
-                    break;
-                case $this->VisitRegistrationModel()->getMorphClass():
-                    $this->initPatientSummary($reference->visitPatient);
-                    break;
-                case $this->VisitExaminationModel()->getMorphClass():
-                    $visit_registration = $reference->visitRegistration;
-                    static::$__visit_registration = $visit_registration;
-                    $this->initPatientSummary($visit_registration);
-                    break;
-            }
-        }
+    // public function getMedicServiceByServiceId(mixed $service_id): Model{
+    //     return $this->ServiceModel()->with('reference')->findOrFail($service_id);
+    // }
 
-        if (isset($patient_summary)) static::$__patient_summary = $patient_summary;
-        return $this;
-    }
+    // public function getMedicServiceById(mixed $service_id): Model{
+    //     return $this->ServiceModel()->with('reference')
+    //         ->where('reference_id', $service_id)
+    //         ->where('reference_type', $this->MedicServiceModel()->getMorphClass())
+    //         ->firstOrFail();
+    // }
 
-    public function addTransactionIdTo(Model $model, mixed $transaction_id): Model
-    {
-        if ($transaction_id instanceof Model) $transaction_id = $transaction_id->getKey();
+    // public function getMedicService(mixed $medic_service_id): Model{
+    //     return $this->MedicServiceModel()->with('service')->findOrFail($medic_service_id);
+    // }
 
-        $payment_summary = &$model->paymentSummary;
-        if (!isset($payment_summary)) throw new \Exception('Payment summary not found', 422);
-
-        $payment_summary->transaction_id = $transaction_id;
-        $payment_summary->save();
-        return $payment_summary;
-    }
-
-    public function getMedicServiceByServiceId(mixed $service_id): Model{
-        return $this->ServiceModel()->with('reference')->findOrFail($service_id);
-    }
-
-    public function getMedicServiceById(mixed $service_id): Model
-    {
-        return $this->ServiceModel()->with('reference')
-            ->where('reference_id', $service_id)
-            ->where('reference_type', $this->MedicServiceModel()->getMorphClass())
-            ->firstOrFail();
-    }
-
-    public function getMedicService(mixed $medic_service_id): Model{
-        return $this->MedicServiceModel()->with('service')->findOrFail($medic_service_id);
-    }
-
-    public function getMedicServiceByFlag(?string $flag = null): Model{
-        return $this->MedicServiceModel()->flagIn($flag ?? Label::OUTPATIENT->value)
-            ->firstOrFail();
-    }
+    // public function getMedicServiceByFlag(?string $flag = null): Model{
+    //     return $this->MedicServiceModel()->flagIn($flag ?? Label::OUTPATIENT->value)
+    //         ->firstOrFail();
+    // }
 }
