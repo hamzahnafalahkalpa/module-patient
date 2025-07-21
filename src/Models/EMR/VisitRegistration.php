@@ -103,7 +103,7 @@ class VisitRegistration extends BaseModel
 
     public function getViewResource(){return ViewVisitRegistration::class;}
     public function getShowResource(){return ShowVisitRegistration::class;}
-    public function visitPatient(){return $this->morphTo();}
+    public function visitPatient(){return $this->morphTo()->withoutGlobalScopes();}
     public function visitExamination(){return $this->hasOneModel('VisitExamination');}
     public function visitExaminations(){return $this->hasOneModel('VisitExamination');}
     public function medicService(){return $this->belongsToModel('MedicService');}

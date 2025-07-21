@@ -7,6 +7,9 @@ class ShowVisitRegistration extends ViewVisitRegistration
     public function toArray(\Illuminate\Http\Request $request): array
     {
         $arr = [
+            'visit_patient'       => $this->relationValidation('visitPatient',function(){
+                return $this->visitPatient->toViewApi();
+            },$this->prop_visit_patient),
             'services'            => $this->relationValidation('services', function () {
                 return $this->services->transform(function ($service) {
                     return $service->toViewApi();

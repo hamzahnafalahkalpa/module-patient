@@ -25,18 +25,11 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             ],
             'duration' => 24 * 60
         ]
-        // 'show' => [
-        //     'name'     => 'visit_patient',
-        //     'tags'     => [
-        //         'visit_patient', 'visit_patient-show'
-        //     ],
-        //     'duration' => 24 * 60
-        // ]
     ];
 
     public function prepareStoreVisitPatient(VisitPatientData $visit_patient_dto): Model{
+        if (isset($visit_patient_dto->patient)) $this->createPatient($visit_patient_dto);
         $visit_patient_model = $this->createVisitPatient($visit_patient_dto);
-        // $patient = &$visit_patient_model->patient;
 
         if ($visit_patient_model->getMorphClass() == $this->VisitPatientModelMorph()) {
             $visit_patient_model->pushActivity(Activity::ADM_VISIT->value, [ActivityStatus::ADM_START->value]);
@@ -53,20 +46,6 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         }
         $trx_transaction = &$visit_patient_model->transaction;
         $visit_patient_dto->props->props['prop_transaction'] = $trx_transaction->toViewApi()->resolve();
-        // $this->updatePaymentSummary($visit_patient_model, $attributes, $patient)
-        //     ->createAgent($visit_patient_model, $attributes)
-        //     ->createPatientType($visit_patient_model, $attributes)
-        //     ->createConsumentTransaction($visit_patient_model, [
-        //         'name'           => $patient->prop_people['name'],
-        //         'phone'          => $phone ?? null,
-        //         'reference_id'   => $patient->getKey(),
-        //         'reference_type' => $patient->getMorphClass(),
-        //         'patient'        => $patient
-        //     ]);
-
-        // $payment_summary_model = &$visit_patient_model->paymentSummary;
-        // $payment_summary_model->transaction_id = $trx_transaction->getKey();
-        // $payment_summary_model->save();
 
         //PROCESS VISIT REGISTRATIONS
         $visit_registrations = $visit_patient_dto?->visit_registrations;
@@ -84,6 +63,16 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         $this->fillingProps($visit_patient_model, $visit_patient_dto->props);
         $visit_patient_model->save();
         return $visit_patient_model;
+    }
+
+    protected function createPatient(VisitPatientData &$visit_patient_dto): Model{
+        $patient = $this->schemaContract('patient')->preparStorePatient($visit_patient_dto->patient);
+        $visit_patient_dto->patient_id    = $patient->getKey();
+        $visit_patient_dto->patient_model = $patient;
+        $consument = &$visit_patient_dto->transaction->consument;
+        $consument->name = $patient->name;
+        $consument->reference_id = $visit_patient_dto->patient_id;
+        return $patient;
     }
 
     protected function createVisitPatient(VisitPatientData $visit_patient_dto): Model{

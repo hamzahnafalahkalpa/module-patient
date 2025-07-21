@@ -2,11 +2,11 @@
 
 namespace Hanafalah\ModulePatient\Models\Patient;
 
-use Hanafalah\LaravelSupport\Models\Unicode\Unicode;
+use Hanafalah\ModuleMedicService\Models\MedicService;
 use Hanafalah\ModulePatient\Resources\PatientType\ShowPatientType;
 use Hanafalah\ModulePatient\Resources\PatientType\ViewPatientType;
 
-class PatientType extends Unicode
+class PatientType extends MedicService
 {
     protected $table = 'unicodes';
 

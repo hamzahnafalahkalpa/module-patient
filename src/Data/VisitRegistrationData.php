@@ -26,6 +26,14 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     #[MapName('visit_patient_id')]
     public mixed $visit_patient_id = null;
 
+    #[MapInputName('visit_patient_type')]
+    #[MapName('visit_patient_type')]
+    public ?string $visit_patient_type = null;
+
+    #[MapInputName('visit_patient')]
+    #[MapName('visit_patient')]
+    public ?VisitPatientData $visit_patient = null;
+
     #[MapInputName('medic_service_id')]
     #[MapName('medic_service_id')]
     public mixed $medic_service_id;
@@ -76,7 +84,6 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
             $practitioner_model = $practitioner_model->findOrFail($practitioner_evaluation['practitioner_id']);
         }
         $practitioner_evaluation['prop_practitioner'] = $practitioner_model->toViewApi()->resolve();
-
         if ($medic_service->label == Label::OUTPATIENT->value){
             $attributes['visit_examination'] ??= [
                 "id" => null,
@@ -99,7 +106,6 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     public static function after(self $data): self{
         $new = static::new();
         $props = &$data->props->props;
-
         $medic_service = $new->MedicServiceModel()->findOrFail($data->medic_service_id);
         $data->medic_service_model = $medic_service;
         $props['prop_medic_service'] = $medic_service->toViewApi()->resolve();

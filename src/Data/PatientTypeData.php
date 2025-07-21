@@ -18,6 +18,11 @@ class PatientTypeData extends MedicServiceData implements DataPatientTypeData{
     #[DataCollectionOf(PatientTypeData::class)]
     public array $childs = [];
 
+    public static function before(array &$attributes){
+        $attributes['is_delete_able'] ??= true;
+        parent::before($attributes);
+    }
+
     public static function after(mixed $data): PatientTypeData{
         $data->flag = 'PatientType';
         return $data;

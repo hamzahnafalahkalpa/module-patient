@@ -111,7 +111,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
             if (!isset($id)) throw new \Exception('id not found');
             $model = $this->patient()->with($this->showUsingRelation())->firstOrFail();
         }
-        static::$patient_model = $model;
+        $this->patient_model = $model;
         if (isset($attributes['is_direct_photo']) && $attributes['is_direct_photo']) {
             return $model->getProfilePhoto();
         }else{

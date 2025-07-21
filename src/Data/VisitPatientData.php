@@ -4,6 +4,7 @@ namespace Hanafalah\ModulePatient\Data;
 
 use Carbon\Carbon;
 use Hanafalah\LaravelSupport\Supports\Data;
+use Hanafalah\ModulePatient\Contracts\Data\PatientData;
 use Hanafalah\ModulePatient\Contracts\Data\ReferralData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitPatientData as DataVisitPatientData;
 use Hanafalah\ModulePayment\Contracts\Data\PaymentSummaryData;
@@ -24,7 +25,11 @@ class VisitPatientData extends Data implements DataVisitPatientData{
 
     #[MapInputName('patient_id')]
     #[MapName('patient_id')]
-    public mixed $patient_id;
+    public mixed $patient_id = null;
+
+    #[MapInputName('patient')]
+    #[MapName('patient')]
+    public ?PatientData $patient = null;
 
     #[MapInputName('patient_model')]
     #[MapName('patient_model')]
@@ -86,29 +91,30 @@ class VisitPatientData extends Data implements DataVisitPatientData{
 
     public static function before(array &$attributes){
         $new = static::new();
-        $attributes['flag'] ??= 'CLINICAL_VISIT';
+        $attributes['flag'] ??= 'VisitPatient';
 
-        $attributes['patient_model'] = $patient = $new->PatientModel()->with('reference')->findOrFail($attributes['patient_id']);
-        $attributes['prop_patient'] = $patient->toViewApi()->resolve();
+        if (isset($attributes['patient_id'])){
+            $attributes['patient_model'] = $patient = $new->PatientModel()->with('reference')->findOrFail($attributes['patient_id']);
+            $attributes['prop_patient'] = $patient->toViewApi()->resolve();
+        }
 
-        $reference = $patient->reference;
-        if (\method_exists($reference, 'hasPhone')) $phone = $reference->hasPhone?->phone ?? null;
-        
+        if (isset($patient)){
+            $reference = $patient->reference;
+        }
         $attributes['transaction'] = [
             'id' => null,
             "reference_type" => "VisitPatient",
             'consument' => [
                 'id'             => null,
                 'phone'          => $phone ?? null,
-                'name'           => $patient->name,
+                'name'           => $patient?->name ?? null,
                 'reference_type' => 'Patient',
-                'reference_id'   => $attributes['patient_id']
+                'reference_id'   => $attributes['patient_id'] ?? null
             ]
         ];
-
         $attributes['payment_summary'] = [
             "id" => null,
-            'name'           => 'Total Tagihan Pasien '.$patient->name,
+            'name'           =>  trim('Total Tagihan Pasien '.($patient?->name ?? '')),
             "reference_type" => "VisitPatient"
         ];
     }
@@ -116,7 +122,7 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     public static function after(self $data): self{
         $new = static::new();
         $props = &$data->props->props;
-
+        
         $patient_type_service = $new->PatientTypeServiceModel();
         $patient_type_service = (isset($data->patient_type_service_id)) ? $patient_type_service->findOrFail($data->patient_type_service_id) : $patient_type_service;
         $props['prop_patient_type_service'] = $patient_type_service->toViewApi()->resolve();
