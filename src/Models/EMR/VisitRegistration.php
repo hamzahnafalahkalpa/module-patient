@@ -88,16 +88,19 @@ class VisitRegistration extends BaseModel
 
     public function showUsingRelation(){
         return [
+            'medicService.service',
             'visitPatient' => function ($query) {
                 $query->with([
                     'patient' => function ($query) {
-                        $query->with(['reference.cardIdentities', 'cardIdentities']);
+                        $query->with([
+                            'reference',
+                            'cardIdentities'
+                        ]);
                     },
                     'transaction.consument',
                     'services'
                 ]);
-            },
-            'medicService.service'
+            }
         ];
     }
 

@@ -2,18 +2,15 @@
 
 namespace Hanafalah\ModulePatient\Contracts\Schemas;
 
-use Hanafalah\ModulePatient\Contracts\Data\UnidentifiedPatientData;
-//use Hanafalah\ModulePatient\Contracts\Data\UnidentifiedPatientUpdateData;
 use Hanafalah\LaravelSupport\Contracts\Supports\DataManagement;
-use Illuminate\Database\Eloquent\Builder;
+use Hanafalah\ModulePatient\Contracts\Data\PatientData;
+use Hanafalah\ModulePatient\Contracts\Data\UnidentifiedPatientData;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * @see \Hanafalah\ModulePatient\Schemas\UnidentifiedPatient
- * @method mixed export(string $type)
+ * @method self setParamLogic(string $logic, bool $search_value = false, ?array $optionals = [])
  * @method self conditionals(mixed $conditionals)
- * @method array updateUnidentifiedPatient(?UnidentifiedPatientData $unidentified_patient_dto = null)
- * @method Model prepareUpdateUnidentifiedPatient(UnidentifiedPatientData $unidentified_patient_dto)
  * @method bool deleteUnidentifiedPatient()
  * @method bool prepareDeleteUnidentifiedPatient(? array $attributes = null)
  * @method mixed getUnidentifiedPatient()
@@ -24,11 +21,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method LengthAwarePaginator prepareViewUnidentifiedPatientPaginate(PaginateData $paginate_dto)
  * @method array viewUnidentifiedPatientPaginate(?PaginateData $paginate_dto = null)
  * @method array storeUnidentifiedPatient(?UnidentifiedPatientData $unidentified_patient_dto = null)
- * @method Collection prepareStoreMultipleUnidentifiedPatient(array $datas)
- * @method array storeMultipleUnidentifiedPatient(array $datas)
+ * @method Builder patient(mixed $conditionals = null)
  */
-
-interface UnidentifiedPatient extends DataManagement
-{
+interface UnidentifiedPatient extends DataManagement {
     public function prepareStoreUnidentifiedPatient(UnidentifiedPatientData $unidentified_patient_dto): Model;
 }

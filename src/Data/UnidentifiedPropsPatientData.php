@@ -17,7 +17,7 @@ class UnidentifiedPropsPatientData extends Data implements DataUnidentifiedProps
 
     #[MapInputName('estimated_age')]
     #[MapName('estimated_age')]
-    public ?array $estimatedAge = null;
+    public ?array $estimated_age = null;
 
     #[MapInputName('height')]
     #[MapName('height')]
@@ -29,7 +29,7 @@ class UnidentifiedPropsPatientData extends Data implements DataUnidentifiedProps
 
     #[MapInputName('skin_color')]
     #[MapName('skin_color')]
-    public ?string $skinColor = null;
+    public ?string $skin_color = null;
 
     #[MapInputName('hair')]
     #[MapName('hair')]
@@ -37,7 +37,7 @@ class UnidentifiedPropsPatientData extends Data implements DataUnidentifiedProps
 
     #[MapInputName('facial_features')]
     #[MapName('facial_features')]
-    public ?array $facialFeatures = null;
+    public ?array $facial_features = null;
 
     #[MapInputName('clothing')]
     #[MapName('clothing')]
@@ -45,43 +45,39 @@ class UnidentifiedPropsPatientData extends Data implements DataUnidentifiedProps
 
     #[MapInputName('carried_items')]
     #[MapName('carried_items')]
-    public ?array $carriedItems = null;
+    public ?array $carried_items = null;
 
     #[MapInputName('medical_marks')]
     #[MapName('medical_marks')]
-    public ?array $medicalMarks = null;
+    public ?array $medical_marks = null;
 
     #[MapInputName('blood_type')]
     #[MapName('blood_type')]
-    public ?string $bloodType = null;
+    public ?string $blood_type = null;
 
     #[MapInputName('language_response')]
     #[MapName('language_response')]
-    public ?array $languageResponse = null;
+    public ?array $language_response = null;
 
     #[MapInputName('biometric_data')]
     #[MapName('biometric_data')]
-    public ?array $biometricData = null;
+    public ?array $biometric_data = null;
 
     #[MapInputName('location_found')]
     #[MapName('location_found')]
-    public ?string $locationFound = null;
+    public ?string $location_found = null;
 
     #[MapInputName('brought_by')]
     #[MapName('brought_by')]
-    public ?string $broughtBy = null;
+    public ?string $brought_by = null;
 
     #[MapInputName('reported_to_authorities')]
     #[MapName('reported_to_authorities')]
-    public ?bool $reportedToAuthorities = null;
+    public ?bool $reported_to_authorities = null;
 
     #[MapInputName('notes')]
     #[MapName('notes')]
     public ?string $notes = null;
-
-    #[MapInputName('created_by')]
-    #[MapName('created_by')]
-    public ?string $createdBy = null;
 
     public static function before(array &$attributes){
         if(!isset($attributes['estimated_age'])){

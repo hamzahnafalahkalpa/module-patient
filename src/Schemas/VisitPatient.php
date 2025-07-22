@@ -31,6 +31,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         if (isset($visit_patient_dto->patient)) {
             $patient = $this->createPatient($visit_patient_dto);
             $visit_patient_dto->patient_id = $patient->getKey();
+            $visit_patient_dto->props->props['prop_patient'] = $patient->toViewApi()->resolve();
         }
         $visit_patient_model = $this->createVisitPatient($visit_patient_dto);
 

@@ -32,9 +32,10 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         $reference_type   = $patient_dto->reference_type;
         $reference_schema = config('module-patient.patient_types.'.Str::snake($reference_type).'.schema');        
         if (isset($reference_schema)) {
-            $schema_reference = $this->schemaContract(Str::studly($reference_schema));
-            $reference        = $schema_reference->prepareStore($patient_dto->reference);
+            $schema_reference          = $this->schemaContract(Str::studly($reference_schema));
+            $reference                 = $schema_reference->prepareStore($patient_dto->reference);
             $patient_dto->reference_id = $reference->getKey();
+            $patient_dto->props['prop_'.Str::snake($patient_dto->reference_type)] = $reference->toViewApi()->resolve();
         }
         
         $add = [
@@ -61,7 +62,6 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
             $schema_reference->afterPatientCreated($patient, $reference, $patient_dto);
         }
         if (isset($reference)) $patient->sync($reference,$reference->toViewApi()->resolve());
-
         return $patient;
     }
 

@@ -17,7 +17,6 @@ use Hanafalah\ModulePatient\Enums\{
     VisitRegistration\Activity as VisitRegistrationActivity,
     VisitRegistration\ActivityStatus as VisitRegistrationActivityStatus
 };
-use Laravel\Octane\Facades\Octane;
 
 class VisitRegistration extends ModulePatient implements ContractsVisitRegistration
 {
@@ -40,8 +39,8 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
     public function prepareStoreVisitRegistration(VisitRegistrationData $visit_registration_dto): Model{
         if (isset($visit_registration_dto->visit_patient)){
             $visit_patient = $this->schemaContract('visit_patient')->prepareStoreVisitPatient($visit_registration_dto->visit_patient);
-            $visit_registration_dto->visit_patient_id   = $visit_patient->getKey();
-            $visit_registration_dto->visit_patient_type = $visit_patient->getMorphClass();
+            $visit_registration_dto->visit_patient_id    = $visit_patient->getKey();
+            $visit_registration_dto->visit_patient_type  = $visit_patient->getMorphClass();
             $visit_registration_dto->visit_patient_model = $visit_patient;
         }
 
@@ -68,7 +67,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
                 'POLI_EXAM_QUEUE' => 'Pasien dalam antrian ke poli '.$visit_registration->prop_medic_service['name']
             ]);
         }
-
+        
         return $this->visit_registration_model = $visit_registration;
     }
 

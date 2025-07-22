@@ -2,19 +2,15 @@
 
 namespace Hanafalah\ModulePatient\Schemas;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Hanafalah\ModulePatient\{
-    Supports\BaseModulePatient
-};
-use Hanafalah\ModulePatient\Contracts\Schemas\UnidentifiedPatient as ContractsUnidentifiedPatient;
+use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Hanafalah\ModulePatient\Contracts\Data\UnidentifiedPatientData;
+use Hanafalah\ModulePatient\Contracts\Schemas\UnidentifiedPatient as ContractsUnidentifiedPatient;
+use Illuminate\Database\Eloquent\Model;
 
-class UnidentifiedPatient extends BaseModulePatient implements ContractsUnidentifiedPatient
+class UnidentifiedPatient extends PackageManagement implements ContractsUnidentifiedPatient
 {
     protected string $__entity = 'UnidentifiedPatient';
-    public static $unidentified_patient_model;
-    //protected mixed $__order_by_created_at = false; //asc, desc, false
+    public $unidentified_patient_model;
 
     protected array $__cache = [
         'index' => [
@@ -24,22 +20,18 @@ class UnidentifiedPatient extends BaseModulePatient implements ContractsUnidenti
         ]
     ];
 
-    public function prepareStoreUnidentifiedPatient(UnidentifiedPatientData $unidentified_patient_dto): Model{
-        $add = [
-            'name' => $unidentified_patient_dto->name
-        ];
-        $guard  = ['id' => $unidentified_patient_dto->id];
-        $create = [$guard, $add];
-        // if (isset($unidentified_patient_dto->id)){
-        //     $guard  = ['id' => $unidentified_patient_dto->id];
-        //     $create = [$guard, $add];
-        // }else{
-        //     $create = [$add];
-        // }
+    public function prepareStore(UnidentifiedPatientData &$unidentified_patient_dto): Model{
+        $reference = $this->prepareStoreUnidentifiedPatient($unidentified_patient_dto);        
+        return $reference;
+    }
 
-        $unidentified_patient = $this->usingEntity()->updateOrCreate(...$create);
-        $this->fillingProps($unidentified_patient,$unidentified_patient_dto->props);
-        $unidentified_patient->save();
-        return static::$unidentified_patient_model = $unidentified_patient;
+    public function prepareStoreUnidentifiedPatient(UnidentifiedPatientData $unidentified_patient_dto): Model{
+        $add    = ['name' => $unidentified_patient_dto->name];
+        $guard  = ['id' => $unidentified_patient_dto->id ?? null];
+
+        $model = $this->usingEntity()->updateOrCreate($guard,$add);
+        $this->fillingProps($model,$unidentified_patient_dto->props);
+        $model->save();
+        return $this->unidentified_patient_model = $model;
     }
 }

@@ -14,7 +14,6 @@ class ViewUnidentifiedPatient extends ApiResource
    */
   public function toArray(\Illuminate\Http\Request $request): array
   {
-    $arr = parent::toArray($request);
-    return $arr;
+    return $this->getAttributes();
   }
 }
