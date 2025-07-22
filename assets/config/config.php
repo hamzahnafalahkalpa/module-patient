@@ -1,14 +1,13 @@
 <?php
 
+
 use Hanafalah\ModulePatient\{
-    Commands as ModulePatientCommands,
+    Enums\Patient\CardIdentity,
+    Commands\InstallMakeCommand
 };
 
-use Hanafalah\ModuleExamination;
-use Hanafalah\ModulePatient\Enums\Patient\CardIdentity;
-
 return [
-    'namespace' => 'Hanafalah\\ModulePatient',
+    'namespace' => 'Hanafalah\ModulePatient',
     'app' => [
         'contracts' => [
             //ADD YOUR CONTRACTS HERE
@@ -21,6 +20,7 @@ return [
         'database' => 'Database',
         'data' => 'Data',
         'resource' => 'Resources',
+        'config' => '../assets/database/config',
         'migration' => '../assets/database/migrations'
     ],
     'database' => [
@@ -32,6 +32,9 @@ return [
         //THIS KEY SAME WITH MODEL NAME USING SNAKE CASE
         'people' => [
             'schema' => 'PatientPeople',
+        ],
+        'unidentified_patient' => [
+            'schema' => 'UnidentifiedPatient'
         ], 
         'animal' => [
             'schema' => null,
@@ -42,6 +45,6 @@ return [
     ],
     'patient_identities' => CardIdentity::cases(),
     'commands' => [
-        ModuleExamination\Commands\InstallMakeCommand::class
+        InstallMakeCommand::class
     ],
 ];

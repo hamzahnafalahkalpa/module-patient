@@ -28,7 +28,10 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
     ];
 
     public function prepareStoreVisitPatient(VisitPatientData $visit_patient_dto): Model{
-        if (isset($visit_patient_dto->patient)) $this->createPatient($visit_patient_dto);
+        if (isset($visit_patient_dto->patient)) {
+            $patient = $this->createPatient($visit_patient_dto);
+            $visit_patient_dto->patient_id = $patient->getKey();
+        }
         $visit_patient_model = $this->createVisitPatient($visit_patient_dto);
 
         if ($visit_patient_model->getMorphClass() == $this->VisitPatientModelMorph()) {
@@ -66,7 +69,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
     }
 
     protected function createPatient(VisitPatientData &$visit_patient_dto): Model{
-        $patient = $this->schemaContract('patient')->preparStorePatient($visit_patient_dto->patient);
+        $patient = $this->schemaContract('patient')->prepareStorePatient($visit_patient_dto->patient);
         $visit_patient_dto->patient_id    = $patient->getKey();
         $visit_patient_dto->patient_model = $patient;
         $consument = &$visit_patient_dto->transaction->consument;
