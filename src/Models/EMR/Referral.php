@@ -62,6 +62,18 @@ class Referral extends BaseModel
     public function getViewResource(){return ViewReferral::class;}
     public function getShowResource(){return ShowReferral::class;}
 
+    public function viewUsingRelation(): array{
+        return [
+            
+        ];
+    }
+
+    public function showUsingRelation(): array{
+        return [
+            'visit'
+        ];
+    }
+
     public function reference(){return $this->morphTo();}
     public function visit(){return $this->morphTo();}
     public function visitRegistrations(){return $this->hasManyModel('VisitRegistration');}

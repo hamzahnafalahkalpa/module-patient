@@ -4,9 +4,6 @@ namespace Hanafalah\ModulePatient\Schemas;
 
 use Hanafalah\ModulePatient\{
     Contracts\Schemas\Referral as ContractsReferral,
-    Enums\VisitRegistration\ActivityStatus,
-    Enums\VisitRegistration\Activity,
-    Enums\Referral\Status,
     ModulePatient
 };
 use Hanafalah\ModulePatient\Contracts\Data\ReferralData;
@@ -27,26 +24,41 @@ class Referral extends ModulePatient implements ContractsReferral
 
     public function prepareStoreReferral(ReferralData $referral_dto): Model{
         $create = [
-            'id'             => $referral_dto->id ?? null, 
-            'visit_type'     => $referral_dto->visit_type, 
-            'visit_id'       => $referral_dto->visit_id,
+            'id'               => $referral_dto->id ?? null, 
+            'visit_type'       => $referral_dto->visit_type, 
+            'visit_id'         => $referral_dto->visit_id,
             'referral_type'    => $referral_dto->referral_type,
             'medic_service_id' => $referral_dto->medic_service_id
         ];
-
         $referral = $this->usingEntity()->firstOrCreate($create);
 
-        if (isset($referral_dto->medic_service_id)){
-            $medic_service = $this->MedicServiceModel()->findOrFail($referral_dto->medic_service_id);
-            $referral_dto->props->props['prop_medic_service'] = $medic_service->toViewApi()->resolve();
+        if (isset($referral_dto->visit_registration)){
+            $visit_registration_dto = &$referral_dto->visit_registration;
+            $visit_registration_dto->referral_id = $referral->getKey();
+            switch (true){
+                case $referral_dto->visit_type == 'VisitRegistration':
+                    $this->mapperForVisitRegistration($referral_dto);
+                break;
+            }
+            $visit_registration = $this->schemaContract('visit_registration')->prepareStoreVisitRegistration($visit_registration_dto);
+            $referral_dto->props->props['prop_visit_registration'] = $visit_registration->toViewApi()->resolve();
         }
-
         if (!isset($referral_dto->visit_model)) $referral_dto->visit_model = $this->{$referral_dto->visit_type.'Model'}()->findOrFail($referral_dto->visit_id);
-
         $referral_dto->props->props['prop_visit'] = $referral_dto->visit_model->toViewApi()->resolve();
-
         $this->fillingProps($referral,$referral_dto->props);
         $referral->save();
         return $this->referral_model = $referral;
+    }
+
+    protected function mapperForVisitRegistration(ReferralData &$referral_dto){
+        $visit_registration_model = $this->VisitRegistrationModel()->findOrFail($referral_dto->visit_id);
+        $visit_registration_dto = &$referral_dto->visit_registration;
+        $visit_registration_dto->visit_patient_type = $visit_registration_model->visit_patient_type;
+        $visit_registration_dto->visit_patient_id   = $visit_registration_model->visit_patient_id;
+        $visit_registration_dto->visit_examination  ??= $this->requestDTO(app(config('app.contracts.VisitExaminationData')),[
+            'id' => null,
+            'visit_patient_id' => $visit_registration_dto->visit_patient_id,
+            'visit_registration_id' => null
+        ]);
     }
 }

@@ -43,9 +43,8 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             $visit_registration_dto->visit_patient_type  = $visit_patient->getMorphClass();
             $visit_registration_dto->visit_patient_model = $visit_patient;
         }
-
         $visit_registration   = $this->createVisitRegistration($visit_registration_dto);
-        $visit_patient      ??= $visit_registration_dto->visit_patient_model;
+        $visit_patient      ??= $visit_registration_dto->visit_patient_model ?? $visit_registration->visitPatient;
 
         if (isset($visit_registration_dto->visit_examination)){
             $visit_examination_dto = &$visit_registration_dto->visit_examination;
@@ -96,13 +95,16 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             'visit_patient_type' => $visit_registration_dto->visit_patient_type,
             'medic_service_id'   => $visit_registration_dto->medic_service_id
         ];
-
         $visit_registration = $this->usingEntity()->updateOrCreate($guard,$add);
         $visit_registration->load(['paymentSummary', 'transaction']);
         
+        if (!isset($visit_registration_dto->props->props['prop_visit_patient'])){
+            $visit_registration_dto->visit_patient_model = $visit_registration->visitPatient;
+            $visit_registration_dto->props->props['prop_visit_patient'] = $visit_registration_dto->visit_patient_model->toViewApi()->resolve();
+        }
+
         $this->initTransaction($visit_registration_dto, $visit_registration)
              ->initPaymentSummary($visit_registration_dto, $visit_registration);
-
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();
         return $this->visit_registration_model = $visit_registration;

@@ -37,12 +37,18 @@ class ReferralData extends Data implements DataReferralData{
     #[MapName('medic_service_id')]
     public mixed $medic_service_id = null;
 
+    #[MapInputName('visit_registration')]
+    #[MapName('visit_registration')]
+    public ?VisitRegistrationData $visit_registration = null;
+
     #[MapInputName('props')]
     #[MapName('props')]
     public ?ReferralPropsData $props = null;
 
     public static function before(array &$attributes){
-        $attributes['flag'] ??= 'CLINICAL_VISIT';
+        if (isset($attributes['visit_registration'])){
+            $attributes['visit_registration']['medic_service_id'] ??= $attributes['medic_service_id'];
+        }
     }
 
     public static function after(self $data): self{
