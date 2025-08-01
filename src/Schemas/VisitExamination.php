@@ -4,8 +4,6 @@ namespace Hanafalah\ModulePatient\Schemas;
 
 use Hanafalah\ModuleMedicService\Enums\Label;
 use Illuminate\Database\Eloquent\{
-    Builder,
-    Collection,
     Model
 };
 use Hanafalah\ModulePatient\{
@@ -57,10 +55,11 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
     }
 
     public function prepareStoreVisitExamination(VisitExaminationData $visit_examination_dto): Model{
-        if (!isset($visit_examination_dto->visit_registration_id)) throw new \Exception("visit visit registration id is required");
+        $visit_registration = $visit_examination_dto->visit_registration_model 
+                              ?? $this->VisitRegistrationModel()->with('medicService')
+                                      ->findOrFail($visit_examination_dto->visit_registration_id);
 
-        $visit_registration = $visit_examination_dto->visit_registration_model ?? $this->VisitRegistrationModel()->with('medicService')->findOrFail($visit_examination_dto->visit_registration_id);
-        $medic_service      = $visit_registration->medicService;
+        $medic_service = $visit_registration->medicService;
         if (!isset($medic_service)) throw new \Exception("medic service not found");
 
         $add = [
@@ -77,6 +76,18 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
 
         $visit_examination  = $this->usingEntity()->firstOrCreate(...$create);
         $visit_examination->pushActivity(Activity::VISITATION->value, [ActivityStatus::VISIT_CREATED->value, ActivityStatus::VISITING->value]);
+        
+        //SET ASSESSMENT
+        if (isset($visit_examination_dto->examination)){
+            $examination_dto = &$visit_examination_dto->examination;
+            $examination_dto->visit_examination_id ??= $visit_examination->getKey();
+            $examination_dto->visit_examination_model ??= $visit_examination;
+            $examination_dto->visit_patient_model ??= $visit_examination_dto->visit_patient_model;
+            $examination_dto->visit_registration_model ??= $visit_examination_dto->visit_registration_model;
+            $examination_dto->patient_model ??= $visit_examination_dto->patient_model;
+            $response = $this->schemaContract('examination')->prepareStoreExamination($examination_dto);
+            $visit_examination_dto->props->props['examination'] = $response;
+        }
         
         if (in_array($medic_service->flag, [Label::OUTPATIENT->value, Label::MCU->value])) {
             //ADD DEFAULT SCREENING

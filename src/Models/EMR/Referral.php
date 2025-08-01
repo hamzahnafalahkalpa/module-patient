@@ -32,7 +32,9 @@ class Referral extends BaseModel
         'name'           => 'string',
         'dob'            => 'date',
         'nik'            => 'string',
-        'medical_record' => 'string'
+        'medical_record' => 'string',
+        'visit_type'     => 'string',
+        'visit_id'       => 'string'
     ];
 
     public function getPropsQuery(): array

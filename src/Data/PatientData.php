@@ -74,8 +74,8 @@ class PatientData extends Data implements DataPatientData{
             $keys        = array_intersect(array_keys($attributes),$config_keys);
             $key         = array_shift($keys);
             $attributes['reference_type'] ??= request()->reference_type ?? $key;
-            $attributes['reference_type'] = Str::studly($attributes['reference_type']);
         }
+        $attributes['reference_type'] = Str::studly($attributes['reference_type']);
     }
 
     public static function after(self $data): self{

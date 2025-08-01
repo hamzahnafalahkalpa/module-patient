@@ -17,10 +17,10 @@ class ViewVisitExamination extends ApiResource
         $arr = [
             "id"                     => $this->id,
             'visit_examination_code' => $this->visit_examination_code,
+            'examination'            => $this->examination ?? null,
             "created_at"             => $this->created_at,
             "updated_at"             => $this->updated_at,
         ];
-
         return $arr;
     }
 }

@@ -41,6 +41,10 @@ class Referral extends ModulePatient implements ContractsReferral
             $referral_dto->props->props['prop_medic_service'] = $medic_service->toViewApi()->resolve();
         }
 
+        if (!isset($referral_dto->visit_model)) $referral_dto->visit_model = $this->{$referral_dto->visit_type.'Model'}()->findOrFail($referral_dto->visit_id);
+
+        $referral_dto->props->props['prop_visit'] = $referral_dto->visit_model->toViewApi()->resolve();
+
         $this->fillingProps($referral,$referral_dto->props);
         $referral->save();
         return $this->referral_model = $referral;

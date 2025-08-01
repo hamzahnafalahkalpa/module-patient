@@ -43,9 +43,6 @@ class ReferralData extends Data implements DataReferralData{
 
     public static function before(array &$attributes){
         $attributes['flag'] ??= 'CLINICAL_VISIT';
-        // $attributes['external_referral'] ??= [
-        //     'date' => null
-        // ];
     }
 
     public static function after(self $data): self{

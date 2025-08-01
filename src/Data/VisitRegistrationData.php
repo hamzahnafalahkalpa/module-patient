@@ -3,6 +3,8 @@
 namespace Hanafalah\ModulePatient\Data;
 
 use Hanafalah\LaravelSupport\Supports\Data;
+use Hanafalah\ModuleExamination\Contracts\Data\ExaminationData;
+use Hanafalah\ModuleExamination\Data\AssessmentData;
 use Hanafalah\ModuleMedicService\Enums\Label;
 use Hanafalah\ModulePatient\Contracts\Data\PractitionerEvaluationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationData;
@@ -10,6 +12,7 @@ use Hanafalah\ModulePatient\Contracts\Data\VisitRegistrationData as DataVisitReg
 use Hanafalah\ModulePatient\Contracts\Data\VisitRegistrationPropsData;
 use Hanafalah\ModulePayment\Contracts\Data\PaymentSummaryData;
 use Hanafalah\ModuleTransaction\Contracts\Data\TransactionData;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
 
@@ -66,13 +69,22 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     #[MapName('payment_summary')]
     public ?PaymentSummaryData $payment_summary;
 
+    #[MapInputName('examination')]
+    #[MapName('examination')]
+    public ?ExaminationData $examination = null;
+
+    #[MapInputName('item_rents')]
+    #[MapName('item_rents')]
+    #[DataCollectionOf(ItemRentData::class)]
+    public ?array $item_rents = null;
+
     #[MapInputName('props')]
     #[MapName('props')]
     public ?VisitRegistrationPropsData $props = null;
 
     public static function before(array &$attributes){
         $new = static::new();
-        $medic_service = $new->MedicServiceModel()->findOrFail($attributes['medic_service_id']);
+        $medic_service = $new->MedicServiceModel()->with('parent')->findOrFail($attributes['medic_service_id']);
         $attributes['medic_service_model'] = $medic_service;
         $attributes['prop_medic_service'] = $medic_service->toViewApi()->resolve();
 
@@ -84,11 +96,17 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
             $practitioner_model = $practitioner_model->findOrFail($practitioner_evaluation['practitioner_id']);
         }
         $practitioner_evaluation['prop_practitioner'] = $practitioner_model->toViewApi()->resolve();
-        if ($medic_service->label == Label::OUTPATIENT->value){
+        if (
+            $medic_service->label == Label::VERLOS_KAMER->value || 
+            $medic_service->label == Label::EMERGENCY_UNIT->value || 
+            isset($medic_service->parent) && $medic_service->parent->label == Label::OUTPATIENT->value
+        ){
             $attributes['visit_examination'] ??= [
                 "id" => null,
                 'practitioner_evaluations' => []
             ];
+            $attributes['visit_examination']['examination'] ??= $attributes['examination'] ?? null;
+            unset($attributes['examination']);
         }
 
         $attributes['payment_summary'] = [

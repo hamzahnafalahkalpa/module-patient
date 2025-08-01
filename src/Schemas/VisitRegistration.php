@@ -51,8 +51,21 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             $visit_examination_dto = &$visit_registration_dto->visit_examination;
             $visit_examination_dto->visit_patient_id      = $visit_patient->getKey();
             $visit_examination_dto->visit_registration_id = $visit_registration->getKey();
+            $visit_examination_dto->visit_registration_model = $visit_registration;
+            $visit_examination_dto->visit_patient_model = $visit_patient;
+            $visit_examination_dto->patient_model = $visit_patient->patient;
             $visit_examination = $this->schemaContract('visit_examination')->prepareStoreVisitExamination($visit_examination_dto);
             $visit_registration_dto->props->props['prop_visit_examination'] = $visit_examination->toViewApi()->resolve();
+        }
+        if (isset($visit_registration_dto->item_rents) && count($visit_registration_dto->item_rents) > 0){
+            foreach ($visit_registration_dto->item_rents as $item_rent) {
+                $item_rent->reference_id = $visit_registration->getKey();
+                $item_rent->reference_type = $visit_registration->getMorphClass();
+                $item_rent->reference_model = $visit_registration;
+                $this->schemaContract('item_rent')->prepareStoreItemRent($item_rent);
+            }
+        }else{
+            $visit_registration->itemRents()->delete();
         }
 
         $this->fillingProps($visit_registration, $visit_registration_dto->props);

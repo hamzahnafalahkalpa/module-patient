@@ -88,6 +88,7 @@ class VisitRegistration extends BaseModel
 
     public function showUsingRelation(){
         return [
+            'itemRents',
             'medicService.service',
             'visitPatient' => function ($query) {
                 $query->with([
@@ -110,8 +111,15 @@ class VisitRegistration extends BaseModel
     public function visitExamination(){return $this->hasOneModel('VisitExamination');}
     public function visitExaminations(){return $this->hasOneModel('VisitExamination');}
     public function medicService(){return $this->belongsToModel('MedicService');}
+    public function itemRent(){return $this->morphOneModel('ItemRent','reference');}
+    public function itemRents(){return $this->morphManyModel('ItemRent','reference');}
     public function modelHasService(){return $this->morphOneModel('ModelHasService', 'reference');}
     public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'reference');}
+    public function treatments(){
+        $treatment_types = config('module-treatment.treatment_types');
+        $treatment_keys  = array_keys($treatment_types);
+        return $this->hasManyModel('Assessment')->whereIn('morph',$treatment_keys);
+    }
     public function services(){
         return $this->belongsToManyModel(
             'Service',
