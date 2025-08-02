@@ -35,6 +35,7 @@ class VisitRegistration extends BaseModel
         'medic_service_id',
         'service_cluster_id',
         'internal_referral_id',
+        'referral_id',
         'status',
         'props'
     ];
@@ -45,7 +46,8 @@ class VisitRegistration extends BaseModel
         'service_label_id'    => 'string',
         'medic_service_name'  => 'string',
         'medic_service_label' => 'string',
-        'created_at'          => 'date'
+        'visit_patient_reference_type' => 'string',
+        'created_at'                   => 'date'
     ];
 
     public function getPropsQuery(): array
@@ -57,7 +59,8 @@ class VisitRegistration extends BaseModel
             'service_cluster_id' => 'props->prop_service_cluster->id',
             'service_cluster_label' => 'props->prop_service_cluster->label',
             'medic_service_id' => 'props->prop_medic_service->id',
-            'medic_service_label' => 'props->prop_medic_service->label'
+            'medic_service_label' => 'props->prop_medic_service->label',
+            'visit_patient_reference_type' => 'props->prop_visit_patient->reference_type'
         ];
     }
 

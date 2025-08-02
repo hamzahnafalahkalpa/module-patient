@@ -29,9 +29,6 @@ class ItemRent extends BaseModel
 
     protected static function booted(): void{
         parent::booted();
-        static::addGlobalScope(function($query){
-            $query->flagIn((new static)->getMorphClass());
-        });
         static::creating(function($query){
             $query->flag ??= (new static)->getMorphClass();
         });

@@ -14,7 +14,6 @@ class ShowReferral extends ViewReferral
                 return $this->visit->toShowApi()->resolve();
             })
         ];
-
         $arr = $this->mergeArray(parent::toArray($request), $arr);
         return $arr;
     }

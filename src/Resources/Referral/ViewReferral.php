@@ -16,6 +16,9 @@ class ViewReferral extends ApiResource
             'visit_type'            => $this->visit_type,
             'visit_id'              => $this->visit_id,
             'visit'                 => $this->prop_visit,
+            'visit_registration'    => $this->relationValidation('visitRegistration',function(){
+                return $this->visitRegistration->toShowApi()->resolve();
+            },$this->prop_visit_registration),
             'reference_type'        => $this->reference_type,
             'reference'             => $this->prop_reference,
             'external_referral'     => $this->external_referral

@@ -93,7 +93,8 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             'id'                 => $visit_registration_dto->id ?? null,
             'visit_patient_id'   => $visit_registration_dto->visit_patient_id,
             'visit_patient_type' => $visit_registration_dto->visit_patient_type,
-            'medic_service_id'   => $visit_registration_dto->medic_service_id
+            'medic_service_id'   => $visit_registration_dto->medic_service_id,
+            'referral_id'        => $visit_registration_dto->referral_id
         ];
         $visit_registration = $this->usingEntity()->updateOrCreate($guard,$add);
         $visit_registration->load(['paymentSummary', 'transaction']);

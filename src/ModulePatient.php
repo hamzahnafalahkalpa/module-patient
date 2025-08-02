@@ -9,17 +9,8 @@ use Hanafalah\ModulePatient\Contracts;
 
 class ModulePatient extends PackageManagement implements Contracts\ModulePatient
 {
-
-    protected static $__examination_summary;
-    protected static $__practitioner_evaluation;
-    protected static $__visit_registration;
-    protected static $__visit_examination;
-    protected static $__practitioner;
-    protected static $__patient;
-    protected static $__patient_summary;
-    protected static $__pharmacy_sale;
-    protected static $__screening_forms;
-    protected static $__open_forms;
+    protected $__screening_forms;
+    protected $__open_forms;
 
     public function __call($method, $arguments = [])
     {

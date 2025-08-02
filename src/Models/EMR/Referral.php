@@ -63,20 +63,20 @@ class Referral extends BaseModel
     public function getShowResource(){return ShowReferral::class;}
 
     public function viewUsingRelation(): array{
-        return [
-            
-        ];
+        return [];
     }
 
     public function showUsingRelation(): array{
         return [
-            'visit'
+            'visit','visitRegistration' => function($query){
+                $query->with('itemRents');
+            }
         ];
     }
 
     public function reference(){return $this->morphTo();}
     public function visit(){return $this->morphTo();}
-    public function visitRegistrations(){return $this->hasManyModel('VisitRegistration');}
+    public function visitRegistration(){return $this->hasOneModel('VisitRegistration');}
     public function medicService(){return $this->belongsToModel('MedicService');}
 
     public array $activityList = [
