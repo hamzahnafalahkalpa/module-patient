@@ -116,8 +116,8 @@ class VisitRegistration extends BaseModel
     public function medicService(){return $this->belongsToModel('MedicService');}
     public function itemRent(){return $this->morphOneModel('ItemRent','reference');}
     public function itemRents(){return $this->morphManyModel('ItemRent','reference');}
-    public function modelHasService(){return $this->morphOneModel('ModelHasService', 'reference');}
-    public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'reference');}
+    public function modelHasService(){return $this->morphOneModel('ModelHasService', 'model');}
+    public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'model');}
     public function treatments(){
         $treatment_types = config('module-treatment.treatment_types');
         $treatment_keys  = array_keys($treatment_types);
@@ -127,9 +127,9 @@ class VisitRegistration extends BaseModel
         return $this->belongsToManyModel(
             'Service',
             'ModelHasService',
-            'reference_id',
+            'model_id',
             'service_id'
-        )->where($this->ModelHasServiceModel()->getTable() . '.reference_type', $this->getMorphClass());
+        )->where($this->ModelHasServiceModel()->getTable() . '.model_type', $this->getMorphClass());
     }
 
     public array $activityList = [

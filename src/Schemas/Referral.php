@@ -32,9 +32,14 @@ class Referral extends ModulePatient implements ContractsReferral
         ];
         $referral = $this->usingEntity()->firstOrCreate($create);
 
+        if (isset($referral_dto->medic_service_id)){
+            $referral_dto->props->props['prop_medic_service'] = $this->MedicServiceModel()->findOrFail($referral_dto->medic_service_id)->toViewApi()->resolve();
+        }
+
         if (isset($referral_dto->visit_registration)){
             $visit_registration_dto = &$referral_dto->visit_registration;
             $visit_registration_dto->referral_id = $referral->getKey();
+            $visit_registration_dto->referral_model = $referral;
             switch (true){
                 case $referral_dto->visit_type == 'VisitRegistration':
                     $this->mapperForVisitRegistration($referral_dto);

@@ -157,10 +157,10 @@ class VisitPatient extends BaseModel
     public function visitRegistration(){return $this->morphOneModel('VisitRegistration', 'visit_patient');}
     public function visitRegistrations(){return $this->morphManyModel('VisitRegistration', 'visit_patient');}
     public function patientDischarge(){return $this->hasOneModel('PatientDischarge', 'visit_patient_id');}
-    public function modelHasOrganization(){return $this->morphOneModel('ModelHasOrganization', 'reference');}
-    public function modelHasOrganizations(){return $this->morphManyModel('ModelHasOrganization', 'reference');}    
-    public function modelHasService(){return $this->morphOneModel('ModelHasService', 'reference');}
-    public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'reference');}
+    public function modelHasOrganization(){return $this->morphOneModel('ModelHasOrganization', 'model');}
+    public function modelHasOrganizations(){return $this->morphManyModel('ModelHasOrganization', 'model');}    
+    public function modelHasService(){return $this->morphOneModel('ModelHasService', 'model');}
+    public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'model');}
     public function patientSummary(){return $this->hasOneModel('PatientSummary', 'visit_patient_id');}
     public function patientTypeService(){return $this->belongsToModel('PatientTypeService');}
     // public function patientTypeHistory(){return $this->hasOneModel('PatientTypeHistory', 'visit_patient_id');}
@@ -180,9 +180,9 @@ class VisitPatient extends BaseModel
         return $this->belongsToManyModel(
             'Service',
             'ModelHasService',
-            'model_has_services.reference_id',
+            'model_has_services.model_id',
             'service_id'
-        )->where('model_has_services.reference_type', $this->getMorphClass());
+        )->where('model_has_services.model_type', $this->getMorphClass());
     }
     
     public function payer(){
@@ -191,11 +191,11 @@ class VisitPatient extends BaseModel
         return $this->hasOneThroughModel(
             'Payer',
             'ModelHasOrganization',
-            'reference_id',
+            'model_id',
             'id',
             'id',
             'organization_id'
-        )->where($model_has_table_name . '.reference_type', $this->getMorphClass())
+        )->where($model_has_table_name . '.model_type', $this->getMorphClass())
             ->where($model_has_table_name . '.organization_type', $this->PayerModelMorph())
             ->select([$payer_table . '.*', $model_has_table_name . '.*', $payer_table . '.id as id']);
     }
@@ -206,11 +206,11 @@ class VisitPatient extends BaseModel
         return $this->hasOneThroughModel(
             'Agent',
             'ModelHasOrganization',
-            'reference_id',
+            'model_id',
             'id',
             'id',
             'organization_id'
-        )->where('reference_type', $this->getMorphClass())
+        )->where('model_type', $this->getMorphClass())
             ->where('organization_type', $this->AgentModel()->getMorphClass())
             ->select([$agent_table . '.*', $model_has_table_name . '.*', $agent_table . '.id as id']);
     }
@@ -221,11 +221,11 @@ class VisitPatient extends BaseModel
         return $this->hasOneThroughModel(
             'Organization',
             'ModelHasOrganization',
-            'reference_id',
+            'model_id',
             'id',
             'id',
             'organization_id'
-        )->where('reference_type', $this->getMorphClass())
+        )->where('model_type', $this->getMorphClass())
             ->select([$organization_table . '.*', $model_has_table_name . '.*', $organization_table . '.id as id']);
     }
 
@@ -235,11 +235,11 @@ class VisitPatient extends BaseModel
         return $this->hasManyThroughModel(
             'Organization',
             'ModelHasOrganization',
-            'reference_id',
+            'model_id',
             'id',
             'id',
             'organization_id'
-        )->where('reference_type', $this->getMorphClass())
+        )->where('model_type', $this->getMorphClass())
             ->select([$organization_table . '.*', $model_has_table_name . '.*', $organization_table . '.id as id']);
     }
 

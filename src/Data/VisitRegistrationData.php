@@ -61,6 +61,10 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     #[MapName('referral_id')]
     public mixed $referral_id = null;
 
+    #[MapInputName('referral_model')]
+    #[MapName('referral_model')]
+    public ?object $referral_model = null;
+
     #[MapInputName('status')]
     #[MapName('status')]
     public mixed $status = null;
