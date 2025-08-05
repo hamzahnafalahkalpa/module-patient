@@ -34,6 +34,7 @@ class ViewVisitPatient extends ApiResource
             "organization"       => $this->relationValidation("organization", function () {
                 return $this->organization->toViewApi()->resolve();
             }),
+            'visit_registration'  => $this->prop_visit_registration,
             "visit_registrations" => $this->relationValidation("visitRegistrations", function () {
                 return $this->visitRegistrations->transform(function ($visitRegistration) {
                     return $visitRegistration->toViewApi()->resolve();

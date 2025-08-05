@@ -47,9 +47,14 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[MapName('reference_id')]
     public mixed $reference_id = null;
 
+    #[MapInputName('reference_model')]
+    #[MapName('reference_model')]
+    public ?object $reference_model = null;
+
     #[MapInputName('reservation_id')]
     #[MapName('reservation_id')]
     public mixed $reservation_id = null;
+
 
     #[MapInputName('patient_type_service_id')]
     #[MapName('patient_type_service_id')]
@@ -76,6 +81,10 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[MapName('referral')]
     public ?ReferralData $referral = null;
 
+    #[MapInputName('visit_registration')]
+    #[MapName('visit_registration')]
+    public ?VisitRegistrationData $visit_registration = null;
+
     #[MapInputName('visit_registrations')]
     #[MapName('visit_registrations')]
     #[DataCollectionOf(VisitRegistrationData::class)]
@@ -98,9 +107,6 @@ class VisitPatientData extends Data implements DataVisitPatientData{
             $attributes['prop_patient'] = $patient->toViewApi()->resolve();
         }
 
-        if (isset($patient)){
-            $reference = $patient->reference;
-        }
         $attributes['transaction'] = [
             'id' => null,
             "reference_type" => "VisitPatient",

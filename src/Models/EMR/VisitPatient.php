@@ -142,10 +142,7 @@ class VisitPatient extends BaseModel
                 $query->with(['visitExamination']);
             },
             // 'organizations',
-            // 'transaction.consument',
             // 'services',
-            // 'payer',
-            // 'agent'
         ];
     }
     
