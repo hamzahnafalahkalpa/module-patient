@@ -2,8 +2,8 @@
 
 namespace Hanafalah\ModulePatient\Data;
 
+use Hanafalah\LaravelSupport\Concerns\Support\HasRequestData;
 use Hanafalah\LaravelSupport\Supports\Data;
-use Hanafalah\ModuleExamination\Contracts\Data\ExaminationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationData as DataVisitExaminationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationPropsData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
@@ -11,6 +11,8 @@ use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
 
 class VisitExaminationData extends Data implements DataVisitExaminationData{
+    use HasRequestData;
+
     #[MapInputName('id')]
     #[MapName('id')]
     public mixed $id = null;
@@ -33,7 +35,7 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
 
     #[MapInputName('examination')]
     #[MapName('examination')]
-    public ?ExaminationData $examination = null;
+    public array|object|null $examination = null;
 
     #[MapInputName('practitioner_evaluations')]
     #[MapName('practitioner_evaluations')]
@@ -43,6 +45,13 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
     #[MapInputName('props')]
     #[MapName('props')]
     public ?VisitExaminationPropsData $props = null;
+
+    public static function before(array &$attributes){
+        $new = static::new();
+        if (isset($attributes['examination']) && is_array($attributes['examination'])){
+            $attributes['examination'] = $new->requestDTO(config('app.contracts.ExaminationData'),$attributes['examination']);
+        }
+    }
 
     public static function after(self $data): self{
         $new = static::new();

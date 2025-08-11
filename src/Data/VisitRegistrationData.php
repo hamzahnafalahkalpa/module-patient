@@ -3,8 +3,6 @@
 namespace Hanafalah\ModulePatient\Data;
 
 use Hanafalah\LaravelSupport\Supports\Data;
-use Hanafalah\ModuleExamination\Contracts\Data\ExaminationData;
-use Hanafalah\ModuleExamination\Data\AssessmentData;
 use Hanafalah\ModuleMedicService\Enums\Label;
 use Hanafalah\ModulePatient\Contracts\Data\PractitionerEvaluationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationData;
@@ -75,7 +73,7 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
 
     #[MapInputName('examination')]
     #[MapName('examination')]
-    public ?ExaminationData $examination = null;
+    public array|object|null $examination = null;
 
     #[MapInputName('item_rents')]
     #[MapName('item_rents')]
@@ -88,6 +86,11 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
 
     public static function before(array &$attributes){
         $new = static::new();
+
+        if (isset($attributes['examination']) && is_array($attributes['examination'])){
+            $attributes['examination'] = $new->requestDTO(config('app.contracts.ExaminationData'),$attributes['examination']);
+        }
+
         $medic_service = $new->MedicServiceModel()->with('parent')->findOrFail($attributes['medic_service_id']);
         $attributes['medic_service_model'] = $medic_service;
         $attributes['prop_medic_service'] = $medic_service->toViewApi()->resolve();
