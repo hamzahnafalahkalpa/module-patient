@@ -105,7 +105,7 @@ class PatientData extends Data implements DataPatientData{
 
         $patient_type = $new->PatientTypeModel();
         $patient_type = (isset($data->patient_type_id)) ? $patient_type->findOrFail($data->patient_type_id) : $patient_type;
-        $props['prop_patient_type'] = $patient_type->toViewApi()->resolve();
+        $props['prop_patient_type'] = $patient_type->toViewApiOnlies('id','name','flag','label');
         return $data;
     }
 

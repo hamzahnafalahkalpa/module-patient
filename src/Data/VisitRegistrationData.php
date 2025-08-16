@@ -93,7 +93,7 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
 
         $medic_service = $new->MedicServiceModel()->with('parent')->findOrFail($attributes['medic_service_id']);
         $attributes['medic_service_model'] = $medic_service;
-        $attributes['prop_medic_service'] = $medic_service->toViewApi()->resolve();
+        $attributes['prop_medic_service'] = $medic_service->toViewApiOnlies('id','name','flag','label');
 
         $attributes['practitioner_evaluation'] ??= [];
         $practitioner_evaluation = &$attributes['practitioner_evaluation'];
@@ -131,9 +131,6 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     public static function after(self $data): self{
         $new = static::new();
         $props = &$data->props->props;
-        $medic_service = $new->MedicServiceModel()->findOrFail($data->medic_service_id);
-        $data->medic_service_model = $medic_service;
-        $props['prop_medic_service'] = $medic_service->toViewApi()->resolve();
         return $data;
     }
 }

@@ -15,11 +15,14 @@ class ViewVisitExamination extends ApiResource
     public function toArray(\Illuminate\Http\Request $request): array
     {
         $arr = [
-            "id"                     => $this->id,
+            'id'                     => $this->id,
             'visit_examination_code' => $this->visit_examination_code,
             'examination'            => $this->examination ?? null,
-            "created_at"             => $this->created_at,
-            "updated_at"             => $this->updated_at,
+            'visit_registration'     => $this->relationValidation('visitRegistration',function(){
+                return $this->visitRegistration->toViewApi()->resolve();
+            }),
+            'created_at'             => $this->created_at,
+            'updated_at'             => $this->updated_at,
         ];
         return $arr;
     }

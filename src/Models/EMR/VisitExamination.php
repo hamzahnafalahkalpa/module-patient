@@ -87,6 +87,14 @@ class VisitExamination extends BaseModel
         });
     }
 
+    public function viewUsingRelation(): array{
+        return ['visitRegistration'];
+    }
+
+    public function showUsingRelation(): array{
+        return ['visitRegistration'];
+    }
+
     public function getViewResource(){return ViewVisitExamination::class;}
     public function getShowResource(){return ShowVisitExamination::class;}
 

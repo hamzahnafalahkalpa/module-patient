@@ -25,8 +25,8 @@ use Hanafalah\ModulePatient\Enums\{
 
 class VisitExamination extends ModulePatient implements ContractsVisitExamination
 {
-
     protected string $__entity = 'VisitExamination';
+    protected mixed $__order_by_created_at = 'desc'; //asc, desc, false
     public $visit_examination_model;
 
     public function prepareCommitVisitExamination(?array $attributes = null): Model
