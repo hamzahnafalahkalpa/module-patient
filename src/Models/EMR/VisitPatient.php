@@ -33,7 +33,7 @@ class VisitPatient extends BaseModel
     use HasUlids, HasTransaction, SoftDeletes;
     use HasProps, HasActivity, HasPaymentSummary;
 
-    const CLINICAL_VISIT = 'CLINICAL_VISIT';
+    const CLINICAL_VISIT = 'VisitPatient';
     const STATUS_ACTIVE  = 'ACTIVE';
 
     public $incrementing  = false;

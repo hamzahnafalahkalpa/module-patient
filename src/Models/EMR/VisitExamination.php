@@ -102,7 +102,7 @@ class VisitExamination extends BaseModel
     public function visitRegistration(){return $this->belongsToModel('VisitRegistration');}
     public function patientType(){return $this->belongsToModel('PatientType');}
     public function examinationTreatments(){return $this->hasManyModel('ExaminationTreatment');}
-    public function assessments(){return $this->hasManyModel('Assessment');}
+    public function assessments(){return $this->morphManyModel('Assessment','examination');}
     public function pharmacySale(){return $this->morphOneModel('PharmacySale', 'reference');}
     public function pharmacySales(){return $this->morphMany('PharmacySale', 'reference');}
     public function examinationSummary(){return $this->morphOneModel('ExaminationSummary', 'reference');}

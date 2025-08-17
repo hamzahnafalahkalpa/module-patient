@@ -105,6 +105,8 @@ class VisitPatientData extends Data implements DataVisitPatientData{
         if (isset($attributes['patient_id'])){
             $attributes['patient_model'] = $patient = $new->PatientModel()->with('reference')->findOrFail($attributes['patient_id']);
             $attributes['prop_patient'] = $patient->toViewApi()->resolve();
+
+            $attributes['payer_id'] ??= $patient->prop_company['id'] ?? null;
         }
 
         $attributes['transaction'] = [
