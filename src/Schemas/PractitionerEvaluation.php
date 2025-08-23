@@ -21,12 +21,13 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
     public $practitioner_evaluation;
 
     public function prepareStorePractitionerEvaluation(PractitionerEvaluationData $practitioner_evaluation_dto): Model{
-        $practitioner_model = app(config('module-patient.practitioner'))->findOrFail($practitioner_evaluation_dto->practitioner_id);
+        $practitioner_model = app(config('database.models.'.config('module-patient.practitioner')))
+                                ->findOrFail($practitioner_evaluation_dto->practitioner_id);
         $profession_model   = $practitioner_model->profession;
 
         $practitioner = $this->usingEntity()->firstOrCreate([
-            'visit_registration_id' => $practitioner_evaluation_dto->visit_registration_id,
-            'visit_examination_id'  => $practitioner_evaluation_dto->visit_examination_id,
+            'reference_type'        => $practitioner_evaluation_dto->reference_type,
+            'reference_id'          => $practitioner_evaluation_dto->reference_id,
             'practitioner_type'     => $practitioner_model->getMorphClass(),
             'practitioner_id'       => $practitioner_model->getKey()
         ], [
@@ -34,12 +35,11 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
             'profession_id'         => $profession_model?->getKey() ?? null,
             'name'                  => $practitioner_model?->name ?? ''
         ]);
-
         $props = &$practitioner_evaluation_dto->props;
         $props['prop_practitioner'] = $practitioner_model->toViewApiOnlies('id','name','flag','label');
         $props['prop_profession']   = $profession_model?->toViewApiOnlies('id','name','flag','label');
 
-        $this->fillingProps($practitioner, $practitioner_evaluation_dto);
+        $this->fillingProps($practitioner, $practitioner_evaluation_dto->props);
         $practitioner->save();
         return $this->practitioner_evaluation = $practitioner;
     }
