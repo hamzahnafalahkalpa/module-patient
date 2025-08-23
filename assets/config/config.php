@@ -27,7 +27,6 @@ return [
         'models' => [
         ]
     ],
-    'practitioner' => 'User',
     'patient_types' => [
         //THIS KEY SAME WITH MODEL NAME USING SNAKE CASE
         'people' => [
@@ -47,4 +46,5 @@ return [
     'commands' => [
         InstallMakeCommand::class
     ],
+    'practitioner' => 'User'
 ];

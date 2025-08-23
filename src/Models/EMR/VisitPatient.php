@@ -58,6 +58,7 @@ class VisitPatient extends BaseModel
     protected $show = [];
 
     protected $casts = [
+        'patient_id'     => 'string',
         'name'           => 'string',
         'queue_number'   => 'string',
         'created_at'     => 'datetime',
@@ -68,6 +69,7 @@ class VisitPatient extends BaseModel
         'reported_at'    => 'datetime',
         'consument_name'  => 'string',
         'consument_phone' => 'string',
+        'medic_service_label' => 'string'
     ];
 
     public function getPropsQuery(): array
@@ -76,7 +78,8 @@ class VisitPatient extends BaseModel
             'name'           => 'props->prop_patient->prop_people->name',
             'dob'            => 'props->prop_patient->prop_people->dob',
             'nik'            => 'props->prop_patient->people->card_identity->nik',
-            'medical_record' => 'props->prop_patient->medical_record'
+            'medical_record' => 'props->prop_patient->medical_record',
+            'medic_service_label' => 'props->prop_visit_registration->prop_medic_service->label'
         ];
     }
 
@@ -158,7 +161,7 @@ class VisitPatient extends BaseModel
     public function modelHasOrganizations(){return $this->morphManyModel('ModelHasOrganization', 'model');}    
     public function modelHasService(){return $this->morphOneModel('ModelHasService', 'model');}
     public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'model');}
-    public function patientSummary(){return $this->hasOneModel('PatientSummary', 'visit_patient_id');}
+    public function patientSummary(){return $this->hasOneModel('PatientSummary','visit_patient_id');}
     public function patientTypeService(){return $this->belongsToModel('PatientTypeService');}
     // public function patientTypeHistory(){return $this->hasOneModel('PatientTypeHistory', 'visit_patient_id');}
     // public function patientTypeHistories(){return $this->hasManyModel('PatientTypeHistory', 'visit_patient_id');}
@@ -241,9 +244,9 @@ class VisitPatient extends BaseModel
     }
 
     public array $activityList = [
-        Activity::ADM_VISIT->value . '_' . ActivityStatus::ADM_START->value     => ['flag' => 'ADM_START', 'message' => 'Administrasi dibuat'],
-        Activity::ADM_VISIT->value . '_' . ActivityStatus::ADM_PROCESSED->value => ['flag' => 'ADM_PROCESSED', 'message' => 'Pasien dalam antrian layanan'],
-        Activity::ADM_VISIT->value . '_' . ActivityStatus::ADM_FINISHED->value  => ['flag' => 'ADM_FINISHED', 'message' => 'Pasien selesai layanan'],
-        Activity::ADM_VISIT->value . '_' . ActivityStatus::ADM_CANCELLED->value => ['flag' => 'ADM_CANCELLED', 'message' => 'Transaksi dibatalkan'],
+        Activity::ADM_VISIT->value . '_' . ActivityStatus::ADM_START->value     => ['flag' => 'adm_start', 'message' => 'Administrasi dibuat'],
+        Activity::ADM_VISIT->value . '_' . ActivityStatus::ADM_PROCESSED->value => ['flag' => 'adm_processed', 'message' => 'Pasien dalam antrian layanan'],
+        Activity::ADM_VISIT->value . '_' . ActivityStatus::ADM_FINISHED->value  => ['flag' => 'adm_finished', 'message' => 'Pasien selesai layanan'],
+        Activity::ADM_VISIT->value . '_' . ActivityStatus::ADM_CANCELLED->value => ['flag' => 'adm_cancelled', 'message' => 'Transaksi dibatalkan'],
     ];
 }

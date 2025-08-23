@@ -55,7 +55,6 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[MapName('reservation_id')]
     public mixed $reservation_id = null;
 
-
     #[MapInputName('patient_type_service_id')]
     #[MapName('patient_type_service_id')]
     public mixed $patient_type_service_id;

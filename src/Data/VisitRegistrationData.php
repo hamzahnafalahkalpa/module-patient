@@ -4,6 +4,7 @@ namespace Hanafalah\ModulePatient\Data;
 
 use Hanafalah\LaravelSupport\Supports\Data;
 use Hanafalah\ModuleMedicService\Enums\Label;
+use Hanafalah\ModulePatient\Concerns\Data\HasPractitionerEvaluation;
 use Hanafalah\ModulePatient\Contracts\Data\PractitionerEvaluationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitRegistrationData as DataVisitRegistrationData;
@@ -15,6 +16,8 @@ use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
 
 class VisitRegistrationData extends Data implements DataVisitRegistrationData{
+    use HasPractitionerEvaluation;
+
     #[MapInputName('id')]
     #[MapName('id')]
     public mixed $id = null;
@@ -95,15 +98,9 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
         $attributes['medic_service_model'] = $medic_service;
         $attributes['prop_medic_service'] = $medic_service->toViewApiOnlies('id','name','flag','label');
 
-        $attributes['practitioner_evaluation'] ??= [];
-        $practitioner_evaluation = &$attributes['practitioner_evaluation'];
-        $practitioner_evaluation['practitioner_type'] ??= config('module-patient.practitioner');   
-        $practitioner_model = app(config('database.models.'.$practitioner_evaluation['practitioner_type']));
-        if (isset($practitioner_evaluation['practitioner_id'])){
-            $practitioner_model = $practitioner_model->findOrFail($practitioner_evaluation['practitioner_id']);
-        }
-        $practitioner_evaluation['prop_practitioner'] = $practitioner_model->toViewApi()->resolve();
+        $new->setupPractitionerEvaluation($attributes);
         if (
+            $medic_service->label == Label::PHARMACY_UNIT->value || 
             $medic_service->label == Label::VERLOS_KAMER->value || 
             $medic_service->label == Label::EMERGENCY_UNIT->value || 
             isset($medic_service->parent) && $medic_service->parent->label == Label::OUTPATIENT->value

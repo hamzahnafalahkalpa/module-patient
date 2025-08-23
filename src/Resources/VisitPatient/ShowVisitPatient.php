@@ -11,7 +11,7 @@ class ShowVisitPatient extends ViewVisitPatient
         $arr = [
             'transaction'   => $this->relationValidation('transaction', function () {
                 return $this->transaction->toShowApi()->resolve();
-            }),
+            },$this->prop_transaction),
             "organizations" => $this->relationValidation("organizations", function () {
                 return $this->organizations->transform(function ($organization) {
                     return $organization->toViewApi()->resolve();

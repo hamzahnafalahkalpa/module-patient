@@ -3,7 +3,6 @@
 namespace Hanafalah\ModulePatient\Resources\VisitPatient;
 
 use Hanafalah\LaravelSupport\Resources\ApiResource;
-use Hanafalah\ModuleTransaction\Resources\Transaction\ShowTransaction;
 
 class ViewVisitPatient extends ApiResource
 {
@@ -18,7 +17,7 @@ class ViewVisitPatient extends ApiResource
         $arr = [
             "id"                 => $this->id,
             'visit_code'         => $this->visit_code,
-            'transaction'        => $this->prop_transaction,
+            'transaction'        => $this->propNil($this->prop_transaction,'reference'),
             "reservation_id"     => $this->reservation_id,
             "queue_number"       => $this->queue_number,
             "flag"               => $this->flag,
@@ -37,7 +36,9 @@ class ViewVisitPatient extends ApiResource
             'visit_registration'  => $this->prop_visit_registration,
             "visit_registrations" => $this->relationValidation("visitRegistrations", function () {
                 return $this->visitRegistrations->transform(function ($visitRegistration) {
-                    return $visitRegistration->toViewApi();
+                    return is_array($visitRegistration) 
+                            ? $this->propNil($visitRegistration,'visit_patient')
+                            : $visitRegistration->toViewApiExcepts('visit_patient');
                 });
             }),
             "services"           => $this->relationValidation('services', function () {
@@ -49,7 +50,7 @@ class ViewVisitPatient extends ApiResource
                 });
             }),
             'patient'            => $this->prop_patient,
-            'properties'         => $this->properties ?? null,
+            // 'properties'         => $this->properties ?? null,
             'activity'           => $this->prop_activity ?? null,
             "created_at"         => $this->created_at,
             "updated_at"         => $this->updated_at,

@@ -51,10 +51,11 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             $visit_examination_dto->visit_patient_id      = $visit_patient->getKey();
             $visit_examination_dto->visit_registration_id = $visit_registration->getKey();
             $visit_examination_dto->visit_registration_model = $visit_registration;
-            $visit_examination_dto->visit_patient_model = $visit_patient;
-            $visit_examination_dto->patient_model = $visit_patient->patient;
+            $visit_examination_dto->visit_patient_model      = $visit_patient;
+            $visit_examination_dto->patient_model            = $visit_patient->patient;
             $visit_examination = $this->schemaContract('visit_examination')->prepareStoreVisitExamination($visit_examination_dto);
-            $visit_registration_dto->props->props['prop_visit_examination'] = $visit_examination->toViewApi()->resolve();
+            $visit_registration->setRelation('visitExamination', $visit_examination);
+            $visit_registration_dto->props->props['prop_visit_examination'] = $visit_examination->toViewApiExcepts('visit_registration');
         }
         if (isset($visit_registration_dto->item_rents) && count($visit_registration_dto->item_rents) > 0){
             foreach ($visit_registration_dto->item_rents as $item_rent) {
@@ -113,6 +114,9 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
 
         $this->initTransaction($visit_registration_dto, $visit_registration)
              ->initPaymentSummary($visit_registration_dto, $visit_registration);
+        if (isset($visit_registration_dto->practitioner_evaluation)) {
+            $this->initPractitionerEvaluation($visit_registration_dto->practitioner_evaluation, $visit_registration);
+        }
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();
         return $this->visit_registration_model = $visit_registration;

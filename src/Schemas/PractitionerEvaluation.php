@@ -21,27 +21,23 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
     public $practitioner_evaluation;
 
     public function prepareStorePractitionerEvaluation(PractitionerEvaluationData $practitioner_evaluation_dto): Model{
-        if (!isset($practitioner_evaluation_dto->vsiit_registration_id)) throw new \Exception('visit_registration_id is required', 422);
-        if (!isset($practitioner_evaluation_dto->visit_examination_id)) throw new \Exception('visit_examination_id is required', 422);
-        if (!isset($practitioner_evaluation_dto->practitioner_id))      throw new \Exception('practitioner_id is required', 422);
-
         $practitioner_model = app(config('module-patient.practitioner'))->findOrFail($practitioner_evaluation_dto->practitioner_id);
         $profession_model   = $practitioner_model->profession;
 
-        $practitioner = $this->practitionerEvaluation()->firstOrCreate([
+        $practitioner = $this->usingEntity()->firstOrCreate([
             'visit_registration_id' => $practitioner_evaluation_dto->visit_registration_id,
-            'visit_examination_id' => $practitioner_evaluation_dto->visit_examination_id,
-            'practitioner_type'    => $practitioner_model->getMorphClass(),
-            'practitioner_id'      => $practitioner_model->getKey()
+            'visit_examination_id'  => $practitioner_evaluation_dto->visit_examination_id,
+            'practitioner_type'     => $practitioner_model->getMorphClass(),
+            'practitioner_id'       => $practitioner_model->getKey()
         ], [
-            'is_commit'            => Commit::DRAFT->value,
-            'profession_id'        => $profession_model?->getKey() ?? null,
-            'name'                 => $practitioner_model?->name ?? ''
+            'is_commit'             => Commit::DRAFT->value,
+            'profession_id'         => $profession_model?->getKey() ?? null,
+            'name'                  => $practitioner_model?->name ?? ''
         ]);
 
         $props = &$practitioner_evaluation_dto->props;
-        $props['prop_practitioner'] = $practitioner_model->toViewApi()->resolve();
-        $props['prop_profession']   = $profession_model?->toViewApi()->resolve();
+        $props['prop_practitioner'] = $practitioner_model->toViewApiOnlies('id','name','flag','label');
+        $props['prop_profession']   = $profession_model?->toViewApiOnlies('id','name','flag','label');
 
         $this->fillingProps($practitioner, $practitioner_evaluation_dto);
         $practitioner->save();
@@ -72,4 +68,6 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
             return $this->showPractitionerEvaluation($this->prepareCommitPractitionerEvaluation());
         });
     }
+
+
 }

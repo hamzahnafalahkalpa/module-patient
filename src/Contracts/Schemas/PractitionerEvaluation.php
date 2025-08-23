@@ -27,5 +27,5 @@ use Hanafalah\ModulePatient\Contracts\Data\PractitionerEvaluationData;
  */
 interface PractitionerEvaluation extends DataManagement
 {
-    // public function prepareStorePractitionerEvaluation(PractitionerEvaluationData $practitioner_evaluation_dto): Model;
+    public function prepareStorePractitionerEvaluation(PractitionerEvaluationData $practitioner_evaluation_dto): Model;
 }

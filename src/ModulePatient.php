@@ -61,6 +61,14 @@ class ModulePatient extends PackageManagement implements Contracts\ModulePatient
         return $this;
     }
 
+    protected function initPractitionerEvaluation(mixed &$practitioner_evaluation_dto, Model &$model): self{
+        $practitioner_evaluation_dto->reference_type  = $model->getMorphClass();
+        $practitioner_evaluation_dto->reference_id    = $model->getKey();
+        $practitioner_evaluation         = $this->schemaContract('practitioner_evaluation')->prepareStorePractitionerEvaluation($practitioner_evaluation_dto);
+        $practitioner_evaluation_dto->id = $practitioner_evaluation->getKey();
+        return $this;
+    }
+
     // public function getMedicServiceByServiceId(mixed $service_id): Model{
     //     return $this->ServiceModel()->with('reference')->findOrFail($service_id);
     // }
