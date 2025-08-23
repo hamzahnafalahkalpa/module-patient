@@ -19,7 +19,7 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
 {
     protected string $__entity = 'PractitionerEvaluation';
     public $practitioner_evaluation;
-
+    
     public function prepareStorePractitionerEvaluation(PractitionerEvaluationData $practitioner_evaluation_dto): Model{
         $practitioner_model = app(config('database.models.'.config('module-patient.practitioner')))
                                 ->findOrFail($practitioner_evaluation_dto->practitioner_id);
