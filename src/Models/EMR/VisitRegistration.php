@@ -8,7 +8,7 @@ use Hanafalah\LaravelHasProps\Concerns\HasProps;
 use Hanafalah\LaravelSupport\Concerns\Support\HasActivity;
 use Hanafalah\LaravelSupport\Models\BaseModel;
 use Hanafalah\ModulePatient\Concerns\HasPractitionerEvaluation;
-use Hanafalah\ModulePatient\Enums\VisitRegistration\RegistrationStatus;
+use Hanafalah\ModulePatient\Enums\VisitRegistration\Status;
 use Hanafalah\ModulePatient\Resources\VisitRegistration\ShowVisitRegistration;
 use Hanafalah\ModulePatient\Resources\VisitRegistration\ViewVisitRegistration;
 use Hanafalah\ModulePatient\Enums\VisitRegistration\Activity;
@@ -47,7 +47,8 @@ class VisitRegistration extends BaseModel
         'medic_service_name'  => 'string',
         'medic_service_label' => 'string',
         'visit_patient_reference_type' => 'string',
-        'created_at'                   => 'date'
+        'created_at'                   => 'date',
+        'status' => 'string'
     ];
 
     public function getPropsQuery(): array
@@ -72,7 +73,7 @@ class VisitRegistration extends BaseModel
             $query->status ??= $query->getRegistrationStatus('DRAFT');
         });
         static::updated(function ($query) {
-            if ($query->isDirty('status') && $query->status == RegistrationStatus::CANCELLED->value) {
+            if ($query->isDirty('status') && $query->status == Status::CANCELLED->value) {
                 $payment_summary = $query->paymentSummary;
                 if ($payment_summary->total_amount == $payment_summary->total_debt) {
                     $payment_summary->delete();
@@ -82,7 +83,7 @@ class VisitRegistration extends BaseModel
     }
 
     public function getRegistrationStatus(string $status): string{
-        return RegistrationStatus::from($status)->value;
+        return Status::from($status)->value;
     }
 
     public function viewUsingRelation(){

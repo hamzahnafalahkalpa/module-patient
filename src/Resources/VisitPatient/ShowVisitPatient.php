@@ -16,13 +16,7 @@ class ShowVisitPatient extends ViewVisitPatient
                 return $this->organizations->transform(function ($organization) {
                     return $organization->toViewApi()->resolve();
                 });
-            }),
-            "payer"       => $this->relationValidation("payer", function () {
-                return $this->payer->toShowApi()->resolve();
-            }),
-            "agent"       => $this->relationValidation("agent", function () {
-                return $this->agent->toShowApi()->resolve();
-            }),
+            })
         ];
         $arr = array_merge(parent::toArray($request), $arr);
 

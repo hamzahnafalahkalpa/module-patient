@@ -2,7 +2,7 @@
 
 namespace Hanafalah\ModulePatient\Enums\VisitRegistration;
 
-enum RegistrationStatus: string
+enum Status: string
 {
     case DRAFT      = 'DRAFT';
     case PROCESSING = 'PROCESSING';

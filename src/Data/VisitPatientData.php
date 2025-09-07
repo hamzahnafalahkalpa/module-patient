@@ -7,7 +7,9 @@ use Hanafalah\LaravelSupport\Supports\Data;
 use Hanafalah\ModulePatient\Contracts\Data\PatientData;
 use Hanafalah\ModulePatient\Contracts\Data\ReferralData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitPatientData as DataVisitPatientData;
+use Hanafalah\ModulePayer\Contracts\Data\PayerData;
 use Hanafalah\ModulePayment\Contracts\Data\PaymentSummaryData;
+use Hanafalah\ModulePeople\Contracts\Data\FamilyRelationshipData;
 use Hanafalah\ModuleTransaction\Contracts\Data\TransactionData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapInputName;
@@ -93,6 +95,18 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[MapName('payment_summary')]
     public ?PaymentSummaryData $payment_summary;
 
+    #[MapInputName('family_relationship')]
+    #[MapName('family_relationship')]
+    public ?FamilyRelationshipData $family_relationship;
+
+    #[MapInputName('payer_id')]
+    #[MapName('payer_id')]
+    public mixed $payer_id = null;
+
+    #[MapInputName('payer')]
+    #[MapName('payer')]
+    public ?PayerData $payer;
+
     #[MapInputName('props')]
     #[MapName('props')]
     public ?VisitPatientPropsData $props = null;
@@ -101,11 +115,14 @@ class VisitPatientData extends Data implements DataVisitPatientData{
         $new = static::new();
         $attributes['flag'] ??= 'VisitPatient';
 
-        if (isset($attributes['patient_id'])){
-            $attributes['patient_model'] = $patient = $new->PatientModel()->with('reference')->findOrFail($attributes['patient_id']);
-            $attributes['prop_patient'] = $patient->toViewApi()->resolve();
-
-            $attributes['payer_id'] ??= $patient->prop_company['id'] ?? null;
+        if (isset($attributes['patient_model'])){
+            $patient_model = &$attributes['patient_model'];
+            $patient_name = $patient_model->name;
+        }elseif(isset($attributes['patient_id'])){
+            $attributes['patient_model'] = $new->PatientModel()->findOrFail($attributes['patient_id']);
+            $patient_name = $attributes['patient_model']->name;
+        }else{
+            $patient_name = $attributes['patient']['name'];
         }
 
         $attributes['transaction'] = [
@@ -114,14 +131,14 @@ class VisitPatientData extends Data implements DataVisitPatientData{
             'consument' => [
                 'id'             => null,
                 'phone'          => $phone ?? null,
-                'name'           => $patient?->name ?? null,
+                'name'           => $patient_name ?? null,
                 'reference_type' => 'Patient',
                 'reference_id'   => $attributes['patient_id'] ?? null
             ]
         ];
         $attributes['payment_summary'] = [
             "id" => null,
-            'name'           =>  trim('Total Tagihan Pasien '.($patient?->name ?? '')),
+            'name'           =>  trim('Total Tagihan Pasien '.($patient_name ?? '')),
             "reference_type" => "VisitPatient"
         ];
     }
@@ -130,6 +147,16 @@ class VisitPatientData extends Data implements DataVisitPatientData{
         $new = static::new();
         $props = &$data->props->props;
         
+        if (isset($data->payer_id) || isset($data->payer)){
+            if (isset($data->payer_id)){
+                $data->payer = $new->requestDTO(PayerData::class,[
+                    'id' => $data->payer_id,
+                    'is_payer_able' => true
+                ]);
+            }
+            $data->payer->props['is_payer_able'] = true;
+        }
+
         $patient_type_service = $new->PatientTypeServiceModel();
         $patient_type_service = (isset($data->patient_type_service_id)) ? $patient_type_service->findOrFail($data->patient_type_service_id) : $patient_type_service;
         $props['prop_patient_type_service'] = $patient_type_service->toViewApi()->resolve();

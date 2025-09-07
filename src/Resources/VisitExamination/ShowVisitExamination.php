@@ -10,6 +10,11 @@ class ShowVisitExamination extends ViewVisitExamination
             'visit_registration' => $this->relationValidation('visitRegistration', function () {
                 return $this->visitRegistration->toShowApi()->resolve();
             }),
+            'practitioner_evaluations' => $this->relationValidation('practitionerEvaluations', function () {
+                return $this->practitionerEvaluations->transform(function ($practitionerEvaluation) {
+                    return $practitionerEvaluation->toViewApi();
+                });
+            }),
             'screening_summaries' => $this->screening_summaries,
             'form_summaries'      => $this->form_summaries,
             "addendum"   =>  $this->examinationSummary->addendum ?? null,

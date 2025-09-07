@@ -40,7 +40,7 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
     #[MapInputName('practitioner_evaluations')]
     #[MapName('practitioner_evaluations')]
     #[DataCollectionOf(PractitionerEvaluationData::class)]
-    public mixed $practitioner_evaluations = null;
+    public ?array $practitioner_evaluations = null;
 
     #[MapInputName('props')]
     #[MapName('props')]
@@ -49,6 +49,7 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
     public static function before(array &$attributes){
         $new = static::new();
         if (isset($attributes['examination']) && is_array($attributes['examination'])){
+            if (isset($attributes['id'])) $attributes['examination']['visit_examination_id'] = $attributes['id'];
             $attributes['examination'] = $new->requestDTO(config('app.contracts.ExaminationData'),$attributes['examination']);
         }
     }
@@ -56,6 +57,11 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
     public static function after(self $data): self{
         $new = static::new();
         $props = &$data->props;
+        if (isset($data->examination)){
+            $examination = $data->examination;
+            $data->visit_patient_model = $examination->visit_patient_model;
+            $data->visit_registration_model = $examination->visit_registration_model;
+        }
         return $data;
     }
 }

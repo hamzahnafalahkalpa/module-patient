@@ -25,7 +25,7 @@ use Hanafalah\ModulePatient\Enums\VisitPatient\{
     Activity,
     ActivityStatus
 };
-use Hanafalah\ModulePatient\Enums\VisitRegistration\RegistrationStatus;
+use Hanafalah\ModulePatient\Enums\VisitRegistration\Status;
 use Hanafalah\ModulePayment\Concerns\HasPaymentSummary;
 
 class VisitPatient extends BaseModel
@@ -130,7 +130,7 @@ class VisitPatient extends BaseModel
     }
 
     public static function getRegistrationStatus(string $status){
-        return RegistrationStatus::from($status)->value;
+        return Status::from($status)->value;
     }
 
     public function viewUsingRelation(): array{
@@ -139,6 +139,7 @@ class VisitPatient extends BaseModel
 
     public function showUsingRelation(): array{
         return [
+            'payer',
             'patient', 
             // 'reservation',
             'visitRegistrations' => function ($query) {
@@ -159,6 +160,7 @@ class VisitPatient extends BaseModel
     public function patientDischarge(){return $this->hasOneModel('PatientDischarge', 'visit_patient_id');}
     public function modelHasOrganization(){return $this->morphOneModel('ModelHasOrganization', 'model');}
     public function modelHasOrganizations(){return $this->morphManyModel('ModelHasOrganization', 'model');}    
+    public function familyRelationship(){return $this->morphOneModel('FamilyRelationship', 'reference');}    
     public function modelHasService(){return $this->morphOneModel('ModelHasService', 'model');}
     public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'model');}
     public function patientSummary(){return $this->hasOneModel('PatientSummary','visit_patient_id');}

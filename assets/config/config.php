@@ -37,9 +37,6 @@ return [
         ], 
         'animal' => [
             'schema' => null,
-        ],
-        'vehicle' => [
-            'schema' => null
         ]
     ],
     'patient_identities' => CardIdentity::cases(),

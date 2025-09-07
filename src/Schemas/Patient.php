@@ -28,10 +28,10 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         ]
     ];
 
-    protected function prepareStore(PatientData &$patient_dto){
+    protected function prepareStore(PatientData &$patient_dto){        
         $reference_type   = $patient_dto->reference_type;
         $reference_schema = config('module-patient.patient_types.'.Str::snake($reference_type).'.schema');        
-        if (isset($reference_schema)) {
+        if (isset($reference_schema) && isset($patient_dto->reference)) {
             $schema_reference          = $this->schemaContract(Str::studly($reference_schema));
             $reference                 = $schema_reference->prepareStore($patient_dto->reference);
             $patient_dto->reference_id = $reference->getKey();
@@ -72,7 +72,6 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
             'id'      => $patient->getKey(),
             'profile' => $patient_dto->profile
         ]));
-
         $this->fillingProps($patient,$patient_dto->props);
         $patient->save();
         return $patient;
@@ -159,10 +158,10 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         });
     }
 
-    protected function setPatientPayer(Model &$patient, PatientData $patient_dto): self{
+    protected function setPatientPayer(Model &$patient, PatientData &$patient_dto): self{
+        $payer = $this->PayerModel();
         if (isset($patient_dto->payer)) {
             $payer = $this->schemaContract('Payer')->prepareStorePayer($patient_dto->payer);
-
             $patient->modelHasOrganization()->updateOrCreate([
                 'organization_id'   => $payer->getKey(),
                 'organization_type' => $payer->getMorphClass(),
@@ -172,6 +171,9 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
                     ->where('organization_type', $this->PayerModel()->getMorphClass())
                     ->delete();
         }
+        $props = &$patient_dto->props;
+        $props['payer_id']   = $payer?->getKey() ?? null;
+        $props['prop_payer'] = $payer->toViewApiOnlies('id','name','flag','label');
         return $this;
     }
 }

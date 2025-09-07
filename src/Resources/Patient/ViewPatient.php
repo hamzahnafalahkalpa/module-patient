@@ -17,9 +17,18 @@ class ViewPatient extends ApiResource
             'profile'          => $this->profile ?? null,
             'medical_record'   => $this->medical_record,
             'profile'          => $this->profile ?? null,
+            'patient_type_id'  => $this->patient_type_id,
             'patient_type'     => $this->prop_patient_type ?? null,
+            'patient_occupation_id' => $this->patient_occupation_id,
+            'patient_occupation' => $this->relationValidation('patientOccupation',function(){
+                return $this->patientOccupation->toViewApi()->resolve();
+            },$this->prop_patient_occupation),
             $reference_type    => $this->{'prop_'.$reference_type} ?? null,
-            'card_identity'    => $this->prop_card_identity
+            'card_identity'    => $this->prop_card_identity,
+            'payer_id'         => $this->payer_id,
+            'payer'            => $this->relationValidation('payer',function(){
+                return $this->payer->toViewApiOnlies('id','name','flag','label');
+            },$this->prop_payer)
         ];
         return $arr;
     }

@@ -15,7 +15,6 @@ use Hanafalah\ModulePatient\Resources\Patient\{
     ViewPatient
 };
 use Hanafalah\ModuleEncoding\Concerns\HasEncoding;
-use Hanafalah\ModulePayment\Concerns\HasDeposit;
 use Hanafalah\ModulePeople\Resources\People\ViewPeople;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 
@@ -23,15 +22,14 @@ class Patient extends BaseModel
 {
     use HasUlids, HasProps, SoftDeletes,
         HasCardIdentity, HasUserReference,
-        HasLocation, HasDeposit, 
-        HasProfilePhoto; 
+        HasLocation, HasProfilePhoto; 
 
     public $incrementing = false;
     protected $keyType = 'string';
     protected $primaryKey = 'id';
     protected $list = [
         'id', 'uuid', 'name', 'reference_type', 'reference_id', 'medical_record', 
-        'profile', 'patient_type_id', 'props'
+        'profile', 'patient_occupation_id','patient_type_id', 'props'
     ];
     protected $show = [];
 
@@ -98,8 +96,9 @@ class Patient extends BaseModel
 
     public function showUsingRelation(): array{
         return [
+            'payer',
             'reference' => function ($query) {
-                $query->with('addresses', 'familyRelationship', 'hasPhones', 'cardIdentities', 'userReference');
+                $query->with('addresses', 'familyRelationship.familyRole', 'hasPhones', 'cardIdentities', 'userReference');
             }
         ];
     }
@@ -120,6 +119,17 @@ class Patient extends BaseModel
     public function invoice(){return $this->morphOneModel('Invoice', 'consument');}
     public function modelHasOrganization(){return $this->morphOneModel('ModelHasOrganization','model');}
     public function payer(){
-        return $this->morphOneModel('ModelHasOrganization','model');
+        $payer_table          = $this->PayerModel()->getTableName();
+        $model_has_table_name = $this->ModelHasOrganizationModel()->getTableName();
+        return $this->hasOneThroughModel(
+            'Payer',
+            'ModelHasOrganization',
+            'model_id',
+            'id',
+            'id',
+            'organization_id'
+        )->where($model_has_table_name . '.model_type', $this->getMorphClass())
+            ->where($model_has_table_name . '.organization_type', $this->PayerModelMorph())
+            ->select([$payer_table . '.*', $model_has_table_name . '.*', $payer_table . '.id as id']);
     }
 }

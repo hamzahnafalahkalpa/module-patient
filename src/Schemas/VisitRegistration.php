@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\{
 
 use Hanafalah\ModulePatient\{
     Contracts\Schemas\VisitRegistration as ContractsVisitRegistration,
-    Enums\VisitRegistration\RegistrationStatus,
+    Enums\VisitRegistration\Status,
     ModulePatient
 };
 use Hanafalah\ModulePatient\Contracts\Data\VisitRegistrationData;
@@ -125,7 +125,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
     public function visitRegistrationCancellation(?array $attributes): Model{
         $attributes ??= request()->all();
         $visitRegistration         = $this->VisitRegistrationModel()->find($attributes['visit_registration_id']);
-        $visitRegistration->status = RegistrationStatus::CANCELLED->value;
+        $visitRegistration->status = Status::CANCELLED->value;
         $visitRegistration->save();
 
         $visitRegistration->pushActivity(VisitRegistrationActivity::POLI_SESSION->value, [VisitRegistrationActivityStatus::POLI_SESSION_CANCEL->value]);

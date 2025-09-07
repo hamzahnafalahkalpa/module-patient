@@ -97,7 +97,6 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
         $medic_service = $new->MedicServiceModel()->with('parent')->findOrFail($attributes['medic_service_id']);
         $attributes['medic_service_model'] = $medic_service;
         $attributes['prop_medic_service'] = $medic_service->toViewApiOnlies('id','name','flag','label');
-
         $new->setupPractitionerEvaluation($attributes);
         if (
             $medic_service->label == Label::PHARMACY_UNIT->value || 

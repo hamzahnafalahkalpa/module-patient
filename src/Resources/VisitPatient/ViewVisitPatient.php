@@ -23,13 +23,22 @@ class ViewVisitPatient extends ApiResource
             "flag"               => $this->flag,
             "visited_at"         => $this->visited_at,
             "reported_at"        => $this->reported_at,
-            "referral"           => $this->prop_referral,
+            "family_relationship" => $this->relationValidation("familyRelationship", function () {
+                return $this->familyRelationship->toViewApi()->resolve();
+            },$this->prop_family_relationship),
+            "referral"           => $this->propOnlies($this->prop_referral,'id','referral_code','external_referral'),
             "reference"          => $this->relationValidation('reference', function () {
                 return $this->reference->toViewApi()->resolve();
             }),
             "status"             => $this->status,
-            "payer"              => $this->prop_payer,
-            "agent"              => $this->prop_agent,
+            "payer_id"           => $this->payer_id,
+            "payer"              => $this->relationValidation("payer", function () {
+                return $this->payer->toShowApi()->resolve();
+            },$this->prop_payer),
+            "agent_id"           => $this->agent_id,
+            "agent"              => $this->relationValidation("agent", function () {
+                return $this->agent->toShowApi()->resolve();
+            },$this->prop_agent),
             "organization"       => $this->relationValidation("organization", function () {
                 return $this->organization->toViewApi()->resolve();
             }),

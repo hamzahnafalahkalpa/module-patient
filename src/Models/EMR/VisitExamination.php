@@ -12,7 +12,7 @@ use Hanafalah\ModuleMedicService\Enums\Label;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Hanafalah\ModulePatient\Enums\{
     VisitExamination\ExaminationStatus,
-    VisitRegistration\RegistrationStatus
+    VisitRegistration\Status
 };
 use Hanafalah\ModulePatient\Enums\VisitExamination\Activity;
 use Hanafalah\ModulePatient\Enums\VisitExamination\ActivityStatus;
@@ -73,7 +73,7 @@ class VisitExamination extends BaseModel
                 $toExaming = $originalStatus !== ExaminationStatus::EXAMING->value && $query->status === ExaminationStatus::EXAMING->value;
                 if ($toExaming) {
                     $visitReg = $query->visitRegistration()->find($query->visit_registration_id);
-                    $visitReg->status = RegistrationStatus::PROCESSING->value;
+                    $visitReg->status = Status::PROCESSING->value;
                     $visitReg->saveQuitely();
                 }
             }
@@ -88,11 +88,11 @@ class VisitExamination extends BaseModel
     }
 
     public function viewUsingRelation(): array{
-        return ['visitRegistration'];
+        return [];
     }
 
     public function showUsingRelation(): array{
-        return ['visitRegistration'];
+        return ['visitRegistration','practitionerEvaluations'];
     }
 
     public function getViewResource(){return ViewVisitExamination::class;}

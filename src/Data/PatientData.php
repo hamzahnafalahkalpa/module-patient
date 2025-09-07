@@ -47,6 +47,10 @@ class PatientData extends Data implements DataPatientData{
     #[MapName('payer_id')]
     public mixed $payer_id = null;
 
+    #[MapInputName('payer')]
+    #[MapName('payer')]
+    public ?PayerData $payer;
+
     #[MapInputName('profile')]
     #[MapName('profile')]
     public string|UploadedFile|null $profile = null;
@@ -54,10 +58,6 @@ class PatientData extends Data implements DataPatientData{
     #[MapInputName('profile_dto')]
     #[MapName('profile_dto')]
     public ?ProfilePhotoData $profile_dto = null;
-
-    #[MapInputName('payer')]
-    #[MapName('payer')]
-    public ?PayerData $payer;
 
     #[MapInputName('props')]
     #[MapName('props')]
@@ -73,7 +73,7 @@ class PatientData extends Data implements DataPatientData{
             $config_keys = array_keys(config('module-patient.patient_types'));
             $keys        = array_intersect(array_keys($attributes),$config_keys);
             $key         = array_shift($keys);
-            $attributes['reference_type'] ??= request()->reference_type ?? $key;
+            $attributes['reference_type'] ??= $key;
         }
         $attributes['reference_type'] = Str::studly($attributes['reference_type']);
     }
@@ -87,22 +87,21 @@ class PatientData extends Data implements DataPatientData{
         }
 
         $props = &$data->props;
-
-        $props['prop_payer'] = [
-            'id'   => $data->payer_id ?? null,
-            'name' => null,
-            'flag' => null
-        ];
         if (isset($data->payer_id) || isset($data->payer)){
             if (isset($data->payer_id)){
-                $data->payer = $new->requestDTO(PayerData::class,[
-                    'id' => $data->payer_id,
-                    'is_payer_able' => true
-                ]);
+                $payer = $new->PayerModel()->withoutGlobalScopes()->findOrFail($data->payer_id);
+                $payer_data = $payer->toArray();
+                $data->payer = $new->requestDTO(PayerData::class,$payer_data);
+                // $data->payer = $new->requestDTO(PayerData::class,[
+                //     'id' => $data->payer_id,
+                //     'name' => $payer->name,
+                //     'flag' => $payer->flag,
+                //     'l' => $payer->l,
+                //     'is_payer_able' => true
+                // ]);
             }
             $data->payer->props['is_payer_able'] = true;
         }
-
         $patient_type = $new->PatientTypeModel();
         $patient_type = (isset($data->patient_type_id)) ? $patient_type->findOrFail($data->patient_type_id) : $patient_type;
         $props['prop_patient_type'] = $patient_type->toViewApiOnlies('id','name','flag','label');

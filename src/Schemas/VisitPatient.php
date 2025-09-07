@@ -29,11 +29,16 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         ]
     ];
 
+    public function prepareStore(VisitPatientData $visit_patient_dto): Model{
+        return $this->prepareStoreVisitPatient($visit_patient_dto);
+    }
+
+
     public function prepareStoreVisitPatient(VisitPatientData $visit_patient_dto): Model{
         if (isset($visit_patient_dto->patient)) {
             $patient = $this->createPatient($visit_patient_dto);
             $visit_patient_dto->patient_id = $patient->getKey();
-            $visit_patient_dto->props->props['prop_patient'] = $patient->toViewApi()->resolve();
+            $visit_patient_dto->patient_model = $patient;
         }
         $visit_patient_model = $this->createVisitPatient($visit_patient_dto);
 
@@ -67,7 +72,6 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
 
         $this->fillingProps($visit_patient_model, $visit_patient_dto->props);
         $visit_patient_model->save();
-
         return $visit_patient_model;
     }
 
@@ -110,13 +114,32 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             $create = [$add];
         }
         $visit_patient_model = $this->usingEntity()->updateOrCreate(...$create);
+
+        if (isset($visit_patient_dto->family_relationship) && isset($visit_patient_dto->family_relationship->name)) {
+            $patient_model = $visit_patient_dto->patient_model;
+
+            $family = $visit_patient_dto->family_relationship;
+            $family->reference_type = $visit_patient_model->getMorphClass();
+            $family->reference_id = $visit_patient_model->getKey();
+            if (isset($patient_model) && $patient_model->reference_type == 'People'){
+                $family->people_id = $patient_model->reference_id;
+            }
+            $family = $this->schemaContract('family_relationship')->prepareStoreFamilyRelationship($family);
+            $visit_patient_dto->props->props['prop_family_relationship'] = $family->toViewApi()->resolve();
+        } 
+
         $visit_patient_model->load(['transaction']);
-        $visit_patient_model->setRelation('patient', $visit_patient_dto->patient_model ?? $visit_patient_model->patient);
+        $visit_patient_dto->patient_model ??= $visit_patient_model->patient;
+        if (isset($visit_patient_dto->patient_model)){
+            $visit_patient_dto->props->props['prop_patient'] = $visit_patient_dto->patient_model->toViewApi()->resolve();
+            $visit_patient_model->setRelation('patient', $visit_patient_dto->patient_model);
+        }
 
         $this->initTransaction($visit_patient_dto, $visit_patient_model)
              ->initPaymentSummary($visit_patient_dto, $visit_patient_model);
 
         $visit_patient_dto->props->props['prop_transaction'] = $visit_patient_model->transaction->toViewApi()->resolve();
+        $this->setPayer($visit_patient_model, $visit_patient_dto);
 
         $this->fillingProps($visit_patient_model, $visit_patient_dto->props);
         $visit_patient_model->save();
@@ -158,6 +181,26 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         $prop_activity[$var_life_cycle] = $life_cycle;
         $visit_patient->setAttribute('prop_activity', $prop_activity);
         $visit_patient->save();
+        return $this;
+    }
+
+    protected function setPayer(Model &$visit_patient_model, VisitPatientData &$visit_patient_dto): self{
+        $payer = $this->PayerModel();
+        if (isset($visit_patient_dto->payer)) {
+            $payer = $this->schemaContract('Payer')->prepareStorePayer($visit_patient_dto->payer);
+
+            $visit_patient_model->modelHasOrganization()->updateOrCreate([
+                'organization_id'   => $payer->getKey(),
+                'organization_type' => $payer->getMorphClass(),
+            ]);
+        } else {
+            $visit_patient_model->modelHasOrganization()
+                    ->where('organization_type', $this->PayerModel()->getMorphClass())
+                    ->delete();
+        }
+        $props = &$visit_patient_dto->props->props;
+        $props['payer_id']   = $payer?->getKey() ?? null;
+        $props['prop_payer'] = $payer->toViewApiOnlies('id','name','flag','label');
         return $this;
     }
 
