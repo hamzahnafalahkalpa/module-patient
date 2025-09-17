@@ -17,8 +17,6 @@
         "hanafalah/module-card-identity": "dev-main",
         "hanafalah/module-service": "dev-main",
         "hanafalah/module-medic-service": "dev-main",
-        "hanafalah/module-payer": "dev-main",
-        "hanafalah/module-organization": "dev-main",
         "hanafalah/module-examination": "dev-main",
         "hanafalah/module-profession": "dev-main",
         "hanafalah/module-transaction": "dev-main",
