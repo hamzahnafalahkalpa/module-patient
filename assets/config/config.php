@@ -27,6 +27,11 @@ return [
         'models' => [
         ]
     ],
+    'features' => [
+        'payer' => true,
+        'item_rent' => true,
+        'payment_summary' => true,
+    ],
     'patient_types' => [
         //THIS KEY SAME WITH MODEL NAME USING SNAKE CASE
         'people' => [
@@ -43,5 +48,7 @@ return [
     'commands' => [
         InstallMakeCommand::class
     ],
-    'practitioner' => 'User'
+    'practitioner' => 'User',
+    'payment_detail' => 'PaymentDetail',
+    'transaction' => 'Transaction'
 ];

@@ -87,20 +87,15 @@ class PatientData extends Data implements DataPatientData{
         }
 
         $props = &$data->props;
-        if (isset($data->payer_id) || isset($data->payer)){
-            if (isset($data->payer_id)){
-                $payer = $new->PayerModel()->withoutGlobalScopes()->findOrFail($data->payer_id);
-                $payer_data = $payer->toArray();
-                $data->payer = $new->requestDTO(PayerData::class,$payer_data);
-                // $data->payer = $new->requestDTO(PayerData::class,[
-                //     'id' => $data->payer_id,
-                //     'name' => $payer->name,
-                //     'flag' => $payer->flag,
-                //     'l' => $payer->l,
-                //     'is_payer_able' => true
-                // ]);
+        if (config('module-patient.features.payer')){
+            if (isset($data->payer_id) || isset($data->payer)){
+                if (isset($data->payer_id)){
+                    $payer = $new->PayerModel()->withoutGlobalScopes()->findOrFail($data->payer_id);
+                    $payer_data = $payer->toArray();
+                    $data->payer = $new->requestDTO(PayerData::class,$payer_data);
+                }
+                $data->payer->props['is_payer_able'] = true;
             }
-            $data->payer->props['is_payer_able'] = true;
         }
         $patient_type = $new->PatientTypeModel();
         $patient_type = (isset($data->patient_type_id)) ? $patient_type->findOrFail($data->patient_type_id) : $patient_type;

@@ -40,7 +40,7 @@ class ModulePatient extends PackageManagement implements Contracts\ModulePatient
             $transaction_dto->reference_type  = $model->getMorphClass();
             $transaction_dto->reference_id    = $model->getKey();
             $transaction_dto->reference_model = $model;
-            $transaction = $this->schemaContract('transaction')->prepareStoreTransaction($transaction_dto);
+            $transaction = $this->schemaContract(config('module-patient.transaction'))->prepareStoreTransaction($transaction_dto);
             $model->setRelation('transaction', $transaction);
             $transaction_dto->id = $transaction->getKey();
         }
@@ -48,6 +48,8 @@ class ModulePatient extends PackageManagement implements Contracts\ModulePatient
     }
 
     protected function initPaymentSummary(mixed &$dto, Model &$model): self{
+        if (config('module-patient.features.payment_summary') == false) return $this;
+
         if (isset($dto->payment_summary)){
             $payment_summary_dto = &$dto->payment_summary;
             $payment_summary_dto->reference_type  = $model->getMorphClass();
@@ -68,24 +70,4 @@ class ModulePatient extends PackageManagement implements Contracts\ModulePatient
         $practitioner_evaluation_dto->id = $practitioner_evaluation->getKey();
         return $this;
     }
-
-    // public function getMedicServiceByServiceId(mixed $service_id): Model{
-    //     return $this->ServiceModel()->with('reference')->findOrFail($service_id);
-    // }
-
-    // public function getMedicServiceById(mixed $service_id): Model{
-    //     return $this->ServiceModel()->with('reference')
-    //         ->where('reference_id', $service_id)
-    //         ->where('reference_type', $this->MedicServiceModel()->getMorphClass())
-    //         ->firstOrFail();
-    // }
-
-    // public function getMedicService(mixed $medic_service_id): Model{
-    //     return $this->MedicServiceModel()->with('service')->findOrFail($medic_service_id);
-    // }
-
-    // public function getMedicServiceByFlag(?string $flag = null): Model{
-    //     return $this->MedicServiceModel()->flagIn($flag ?? Label::OUTPATIENT->value)
-    //         ->firstOrFail();
-    // }
 }

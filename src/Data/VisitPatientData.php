@@ -147,14 +147,16 @@ class VisitPatientData extends Data implements DataVisitPatientData{
         $new = static::new();
         $props = &$data->props->props;
         
-        if (isset($data->payer_id) || isset($data->payer)){
-            if (isset($data->payer_id)){
-                $data->payer = $new->requestDTO(PayerData::class,[
-                    'id' => $data->payer_id,
-                    'is_payer_able' => true
-                ]);
+        if (config('module-patient.features.payer')){
+            if (isset($data->payer_id) || isset($data->payer)){
+                if (isset($data->payer_id)){
+                    $data->payer = $new->requestDTO(PayerData::class,[
+                        'id' => $data->payer_id,
+                        'is_payer_able' => true
+                    ]);
+                }
+                $data->payer->props['is_payer_able'] = true;
             }
-            $data->payer->props['is_payer_able'] = true;
         }
 
         $patient_type_service = $new->PatientTypeServiceModel();

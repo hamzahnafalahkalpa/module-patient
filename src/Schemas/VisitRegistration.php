@@ -57,16 +57,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             $visit_registration->setRelation('visitExamination', $visit_examination);
             $visit_registration_dto->props->props['prop_visit_examination'] = $visit_examination->toViewApiExcepts('visit_registration');
         }
-        if (isset($visit_registration_dto->item_rents) && count($visit_registration_dto->item_rents) > 0){
-            foreach ($visit_registration_dto->item_rents as $item_rent) {
-                $item_rent->reference_id = $visit_registration->getKey();
-                $item_rent->reference_type = $visit_registration->getMorphClass();
-                $item_rent->reference_model = $visit_registration;
-                $this->schemaContract('item_rent')->prepareStoreItemRent($item_rent);
-            }
-        }else{
-            $visit_registration->itemRents()->delete();
-        }
+        $this->storeItemRent($visit_registration_dto, $visit_registration);
 
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();
@@ -82,6 +73,23 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         }
         
         return $this->visit_registration_model = $visit_registration;
+    }
+
+    protected function storeItemRent(VisitRegistrationData $visit_registration_dto, ?Model $visit_registration = null): self{
+        if (config('module-patient.features.item_rent')) {
+            $visit_registration ??= $visit_registration_dto->visit_registration_model;
+            if (isset($visit_registration_dto->item_rents) && count($visit_registration_dto->item_rents) > 0){
+                foreach ($visit_registration_dto->item_rents as $item_rent) {
+                    $item_rent->reference_id = $visit_registration->getKey();
+                    $item_rent->reference_type = $visit_registration->getMorphClass();
+                    $item_rent->reference_model = $visit_registration;
+                    $this->schemaContract('item_rent')->prepareStoreItemRent($item_rent);
+                }
+            }else{
+                $visit_registration->itemRents()->delete();
+            }
+        }
+        return $this;
     }
 
     public function createVisitRegistration(VisitRegistrationData &$visit_registration_dto): Model{

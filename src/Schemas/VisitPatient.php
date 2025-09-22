@@ -185,6 +185,8 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
     }
 
     protected function setPayer(Model &$visit_patient_model, VisitPatientData &$visit_patient_dto): self{
+        if (config('module-patient.features.payer') == false) return $this;
+        
         $payer = $this->PayerModel();
         if (isset($visit_patient_dto->payer)) {
             $payer = $this->schemaContract('Payer')->prepareStorePayer($visit_patient_dto->payer);

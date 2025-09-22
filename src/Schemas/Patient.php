@@ -159,21 +159,23 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
     }
 
     protected function setPatientPayer(Model &$patient, PatientData &$patient_dto): self{
-        $payer = $this->PayerModel();
-        if (isset($patient_dto->payer)) {
-            $payer = $this->schemaContract('Payer')->prepareStorePayer($patient_dto->payer);
-            $patient->modelHasOrganization()->updateOrCreate([
-                'organization_id'   => $payer->getKey(),
-                'organization_type' => $payer->getMorphClass(),
-            ]);
-        } else {
-            $patient->modelHasOrganization()
-                    ->where('organization_type', $this->PayerModel()->getMorphClass())
-                    ->delete();
+        if (config('module-patient.features.payer')){
+            $payer = $this->PayerModel();
+            if (isset($patient_dto->payer)) {
+                $payer = $this->schemaContract('Payer')->prepareStorePayer($patient_dto->payer);
+                $patient->modelHasOrganization()->updateOrCreate([
+                    'organization_id'   => $payer->getKey(),
+                    'organization_type' => $payer->getMorphClass(),
+                ]);
+            } else {
+                $patient->modelHasOrganization()
+                        ->where('organization_type', $this->PayerModel()->getMorphClass())
+                        ->delete();
+            }
+            $props = &$patient_dto->props;
+            $props['payer_id']   = $payer?->getKey() ?? null;
+            $props['prop_payer'] = $payer->toViewApiOnlies('id','name','flag','label');
         }
-        $props = &$patient_dto->props;
-        $props['payer_id']   = $payer?->getKey() ?? null;
-        $props['prop_payer'] = $payer->toViewApiOnlies('id','name','flag','label');
         return $this;
     }
 }
