@@ -47,9 +47,9 @@ class PatientData extends Data implements DataPatientData{
     #[MapName('payer_id')]
     public mixed $payer_id = null;
 
-    // #[MapInputName('payer')]
-    // #[MapName('payer')]
-    // public ?PayerData $payer;
+    #[MapInputName('payer')]
+    #[MapName('payer')]
+    public ?PayerData $payer;
 
     #[MapInputName('profile')]
     #[MapName('profile')]
