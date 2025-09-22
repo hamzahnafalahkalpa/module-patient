@@ -103,9 +103,9 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[MapName('payer_id')]
     public mixed $payer_id = null;
 
-    #[MapInputName('payer')]
-    #[MapName('payer')]
-    public ?PayerData $payer;
+    // #[MapInputName('payer')]
+    // #[MapName('payer')]
+    // public ?PayerData $payer;
 
     #[MapInputName('props')]
     #[MapName('props')]
