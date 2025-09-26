@@ -26,7 +26,7 @@ class PatientType extends MedicService implements ContractsPatientType
     ];
 
     public function prepareStorePatientType(PatientTypeData $patient_type_dto): Model{
-        if ($patient_type_dto->flag == Flag::IDENTITY->value){
+        if ($patient_type_dto->flag == 'PatientType'){
             $patient_type_dto->label ??= 'Umum';
         }
         return $this->patient_type_model = $this->prepareStoreMedicService($patient_type_dto);

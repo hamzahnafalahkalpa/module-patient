@@ -8,6 +8,7 @@ use Hanafalah\ModulePatient\Contracts\Data\{
     PatientData,
     ProfilePatientData,
     ProfilePhotoData,
+    VisitPatientData,
 };
 use Hanafalah\ModulePatient\Contracts\Schemas\Patient as ContractsPatient;
 use Hanafalah\ModulePatient\Contracts\Schemas\ProfilePatient;
@@ -24,7 +25,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         'index' => [
             'name'     => 'patient',
             'tags'     => ['patient', 'patient-index'],
-            'forever'  => true
+            'duration'  => 3*24*60
         ]
     ];
 
@@ -50,6 +51,24 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
             ];
         $patient = $this->usingEntity()->updateOrCreate($guard, $add);
         $patient->refresh();
+
+        if (isset($patient_dto->visit_patient)){
+            $visit_patient_dto = &$patient_dto->visit_patient;
+            $visit_patient_dto['patient_id'] = $patient->getKey();
+            $visit_patient_dto['patient_model'] = $patient;
+            $visit_patient_dto['name'] = $patient->name;
+            $patient_dto->visit_patient = $this->requestDTO(VisitPatientData::class,$visit_patient_dto);
+            $visit_patient_dto = &$patient_dto->visit_patient;
+            if (isset($visit_patient_dto->payer) || isset($visit_patient_dto->payer_id)){
+                $visit_patient_dto->payer->id ??= $visit_patient_dto->payer_id;
+                $patient_dto->payer_id ??= $visit_patient_dto->payer_id ?? null;
+            }
+            $visit_patient_dto->patient_id = $patient->getKey();
+            $visit_patient_dto->patient_model = $patient;
+            $visit_patient_model = $this->schemaContract('visit_patient')->prepareStoreVisitPatient($visit_patient_dto);
+            $patient->setRelation('visit_patient', $visit_patient_model);
+        }
+
         $this->setPatientPayer($patient, $patient_dto);
 
         if (isset($patient_dto->card_identity)){            

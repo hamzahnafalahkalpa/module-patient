@@ -114,7 +114,6 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             $create = [$add];
         }
         $visit_patient_model = $this->usingEntity()->updateOrCreate(...$create);
-
         if (isset($visit_patient_dto->family_relationship) && isset($visit_patient_dto->family_relationship->name)) {
             $patient_model = $visit_patient_dto->patient_model;
 
@@ -127,7 +126,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             $family = $this->schemaContract('family_relationship')->prepareStoreFamilyRelationship($family);
             $visit_patient_dto->props->props['prop_family_relationship'] = $family->toViewApi()->resolve();
         } 
-
+        
         $visit_patient_model->load(['transaction']);
         $visit_patient_dto->patient_model ??= $visit_patient_model->patient;
         if (isset($visit_patient_dto->patient_model)){
