@@ -48,6 +48,13 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
 
     public static function before(array &$attributes){
         $new = static::new();
+
+        if (isset($attributes['id']) && !isset($attributes['visit_patient_id'])){
+            $visit_examination_model = $new->VisitExaminationModel()->findOrFail($attributes['id']);
+            $attributes['visit_patient_id'] = $visit_examination_model->visit_patient_id;
+            $attributes['visit_registration_id'] = $visit_examination_model->visit_registration_id;
+        }
+
         if (isset($attributes['examination']) && is_array($attributes['examination'])){
             if (isset($attributes['id'])) $attributes['examination']['visit_examination_id'] = $attributes['id'];
             $attributes['examination'] = $new->requestDTO(config('app.contracts.ExaminationData'),$attributes['examination']);
