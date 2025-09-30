@@ -34,6 +34,7 @@ class VisitExamination extends BaseModel
         'visit_examination_code',
         'visit_patient_id',
         'visit_registration_id',
+        'patient_id',
         'is_commit',
         'status',
         'props'

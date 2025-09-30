@@ -10,6 +10,7 @@ use Hanafalah\ModulePatient\Models\{
     EMR\VisitRegistration,
 };
 use Hanafalah\ModulePatient\Models\EMR\VisitPatient;
+use Hanafalah\ModulePatient\Models\Patient\Patient;
 
 return new class extends Migration
 {
@@ -34,11 +35,15 @@ return new class extends Migration
             Schema::create($table_name, function (Blueprint $table) {
                 $visit_patient = app(config('database.models.VisitPatient', VisitPatient::class));
                 $visit_registration = app(config('database.models.VisitRegistration', VisitRegistration::class));
+                $patient = app(config('database.models.Patient', Patient::class));
 
                 $table->ulid('id')->primary();
                 $table->string('visit_examination_code', 100)->nullable();
                 $table->foreignIdFor($visit_registration::class)
                         ->nullable(false)->index()
+                        ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
+                $table->foreignIdFor($patient::class)
+                        ->nullable(true)->index()
                         ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
                 $table->foreignIdFor($visit_patient::class)
                         ->nullable(false)->index()

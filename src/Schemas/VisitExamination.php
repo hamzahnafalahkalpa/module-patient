@@ -54,9 +54,12 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
     }
 
     public function prepareStoreVisitExamination(VisitExaminationData $visit_examination_dto): Model{
+        $visit_patient_model = $visit_examination_dto?->visit_patient_model ?? $this->VisitPatientModel()->findOrFail($visit_examination_dto->visit_patient_id);
+
         $add = [
             'visit_registration_id' => $visit_examination_dto->visit_registration_id,
             'visit_patient_id'      => $visit_examination_dto->visit_patient_id,
+            'patient_id'            => $visit_patient_model->patient_id
         ];
 
         if (isset($visit_examination_dto->id)){
@@ -76,6 +79,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                 $this->initPractitionerEvaluation($practitioner_evaluation, $visit_examination);
             }
         }
+
         
         //SET ASSESSMENT
         if (isset($visit_examination_dto->examination)){

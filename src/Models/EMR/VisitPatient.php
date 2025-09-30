@@ -157,6 +157,7 @@ class VisitPatient extends BaseModel
     public function reservation(){return $this->belongsToModel('Reservation');}
     public function transaction(){return $this->morphOneModel(config('module-patient.transaction'), 'reference');}
     public function visitRegistration(){return $this->morphOneModel('VisitRegistration', 'visit_patient');}
+    public function visitExamination(){return $this->hasOneModel('VisitExamination', 'visit_patient_id');}
     public function visitRegistrations(){return $this->morphManyModel('VisitRegistration', 'visit_patient');}
     public function patientDischarge(){return $this->hasOneModel('PatientDischarge', 'visit_patient_id');}
     public function modelHasOrganization(){return $this->morphOneModel('ModelHasOrganization', 'model');}

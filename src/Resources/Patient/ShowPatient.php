@@ -13,6 +13,9 @@ class ShowPatient extends ViewPatient
             'patient_occupation' => $this->props_patient_occupation,
             $reference_type => $this->relationValidation('reference', function () {
                 return $this->reference->toShowApi()->resolve();
+            }),
+            'visit_examination' => $this->relationValidation('visitExamination',function(){
+                return $this->visitExamination->toShowApi()->resolve();
             })
         ];
 

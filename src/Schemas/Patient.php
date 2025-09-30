@@ -67,6 +67,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
             $visit_patient_dto->patient_model = $patient;
             $visit_patient_model = $this->schemaContract('visit_patient')->prepareStoreVisitPatient($visit_patient_dto);
             $patient->setRelation('visit_patient', $visit_patient_model);
+            $patient->load(['visitExamination'=>fn($q)=>$q->orderBy('created_at','desc')]);
         }
 
         $this->setPatientPayer($patient, $patient_dto);

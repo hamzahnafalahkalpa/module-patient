@@ -117,6 +117,7 @@ class Patient extends BaseModel
     public function patientSummary(){return $this->hasOneModel('PatientSummary');}
     public function boat(){return $this->hasOneModel("ModelHasOrganization");}
     public function invoice(){return $this->morphOneModel('Invoice', 'consument');}
+    public function visitExamination(){return $this->hasOneModel('VisitExamination', 'patient_id');}
     public function modelHasOrganization(){return $this->morphOneModel('ModelHasOrganization','model');}
     public function payer(){
         $payer_table          = $this->PayerModel()->getTableName();
