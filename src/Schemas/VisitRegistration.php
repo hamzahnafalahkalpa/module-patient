@@ -105,6 +105,9 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             'medic_service_id'   => $visit_registration_dto->medic_service_id,
             'referral_id'        => $visit_registration_dto->referral_id
         ];
+        if (isset($visit_registration_dto->status)){
+            $add['status'] = $visit_registration_dto->status;
+        }
         $visit_registration = $this->usingEntity()->updateOrCreate($guard,$add);
         if (isset($visit_registration_dto->referral_model)){
             $referral_view = $visit_registration_dto->referral_model->toViewApi()->resolve();
