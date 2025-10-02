@@ -10,13 +10,16 @@ class ViewPatient extends ApiResource
     public function toArray(\Illuminate\Http\Request $request): array
     {
         $reference_type = Str::snake($this->reference_type);
+        $profile = null;
+        if (isset($this->profile)){
+            $profile = asset_url($this->encryptName(profile_photo($this->profile)));
+        }
         $arr = [
             'id'               => $this->id,
             'uuid'             => $this->uuid,
             'name'             => $this->name,
-            'profile'          => $this->profile ?? null,
             'medical_record'   => $this->medical_record,
-            'profile'          => $this->profile ?? null,
+            'profile'          => $profile,
             'patient_type_id'  => $this->patient_type_id,
             'patient_type'     => $this->prop_patient_type ?? null,
             'patient_occupation_id' => $this->patient_occupation_id,

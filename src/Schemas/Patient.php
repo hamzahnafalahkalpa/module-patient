@@ -88,10 +88,14 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
 
     public function prepareStorePatient(PatientData $patient_dto): Model{
         $patient = $this->prepareStore($patient_dto);
-        $this->prepareStoreProfilePhoto($patient_dto->profile_dto ?? $this->requestDTO(ProfilePhotoData::class,[
-            'id'      => $patient->getKey(),
-            'profile' => $patient_dto->profile
-        ]));
+        $profile_dto = $patient_dto->profile_dto;
+        if (!isset($patient_dto->profile_dto)){
+            $profile_dto = $this->requestDTO(ProfilePhotoData::class,[
+                'id'      => $patient->getKey(),
+                'profile' => $patient_dto->profile
+            ]);
+        }
+        $patient = $this->prepareStoreProfilePhoto($profile_dto);
         $this->fillingProps($patient,$patient_dto->props);
         $patient->save();
         return $patient;

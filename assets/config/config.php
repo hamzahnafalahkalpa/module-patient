@@ -48,6 +48,9 @@ return [
     'commands' => [
         InstallMakeCommand::class
     ],
+    'filesystem' => [
+        'profile_path' => 'profiles'
+    ],
     'practitioner' => 'User',
     'payment_detail' => 'PaymentDetail',
     'transaction' => 'Transaction'

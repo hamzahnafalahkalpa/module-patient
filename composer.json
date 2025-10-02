@@ -3,7 +3,10 @@
     "autoload": {
         "psr-4": {
             "Hanafalah\\ModulePatient\\": "src/"
-        }
+        },
+        "files": [
+            "src/helper.php"
+        ]
     },
     "authors": [
         {
