@@ -43,7 +43,8 @@ class Patient extends BaseModel
         'payer_name'              => 'string'
     ];
 
-    public function getPropsQuery(): array{return [
+    public function getPropsQuery(): array{
+        return [
             'first_name'               => 'props->prop_people->first_name',
             'last_name'                => 'props->prop_people->last_name',
             'dob'                      => 'props->prop_people->dob',
