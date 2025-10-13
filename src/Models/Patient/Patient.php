@@ -99,7 +99,7 @@ class Patient extends BaseModel
         return [
             'payer','patientSummary',
             'reference' => function ($query) {
-                $query->with('addresses', 'familyRelationship.familyRole', 'hasPhones', 'cardIdentities', 'userReference');
+                $query->with('addresses.village', 'familyRelationship.familyRole', 'hasPhones', 'cardIdentities', 'userReference');
             }
         ];
     }

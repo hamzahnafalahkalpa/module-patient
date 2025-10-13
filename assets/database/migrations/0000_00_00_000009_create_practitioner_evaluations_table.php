@@ -43,7 +43,7 @@ return new class extends Migration
                 $table->string('practitioner_id', 36)->nullable(true);
 
                 $table->boolean('is_commit')->default(Commit::DRAFT->value)->nullable(false);
-                $table->foreignIdFor($profession)
+                $table->foreignIdFor($profession)->nullable()
                     ->constrained($profession->getTable(), $profession->getKeyName(), 'pf_pe_fk')
                     ->cascadeOnUpdate()->restrictOnDelete();
                 $table->json('props')->nullable();
