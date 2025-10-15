@@ -130,7 +130,9 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         $visit_patient_model->load(['transaction']);
         $visit_patient_dto->patient_model ??= $visit_patient_model->patient;
         if (isset($visit_patient_dto->patient_model)){
-            $visit_patient_dto->props->props['prop_patient'] = $visit_patient_dto->patient_model->toViewApi()->resolve();
+            $patient_model = &$visit_patient_dto->patient_model;
+            $patient_model->load('reference');
+            $visit_patient_dto->props->props['prop_patient'] = $patient_model->toViewApi()->resolve();
             $visit_patient_model->setRelation('patient', $visit_patient_dto->patient_model);
         }
 
