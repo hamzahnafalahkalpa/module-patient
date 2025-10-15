@@ -55,7 +55,6 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
 
     public function prepareStoreVisitExamination(VisitExaminationData $visit_examination_dto): Model{
         $visit_patient_model = $visit_examination_dto?->visit_patient_model ?? $this->VisitPatientModel()->findOrFail($visit_examination_dto->visit_patient_id);
-
         $add = [
             'visit_registration_id' => $visit_examination_dto->visit_registration_id,
             'visit_patient_id'      => $visit_examination_dto->visit_patient_id,

@@ -136,7 +136,6 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
 
         $this->initTransaction($visit_patient_dto, $visit_patient_model)
              ->initPaymentSummary($visit_patient_dto, $visit_patient_model);
-
         $visit_patient_dto->props->props['prop_transaction'] = $visit_patient_model->transaction->toViewApi()->resolve();
         $this->setPayer($visit_patient_model, $visit_patient_dto);
 

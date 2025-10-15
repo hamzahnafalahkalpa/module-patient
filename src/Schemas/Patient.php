@@ -51,7 +51,6 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
             ];
         $patient = $this->usingEntity()->updateOrCreate($guard, $add);
         $patient->refresh();
-
         if (isset($patient_dto->visit_patient)){
             $visit_patient_dto = &$patient_dto->visit_patient;
             $visit_patient_dto['patient_id'] = $patient->getKey();

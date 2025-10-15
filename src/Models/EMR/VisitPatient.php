@@ -30,7 +30,7 @@ use Hanafalah\ModulePayment\Concerns\HasPaymentSummary;
 
 class VisitPatient extends BaseModel
 {
-    use HasUlids, HasTransaction, SoftDeletes;
+    use HasUlids, SoftDeletes;
     use HasProps, HasActivity, HasPaymentSummary;
 
     const CLINICAL_VISIT = 'VisitPatient';
