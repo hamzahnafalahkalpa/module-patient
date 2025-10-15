@@ -29,7 +29,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         ]
     ];
 
-    protected function prepareStore(PatientData &$patient_dto){        
+    protected function prepareStore(PatientData &$patient_dto){   
         $reference_type   = $patient_dto->reference_type;
         $reference_schema = config('module-patient.patient_types.'.Str::snake($reference_type).'.schema');        
         if (isset($reference_schema) && isset($patient_dto->reference)) {
