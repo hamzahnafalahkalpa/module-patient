@@ -22,10 +22,6 @@ class ViewPatient extends ApiResource
             'profile'          => $profile,
             'patient_type_id'  => $this->patient_type_id,
             'patient_type'     => $this->prop_patient_type ?? null,
-            'patient_occupation_id' => $this->patient_occupation_id,
-            'patient_occupation' => $this->relationValidation('patientOccupation',function(){
-                return $this->patientOccupation->toViewApi()->resolve();
-            },$this->prop_patient_occupation),
             $reference_type    => $this->relationValidation('reference',function(){
                 return $this->reference->toViewApi()->resolve();
             },$this->{'prop_'.$reference_type} ?? null),

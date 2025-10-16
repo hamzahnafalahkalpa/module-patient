@@ -9,6 +9,19 @@ class ShowVisitPatient extends ViewVisitPatient
     public function toArray(\Illuminate\Http\Request $request): array
     {
         $arr = [
+            'transaction'         => $this->relationValidation('reference',function(){
+                return $this->reference->toShowApi()->resolve();
+            },$this->propNil($this->prop_transaction,'reference')),
+            "visit_registrations" => $this->relationValidation("visitRegistrations", function () {
+                return $this->visitRegistrations->transform(function ($visitRegistration) {
+                    return is_array($visitRegistration) 
+                            ? $this->propNil($visitRegistration,'visit_patient')
+                            : $visitRegistration->toViewApiExcepts('visit_patient');
+                });
+            }),
+            "family_relationship" => $this->relationValidation("familyRelationship", function () {
+                return $this->familyRelationship->toViewApi()->resolve();
+            },$this->prop_family_relationship),
             'transaction'   => $this->relationValidation('transaction', function () {
                 return $this->transaction->toShowApi()->resolve();
             },$this->prop_transaction),

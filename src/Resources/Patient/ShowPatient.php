@@ -10,10 +10,10 @@ class ShowPatient extends ViewPatient
     {
         $reference_type = Str::snake($this->reference_type);
         $arr = [
-            'patient_occupation' => $this->props_patient_occupation,
-            $reference_type => $this->relationValidation('reference', function () {
-                return $this->reference->toShowApi()->resolve();
-            }),
+            'patient_occupation_id' => $this->patient_occupation_id,
+            'patient_occupation' => $this->relationValidation('patientOccupation',function(){
+                return $this->patientOccupation->toShowApi()->resolve();
+            },$this->prop_patient_occupation),
             'patient_summary' => $this->relationValidation('patientSummary',function(){
                 return $this->patientSummary->toShowApi()->resolve();
             }),

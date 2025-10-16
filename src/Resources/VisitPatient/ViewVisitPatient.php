@@ -17,15 +17,11 @@ class ViewVisitPatient extends ApiResource
         $arr = [
             "id"                 => $this->id,
             'visit_code'         => $this->visit_code,
-            'transaction'        => $this->propNil($this->prop_transaction,'reference'),
             "reservation_id"     => $this->reservation_id,
             "queue_number"       => $this->queue_number,
             "flag"               => $this->flag,
             "visited_at"         => $this->visited_at,
             "reported_at"        => $this->reported_at,
-            "family_relationship" => $this->relationValidation("familyRelationship", function () {
-                return $this->familyRelationship->toViewApi()->resolve();
-            },$this->prop_family_relationship),
             "referral"           => $this->propOnlies($this->prop_referral,'id','referral_code','external_referral'),
             "reference"          => $this->relationValidation('reference', function () {
                 return $this->reference->toViewApi()->resolve();
@@ -42,14 +38,7 @@ class ViewVisitPatient extends ApiResource
             "organization"       => $this->relationValidation("organization", function () {
                 return $this->organization->toViewApi()->resolve();
             }),
-            'visit_registration'  => $this->prop_visit_registration,
-            "visit_registrations" => $this->relationValidation("visitRegistrations", function () {
-                return $this->visitRegistrations->transform(function ($visitRegistration) {
-                    return is_array($visitRegistration) 
-                            ? $this->propNil($visitRegistration,'visit_patient')
-                            : $visitRegistration->toViewApiExcepts('visit_patient');
-                });
-            }),
+            'visit_registration'  => $this->prop_visit_registration,            
             "services"           => $this->relationValidation('services', function () {
                 $services = $this->services;
                 return $services->map(function ($service) {
@@ -59,7 +48,6 @@ class ViewVisitPatient extends ApiResource
                 });
             }),
             'patient'            => $this->prop_patient,
-            // 'properties'         => $this->properties ?? null,
             'activity'           => $this->prop_activity ?? null,
             "created_at"         => $this->created_at,
             "updated_at"         => $this->updated_at,
