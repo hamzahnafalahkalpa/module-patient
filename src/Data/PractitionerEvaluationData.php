@@ -47,6 +47,10 @@ class PractitionerEvaluationData extends Data implements DataPractitionerEvaluat
     #[MapName('as_pic')]
     public ?bool $as_pic = false;
 
+    #[MapInputName('is_commit')]
+    #[MapName('is_commit')]
+    public ?bool $is_commit = false;
+
     #[MapInputName('props')]
     #[MapName('props')]
     public ?array $props = null;    
@@ -54,7 +58,7 @@ class PractitionerEvaluationData extends Data implements DataPractitionerEvaluat
     public static function after(self $data): self{
         $new = static::new();
         $props = &$data->props;
-        
+        $data->is_commit ??= false;
         if (isset($data->payment_details) && is_array($data->payment_details) && count($data->payment_details) > 0 && config('module-patient.payment_detail') !== null){
             $payment_detail = config('module-patient.payment_detail');
             foreach ($data->payment_details as &$payment_detail_data) {

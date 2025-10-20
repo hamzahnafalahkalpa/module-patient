@@ -79,7 +79,6 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             }
         }
 
-        
         //SET ASSESSMENT
         if (isset($visit_examination_dto->examination)){
             $examination_dto = &$visit_examination_dto->examination;

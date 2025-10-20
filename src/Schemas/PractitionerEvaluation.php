@@ -31,7 +31,7 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
             'practitioner_type'     => $practitioner_model->getMorphClass(),
             'practitioner_id'       => $practitioner_model->getKey()
         ], [
-            'is_commit'             => Commit::DRAFT->value,
+            'is_commit'             => $practitioner_evaluation_dto->is_commit ?? false,
             'profession_id'         => $profession_model?->getKey() ?? null,
             'name'                  => $practitioner_model?->name ?? ''
         ]);

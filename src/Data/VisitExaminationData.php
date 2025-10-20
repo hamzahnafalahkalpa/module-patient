@@ -56,6 +56,8 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
         }
 
         if (isset($attributes['examination']) && is_array($attributes['examination'])){
+            $practitioner_evaluations = $attributes['practitioner_evaluations'] ?? [];
+            $attributes['examination']['practitioner_evaluations'] = $practitioner_evaluations;
             if (isset($attributes['id'])) $attributes['examination']['visit_examination_id'] = $attributes['id'];
             $attributes['examination'] = $new->requestDTO(config('app.contracts.ExaminationData'),$attributes['examination']);
         }
