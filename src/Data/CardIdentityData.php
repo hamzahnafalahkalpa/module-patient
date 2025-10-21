@@ -8,13 +8,9 @@ use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
 
 class CardIdentityData extends Data implements DataCardIdentityData{
-    #[MapInputName('medical_record')]
-    #[MapName('medical_record')]
-    public ?string $medical_record = null;
-    
-    #[MapInputName('old_medical_record')]
-    #[MapName('old_medical_record')]
-    public ?string $old_medical_record = null;
+    #[MapInputName('old_mr')]
+    #[MapName('old_mr')]
+    public ?string $old_mr = null;
 
     #[MapInputName('ihs_number')]
     #[MapName('ihs_number')]

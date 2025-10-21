@@ -21,8 +21,7 @@ class PatientOccupation extends Occupation implements ContractsPatientOccupation
         ]
     ];
 
-    public function prepareStorePatientOccupation(PatientOccupationData $patient_occupation_dto): Model
-    {
+    public function prepareStorePatientOccupation(PatientOccupationData $patient_occupation_dto): Model{
         $model = parent::prepareStoreProfession($patient_occupation_dto);
         return $this->patient_occupation_model = $model;
     }
