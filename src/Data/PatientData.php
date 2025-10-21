@@ -40,6 +40,10 @@ class PatientData extends Data implements DataPatientData{
     #[MapName('patient_type_id')]
     public mixed $patient_type_id = null;
 
+    #[MapInputName('patient_occupation_id')]
+    #[MapName('patient_occupation_id')]
+    public mixed $patient_occupation_id = null;
+
     #[MapInputName('card_identity')]
     #[MapName('card_identity')]
     public ?CardIdentityData $card_identity = null;
@@ -105,6 +109,10 @@ class PatientData extends Data implements DataPatientData{
         $patient_type = $new->PatientTypeModel();
         $patient_type = (isset($data->patient_type_id)) ? $patient_type->findOrFail($data->patient_type_id) : $patient_type;
         $props['prop_patient_type'] = $patient_type->toViewApiOnlies('id','name','flag','label');
+
+        $patient_occupation = $new->PatientOccupationModel();
+        $patient_occupation = (isset($data->patient_occupation_id)) ? $patient_occupation->findOrFail($data->patient_occupation_id) : $patient_occupation;
+        $props['prop_patient_occupation'] = $patient_occupation->toViewApiOnlies('id','name','flag','label');
         return $data;
     }
 

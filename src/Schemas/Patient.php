@@ -41,7 +41,9 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
         
         $add = [
             'name'           => $patient_dto->name,
-            'medical_record' => $patient_dto->medical_record ?? null
+            'medical_record' => $patient_dto->medical_record ?? null,
+            'patient_type_id' => $patient_dto->patient_type_id,
+            'patient_occupation_id' => $patient_dto->patient_occupation_id
         ];
         $guard = isset($patient_dto->id) 
             ? ['id' => $patient_dto->id]
@@ -51,6 +53,16 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
             ];
         $patient = $this->usingEntity()->updateOrCreate($guard, $add);
         $patient->refresh();
+
+        $profile_dto = $patient_dto->profile_dto;
+        if (!isset($patient_dto->profile_dto)){
+            $profile_dto = $this->requestDTO(ProfilePhotoData::class,[
+                'id'      => $patient->getKey(),
+                'profile' => $patient_dto->profile
+            ]);
+        }
+        $patient = $this->prepareStoreProfilePhoto($profile_dto);
+
         if (isset($patient_dto->visit_patient)){
             $visit_patient_dto = &$patient_dto->visit_patient;
             $visit_patient_dto['patient_id'] = $patient->getKey();
@@ -86,15 +98,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
 
 
     public function prepareStorePatient(PatientData $patient_dto): Model{
-        $patient = $this->prepareStore($patient_dto);
-        $profile_dto = $patient_dto->profile_dto;
-        if (!isset($patient_dto->profile_dto)){
-            $profile_dto = $this->requestDTO(ProfilePhotoData::class,[
-                'id'      => $patient->getKey(),
-                'profile' => $patient_dto->profile
-            ]);
-        }
-        $patient = $this->prepareStoreProfilePhoto($profile_dto);
+        $patient = $this->prepareStore($patient_dto);        
         $this->fillingProps($patient,$patient_dto->props);
         $patient->save();
         return $patient;
