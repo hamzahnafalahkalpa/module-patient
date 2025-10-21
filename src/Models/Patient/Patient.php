@@ -97,10 +97,7 @@ class Patient extends BaseModel
 
     public function showUsingRelation(): array{
         return [
-            'payer','patientSummary',
-            'reference' => function ($query) {
-                $query->with('addresses', 'familyRelationship', 'hasPhones', 'cardIdentities', 'userReference');
-            }
+            'reference'
         ];
     }
 
