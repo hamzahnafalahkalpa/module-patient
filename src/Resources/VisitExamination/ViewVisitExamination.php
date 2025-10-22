@@ -18,6 +18,8 @@ class ViewVisitExamination extends ApiResource
             'id'                     => $this->id,
             'visit_examination_code' => $this->visit_examination_code,
             'examination'            => $this->examination ?? null,
+            'visit_registration_id'  => $this->visit_registration_id,
+
             // 'visit_registration'     => $this->relationValidation('visitRegistration',function(){
             //     return $this->visitRegistration->toViewApi()->resolve();
             // }),            
