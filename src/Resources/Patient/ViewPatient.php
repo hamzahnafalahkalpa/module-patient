@@ -12,7 +12,10 @@ class ViewPatient extends ApiResource
         $reference_type = Str::snake($this->reference_type);
         $profile = null;
         if (isset($this->profile)){
-            $profile = asset_url($this->encryptName(profile_photo($this->profile)));
+            $profile_path = profile_photo($this->profile);
+            $disk = config('filesystems.default', 'public');
+            if ($disk == 'public') $profile_path = $this->encryptName($profile_path);
+            $profile = asset_url($profile_path);
         }
         $arr = [
             'id'               => $this->id,
