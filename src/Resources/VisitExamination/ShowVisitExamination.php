@@ -17,7 +17,8 @@ class ShowVisitExamination extends ViewVisitExamination
             }),
             'screening_summaries' => $this->screening_summaries,
             'form_summaries'      => $this->form_summaries,
-            "addendum"   =>  $this->examinationSummary->addendum ?? null,
+            "addendum"            =>  $this->examinationSummary->addendum ?? null,
+            'examination'         => $this->examination ?? null,
             'examination_summary' => $this->relationValidation('examinationSummary', function () {
                 return $this->examinationSummary->toShowApi()->resolve();
             })
