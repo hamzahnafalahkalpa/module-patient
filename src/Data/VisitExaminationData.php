@@ -17,6 +17,10 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
     #[MapName('id')]
     public mixed $id = null;
 
+    #[MapInputName('visit_examination_model')]
+    #[MapName('visit_examination_model')]
+    public ?object $visit_examination_model = null;
+
     #[MapInputName('visit_patient_id')]
     #[MapName('visit_patient_id')]
     public mixed $visit_patient_id = null;
@@ -42,12 +46,30 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
     #[DataCollectionOf(PractitionerEvaluationData::class)]
     public ?array $practitioner_evaluations = null;
 
+    #[MapInputName('sign_off')]
+    #[MapName('sign_off')]
+    public ?bool $sign_off = false;
+
+    #[MapInputName('sign_off_at')]
+    #[MapName('sign_off_at')]
+    public ?string $sign_off_at = null;
+
+    #[MapInputName('is_addendum')]
+    #[MapName('is_addendum')]
+    public ?bool $is_addendum = false;
+
     #[MapInputName('props')]
     #[MapName('props')]
     public ?VisitExaminationPropsData $props = null;
 
     public static function before(array &$attributes){
         $new = static::new();
+
+        $attributes['sign_off'] ??= false;
+        $attributes['is_addendum'] ??= false;
+        if ($attributes['sign_off']) {
+            $attributes['sign_off_at'] ??= now();
+        }
 
         if (isset($attributes['id']) && !isset($attributes['visit_patient_id'])){
             $visit_examination_model = $new->VisitExaminationModel()->findOrFail($attributes['id']);

@@ -12,6 +12,7 @@ use Hanafalah\ModulePatient\{
     Enums\VisitRegistration\Status,
     ModulePatient
 };
+use Hanafalah\ModulePatient\Contracts\Data\UpdateVisitRegistrationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitRegistrationData;
 use Hanafalah\ModulePatient\Enums\{
     VisitRegistration\Activity as VisitRegistrationActivity,
@@ -73,6 +74,19 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         }
         
         return $this->visit_registration_model = $visit_registration;
+    }
+
+    public function prepareUpdateVisitRegistration(UpdateVisitRegistrationData $update_visit_registration_dto): Model{
+        $visit_registration_dto = &$update_visit_registration_dto;
+        $visit_registration_model = $update_visit_registration_dto->visit_registration_model ?? $this->VisitRegistrationModel()->findOrFail($update_visit_registration_dto->id);
+        $medic_service = $visit_registration_model->medicService;
+        if ($medic_service->label != Label::INPATIENT->value){
+            $visit_registration_model->status = $visit_registration_dto->status;
+            $visit_registration_model->pushActivity(VisitRegistrationActivity::POLI_EXAM->value, [VisitRegistrationActivityStatus::POLI_EXAM_END->value]);
+        }
+        $this->fillingProps($visit_registration_model,$update_visit_registration_dto->props);
+        $visit_registration_model->save();
+        return $this->entityData($visit_registration_model);
     }
 
     protected function storeItemRent(VisitRegistrationData $visit_registration_dto, ?Model $visit_registration = null): self{

@@ -36,6 +36,8 @@ class VisitExamination extends BaseModel
         'visit_registration_id',
         'patient_id',
         'is_commit',
+        'sign_off_at',
+        'is_addendum',
         'status',
         'props'
     ];
@@ -49,6 +51,7 @@ class VisitExamination extends BaseModel
     {
         parent::booted();
         static::creating(function ($query) {
+            $query->is_addendum ??= false;
             if (!isset($query->visit_examination_code)) {
                 $query->visit_examination_code = static::hasEncoding('VISIT_EXAMINATION');
             }

@@ -49,6 +49,8 @@ return new class extends Migration
                         ->nullable(false)->index()
                         ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
                 $table->boolean('is_commit')->default(0)->nullable(false);
+                $table->timestamp('sign_off_at')->nullable(true);
+                $table->boolean('is_addendum')->nullable(true)->default(false);
                 $table->enum('status', array_column(ExaminationStatus::cases(), 'value'));
                 $table->json('props')->nullable();
                 $table->timestamps();

@@ -28,8 +28,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
     protected mixed $__order_by_created_at = 'desc'; //asc, desc, false
     public $visit_examination_model;
 
-    public function prepareCommitVisitExamination(?array $attributes = null): Model
-    {
+    public function prepareCommitVisitExamination(?array $attributes = null): Model{
         $attributes ??= request()->all();
 
         $visit_examination = $this->VisitExaminationModel()->find($attributes['visit_examination_id']);
@@ -58,7 +57,9 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         $add = [
             'visit_registration_id' => $visit_examination_dto->visit_registration_id,
             'visit_patient_id'      => $visit_examination_dto->visit_patient_id,
-            'patient_id'            => $visit_patient_model->patient_id
+            'patient_id'            => $visit_patient_model->patient_id,
+            'sign_off_at'           => $visit_examination_dto->sign_off_at,
+            'is_addendum'           => $visit_examination_dto->is_addendum ?? false,
         ];
 
         if (isset($visit_examination_dto->id)){
@@ -69,8 +70,12 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         }
 
         $visit_examination  = $this->usingEntity()->updateOrCreate(...$create);
+        $visit_examination_dto->visit_examination_model = &$visit_examination;
         if (!isset($visit_examination_dto->id)){
-            $visit_examination->pushActivity(Activity::VISITATION->value, [ActivityStatus::VISIT_CREATED->value, ActivityStatus::VISITING->value]);
+            $visit_examination->pushActivity(Activity::VISITATION->value, [
+                ActivityStatus::VISIT_CREATED->value, 
+                ActivityStatus::VISITING->value
+            ]);
         }
 
         if (isset($visit_examination_dto->practitioner_evaluations)) {
@@ -80,10 +85,10 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         }
 
         //SET ASSESSMENT
-        if (isset($visit_examination_dto->examination)){
+        if (isset($visit_examination_dto->examination)){            
             $examination_dto = &$visit_examination_dto->examination;
             $examination_dto->visit_examination_id ??= $visit_examination->getKey();
-            $examination_dto->visit_examination_model ??= $visit_examination;
+            $examination_dto->visit_examination_model = $visit_examination;            
             $examination_dto->visit_patient_model ??= $visit_examination_dto->visit_patient_model;
             $examination_dto->visit_registration_model ??= $visit_examination_dto->visit_registration_model;
             $examination_dto->patient_model ??= $visit_examination_dto->patient_model;
@@ -94,6 +99,12 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             }else{
                 $this->schemaContract('examination')->prepareStoreExamination($examination_dto);
             }
+            $visit_examination_dto->is_addendum = false;
+            $visit_examination->is_addendum = false;
+        }
+        $visit_examination_dto->props->props['sign_off_at'] ??= $visit_examination->sign_off_at;
+        if ($visit_examination_dto->props->props['sign_off_at']){
+            $this->prepareVisitExaminationSignOff($visit_examination_dto);        
         }
         
         // if (in_array($medic_service->flag, [Label::OUTPATIENT->value, Label::MCU->value])) {
@@ -116,8 +127,23 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
 
         $this->fillingProps($visit_examination, $visit_examination_dto->props);
         $visit_examination->save();
-
         return $this->visit_examination_model = $visit_examination;
+    }
+
+    public function prepareVisitExaminationSignOff(VisitExaminationData $visit_examination_dto): Model{
+        $visit_examination = $visit_examination_dto->visit_examination_model ?? $this->VisitExaminationModel()->findOrFail($visit_examination_dto->id);
+        $visit_examination->sign_off_at = $visit_examination_dto->props->props['sign_off_at'];
+        $visit_examination->save();
+        $visit_examination->pushActivity(Activity::VISITATION->value, [
+            ActivityStatus::VISITED->value
+        ]);
+
+        $this->schemaContract('visit_registration')->prepareUpdateVisitRegistration($this->requestDTO(config('app.contracts.UpdateVisitRegistrationData'), [
+            'id'     => $visit_examination->visit_registration_id,
+            'visit_registration_model' => $visit_examination_dto->visit_registration_model ?? null,
+            'status' => \Hanafalah\ModulePatient\Enums\VisitRegistration\Status::PROCESSING->value
+        ]));
+        return $visit_examination;
     }
 
     public function visitExaminationCancelation(?array $attributes = null){

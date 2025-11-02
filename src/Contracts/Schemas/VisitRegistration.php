@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method self setParamLogic(string $logic, bool $search_value = false, ?array $optionals = [])
  * @method self conditionals(mixed $conditionals)
  * @method bool deleteVisitRegistration()
+ * @method array updateVisitRegistration(?VisitRegistrationData $update_visit_registration_dto = null)
+ * @method Model prepareUpdateVisitRegistration(UpdateVisitRegistrationData $update_visit_registration_dto)
  * @method bool prepareDeleteVisitRegistration(? array $attributes = null)
  * @method mixed getVisitRegistration()
  * @method ?Model prepareShowVisitRegistration(?Model $model = null, ?array $attributes = null)

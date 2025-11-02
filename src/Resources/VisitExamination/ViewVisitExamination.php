@@ -19,8 +19,9 @@ class ViewVisitExamination extends ApiResource
             'visit_examination_code' => $this->visit_examination_code,
             'visit_registration_id'  => $this->visit_registration_id,
             'patient_id'             => $this->patient_id,
-            'created_at'             => $this->created_at,
-            'updated_at'             => $this->updated_at,
+            'sign_off_at'            => $this->sign_off_at,
+            'is_addendum'            => $this->is_addendum,
+            'created_at'             => $this->created_at
         ];
         return $arr;
     }
