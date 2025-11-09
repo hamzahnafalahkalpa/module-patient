@@ -6,7 +6,6 @@ use Hanafalah\LaravelSupport\Concerns\Support\HasRequestData;
 use Hanafalah\LaravelSupport\Supports\Data;
 use Hanafalah\ModulePatient\Contracts\Data\PatientData as DataPatientData;
 use Hanafalah\ModulePatient\Contracts\Data\ProfilePhotoData;
-use Hanafalah\ModulePatient\Contracts\Data\VisitPatientData;
 use Hanafalah\ModulePayer\Contracts\Data\PayerData;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
