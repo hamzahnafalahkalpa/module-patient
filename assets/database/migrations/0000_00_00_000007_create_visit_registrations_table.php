@@ -39,6 +39,9 @@ return new class extends Migration
                 $table->string('visit_patient_type', 50)->nullable(false);
                 $table->string('visit_patient_id', 36)->nullable(false);
 
+                $table->string('warehouse_type', 50)->nullable();
+                $table->string('warehouse_id', 36)->nullable();
+
                 $table->foreignIdFor($medic_service::class)
                     ->nullable(true)->index()
                     ->constrained()->cascadeOnUpdate()->cascadeOnDelete();

@@ -36,6 +36,8 @@ class VisitRegistration extends BaseModel
         'service_cluster_id',
         'internal_referral_id',
         'referral_id',
+        'warehouse_type',
+        'warehouse_id',
         'status',
         'props'
     ];
@@ -111,6 +113,7 @@ class VisitRegistration extends BaseModel
 
     public function getViewResource(){return ViewVisitRegistration::class;}
     public function getShowResource(){return ShowVisitRegistration::class;}
+    public function warehouse(){return $this->morphTo();}
     public function visitPatient(){return $this->morphTo()->withoutGlobalScopes();}
     public function visitExamination(){return $this->hasOneModel('VisitExamination');}
     public function visitExaminations(){return $this->hasOneModel('VisitExamination');}

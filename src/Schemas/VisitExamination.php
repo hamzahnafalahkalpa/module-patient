@@ -104,8 +104,9 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             $visit_examination_dto->is_addendum = false;
             $visit_examination->is_addendum = false;
         }
+        
         $visit_examination_dto->props->props['sign_off_at'] ??= $visit_examination->sign_off_at;
-        if ($visit_examination_dto->props->props['sign_off_at']){
+        if ($visit_examination_dto->props->props['sign_off_at'] && !isset($visit_examination->sign_off_at)){
             $this->prepareVisitExaminationSignOff($visit_examination_dto);        
         }
         

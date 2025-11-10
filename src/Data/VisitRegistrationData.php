@@ -38,6 +38,10 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     #[MapName('visit_patient')]
     public ?VisitPatientData $visit_patient = null;
 
+    #[MapInputName('visit_patient_model')]
+    #[MapName('visit_patient_model')]
+    public ?object $visit_patient_model = null;
+
     #[MapInputName('medic_service_id')]
     #[MapName('medic_service_id')]
     public mixed $medic_service_id;

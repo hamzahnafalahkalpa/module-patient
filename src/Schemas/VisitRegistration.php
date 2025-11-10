@@ -46,7 +46,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         }
         $visit_registration   = $this->createVisitRegistration($visit_registration_dto);
         $visit_patient      ??= $visit_registration_dto->visit_patient_model ?? $visit_registration->visitPatient;
-
+        $visit_registration_dto->visit_patient_model ??= $visit_patient;
         if (isset($visit_registration_dto->visit_examination)){
             $visit_examination_dto = &$visit_registration_dto->visit_examination;
             $visit_examination_dto->visit_patient_id      = $visit_patient->getKey();

@@ -33,7 +33,6 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         return $this->prepareStoreVisitPatient($visit_patient_dto);
     }
 
-
     public function prepareStoreVisitPatient(VisitPatientData $visit_patient_dto): Model{
         if (isset($visit_patient_dto->patient)) {
             $patient = $this->createPatient($visit_patient_dto);

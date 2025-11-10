@@ -20,7 +20,6 @@ use Hanafalah\ModulePatient\{
     Resources\VisitPatient\ShowVisitPatient,
     Resources\VisitPatient\ViewVisitPatient
 };
-use Hanafalah\ModuleTransaction\Concerns\HasTransaction;
 use Hanafalah\ModulePatient\Enums\VisitPatient\{
     Activity,
     ActivityStatus
