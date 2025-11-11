@@ -44,13 +44,12 @@ class VisitRegistration extends BaseModel
     protected $show  = [];
 
     protected $casts = [
-        'name'                => 'string',
         'service_label_id'    => 'string',
         'medic_service_name'  => 'string',
         'medic_service_label' => 'string',
         'visit_patient_reference_type' => 'string',
         'created_at'                   => 'date',
-        'status' => 'string'
+        'status'                       => 'string'
     ];
 
     public function getPropsQuery(): array
