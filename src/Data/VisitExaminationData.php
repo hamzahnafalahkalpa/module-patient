@@ -4,6 +4,7 @@ namespace Hanafalah\ModulePatient\Data;
 
 use Hanafalah\LaravelSupport\Concerns\Support\HasRequestData;
 use Hanafalah\LaravelSupport\Supports\Data;
+use Hanafalah\ModuleMonitoring\Data\ModelHasMonitoringData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationData as DataVisitExaminationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationPropsData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
@@ -57,6 +58,11 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
     #[MapInputName('is_addendum')]
     #[MapName('is_addendum')]
     public ?bool $is_addendum = false;
+
+    #[MapInputName('model_has_monitorings')]
+    #[MapName('model_has_monitorings')]
+    #[DataCollectionOf(ModelHasMonitoringData::class)]
+    public ?array $model_has_monitorings = null;
 
     #[MapInputName('props')]
     #[MapName('props')]

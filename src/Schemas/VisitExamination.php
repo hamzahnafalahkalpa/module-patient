@@ -104,6 +104,24 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             $visit_examination_dto->is_addendum = false;
             $visit_examination->is_addendum = false;
         }
+
+        if (isset($visit_examination_dto->model_has_monitorings) && count($visit_examination_dto->model_has_monitorings) > 0){
+            foreach ($visit_examination_dto->model_has_monitorings as &$model_has_monitoring_dto){
+                $model_has_monitoring_dto->reference_type = $visit_examination->getMorphClass();
+                $model_has_monitoring_dto->reference_id = $visit_examination->getKey();
+                if (isset($model_has_monitoring_dto->monitoring)){
+                    $monitoring_dto = &$model_has_monitoring_dto->monitoring;
+                    $monitoring_dto->reference_type = 'Patient';
+                    $monitoring_dto->reference_id = $visit_examination->patient_id;
+                }
+                $this->schemaContract('model_has_monitoring')->prepareStoreModelHasMonitoring($model_has_monitoring_dto);
+            }
+        }else{
+            $this->ModelHasMonitoringModel()
+                ->where('reference_type', $visit_examination->getMorphClass())
+                ->where('reference_id',$visit_examination->getKey())
+                ->delete();
+        }
         
         $visit_examination_dto->props->props['sign_off_at'] ??= $visit_examination->sign_off_at;
         if ($visit_examination_dto->props->props['sign_off_at'] && !isset($visit_examination->sign_off_at)){

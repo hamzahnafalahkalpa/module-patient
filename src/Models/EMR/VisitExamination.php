@@ -96,7 +96,7 @@ class VisitExamination extends BaseModel
     }
 
     public function showUsingRelation(): array{
-        return ['visitRegistration','practitionerEvaluations'];
+        return ['visitRegistration','practitionerEvaluations','modelHasMonitorings'];
     }
 
     public function getViewResource(){return ViewVisitExamination::class;}
@@ -111,6 +111,8 @@ class VisitExamination extends BaseModel
     public function pharmacySale(){return $this->morphOneModel('PharmacySale', 'reference');}
     public function pharmacySales(){return $this->morphMany('PharmacySale', 'reference');}
     public function examinationSummary(){return $this->morphOneModel('ExaminationSummary', 'reference');}
+    public function modelHasMonitoring(){return $this->morphOneModel('ModelHasMonitoring', 'reference');}
+    public function modelHasMonitorings(){return $this->morphManyModel('ModelHasMonitoring', 'reference');}
 
     public array $activityList = [
         Activity::VISITATION->value . '_' . ActivityStatus::VISIT_CREATED->value  => ['flag' => 'VISIT_CREATED', 'message' => 'Data kunjungan dibuat'],

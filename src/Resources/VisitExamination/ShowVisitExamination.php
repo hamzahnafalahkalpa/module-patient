@@ -21,6 +21,11 @@ class ShowVisitExamination extends ViewVisitExamination
             'examination'         => $this->examination ?? null,
             'examination_summary' => $this->relationValidation('examinationSummary', function () {
                 return $this->examinationSummary->toShowApi()->resolve();
+            }),
+            'model_has_monitorings' => $this->relationValidation('modelHasMonitorings', function () {
+                return $this->modelHasMonitorings->transform(function ($modelHasMonitoring) {
+                    return $modelHasMonitoring->toViewApi();
+                });
             })
         ];
         if (isset($this->screenings)) {
