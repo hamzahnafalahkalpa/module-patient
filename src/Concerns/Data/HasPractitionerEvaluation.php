@@ -5,8 +5,20 @@ namespace Hanafalah\ModulePatient\Concerns\Data;
 trait HasPractitionerEvaluation
 {
     public function setupPractitionerEvaluation(array &$attributes){
-        $attributes['practitioner_evaluation'] ??= [];
-        $practitioner_evaluation = &$attributes['practitioner_evaluation'];
+        if (isset($attributes['practitioner_evaluation'])){
+            $attributes['practitioner_evaluations'] ??= [];
+            $attributes['practitioner_evaluation']['as_pic'] = true;
+            $attributes['practitioner_evaluation']['role_as'] = 'DPJP';
+            $attributes['practitioner_evaluations'][] = $attributes['practitioner_evaluation'];
+        }
+        if (isset($attributes['practitioner_evaluations']) && is_array($attributes['practitioner_evaluations'])){
+            foreach ($attributes['practitioner_evaluations'] as &$practitioner_evaluation){
+                $this->setPractitionerEvaluation($practitioner_evaluation);
+            }
+        }
+    }
+
+    private function setPractitionerEvaluation(array &$practitioner_evaluation){
         $practitioner_evaluation['practitioner_type'] ??= config('module-patient.practitioner');   
 
         $practitioner_model = app(config('database.models.'.$practitioner_evaluation['practitioner_type']));

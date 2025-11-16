@@ -24,19 +24,21 @@ class Referral extends ModulePatient implements ContractsReferral
 
     public function prepareStoreReferral(ReferralData $referral_dto): Model{
         $add = [
-            'visit_type'       => $referral_dto->visit_type, 
-            'visit_id'         => $referral_dto->visit_id,
-            'referral_type'    => $referral_dto->referral_type,
             'medic_service_id' => $referral_dto->medic_service_id,
-            'status'           => $referral_dto->status
+            'status'           => $referral_dto->status,
+            'visited_at'       => $referral_dto->visited_at ?? now()->format('Y-m-d')
         ];
 
         if (isset($referral_dto->id)){
             $guard = ['id' => $referral_dto->id];
-            $create = [$guard, $add];
         }else{
-            $create = [$add];
+            $guard = [
+                'visit_type'       => $referral_dto->visit_type, 
+                'visit_id'         => $referral_dto->visit_id,
+                'referral_type'    => $referral_dto->referral_type,
+            ];
         }
+        $create = [$guard, $add];
 
         $referral = $this->usingEntity()->updateOrCreate(...$create);
 
@@ -48,10 +50,12 @@ class Referral extends ModulePatient implements ContractsReferral
             $visit_registration_dto = &$referral_dto->visit_registration;
             $visit_registration_dto->referral_id = $referral->getKey();
             $visit_registration_dto->referral_model = $referral;
-            switch (true){
-                case $referral_dto->visit_type == 'VisitRegistration':
-                    $this->mapperForVisitRegistration($referral_dto);
-                break;
+            if (!isset($visit_registration_dto->id)){
+                switch (true){
+                    case $referral_dto->visit_type == 'VisitRegistration':
+                        $this->mapperForVisitRegistration($referral_dto);
+                    break;
+                }
             }
             $visit_registration = $this->schemaContract('visit_registration')->prepareStoreVisitRegistration($visit_registration_dto);
             $referral_dto->props->props['prop_visit_registration'] = $visit_registration->toViewApi()->resolve();

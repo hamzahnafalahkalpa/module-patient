@@ -63,14 +63,16 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();
 
-        if (in_array($visit_registration->prop_medic_service['label'], [
-            Label::OUTPATIENT->value, Label::MCU->value,
-            Label::LABORATORY->value, Label::RADIOLOGY->value
-        ])) {
-            $visit_registration->pushActivity(VisitRegistrationActivity::POLI_EXAM->value, [VisitRegistrationActivityStatus::POLI_EXAM_QUEUE->value]);
-            $this->schemaContract('visit_patient')->preparePushLifeCycleActivity($visit_patient, $visit_registration, 'POLI_EXAM', [
-                'POLI_EXAM_QUEUE' => 'Pasien dalam antrian ke poli '.$visit_registration->prop_medic_service['name']
-            ]);
+        if (!isset($visit_registration_dto->id)){
+            if (in_array($visit_registration->prop_medic_service['label'], [
+                Label::OUTPATIENT->value, Label::MCU->value,
+                Label::LABORATORY->value, Label::RADIOLOGY->value
+            ])) {
+                $visit_registration->pushActivity(VisitRegistrationActivity::POLI_EXAM->value, [VisitRegistrationActivityStatus::POLI_EXAM_QUEUE->value]);
+                $this->schemaContract('visit_patient')->preparePushLifeCycleActivity($visit_patient, $visit_registration, 'POLI_EXAM', [
+                    'POLI_EXAM_QUEUE' => 'Pasien dalam antrian ke poli '.$visit_registration->prop_medic_service['name']
+                ]);
+            }
         }
         
         return $this->visit_registration_model = $visit_registration;
@@ -108,17 +110,19 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
 
     public function createVisitRegistration(VisitRegistrationData &$visit_registration_dto): Model{
         $add = [
-            'visited_at'        => now(),
-            'parent_id'         => $visit_registration_dto->parent_id ?? null
-        ];
-
-        $guard = [
-            'id'                 => $visit_registration_dto->id ?? null,
+            'visited_at' => $visit_registration_dto->visited_at ?? now(),
             'visit_patient_id'   => $visit_registration_dto->visit_patient_id,
             'visit_patient_type' => $visit_registration_dto->visit_patient_type,
-            'medic_service_id'   => $visit_registration_dto->medic_service_id,
-            'referral_id'        => $visit_registration_dto->referral_id
         ];
+        if (isset($visit_registration_dto->id)){
+            $guard = ['id' => $visit_registration_dto->id];
+        }else{
+            $add['parent_id'] = $visit_registration_dto->parent_id ?? null; 
+            $guard = [
+                'medic_service_id'   => $visit_registration_dto->medic_service_id,
+                'referral_id'        => $visit_registration_dto->referral_id
+            ];
+        }
         if (isset($visit_registration_dto->status)){
             $add['status'] = $visit_registration_dto->status;
         }
@@ -132,15 +136,19 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
 
         $visit_registration->load(['paymentSummary', 'transaction']);
         
-        if (!isset($visit_registration_dto->props->props['prop_visit_patient'])){
-            $visit_registration_dto->visit_patient_model = $visit_registration->visitPatient;
-            $visit_registration_dto->props->props['prop_visit_patient'] = $visit_registration_dto->visit_patient_model->toViewApi()->resolve();
+            if (!isset($visit_registration_dto->props->props['prop_visit_patient'])){
+                $visit_registration_dto->visit_patient_model = $visit_registration->visitPatient;
+                $visit_registration_dto->props->props['prop_visit_patient'] = $visit_registration_dto->visit_patient_model->toViewApi()->resolve();
+            }
+    
+        if (!isset($visit_registration_dto->id)){
+            $this->initTransaction($visit_registration_dto, $visit_registration)
+                 ->initPaymentSummary($visit_registration_dto, $visit_registration);
         }
-
-        $this->initTransaction($visit_registration_dto, $visit_registration)
-             ->initPaymentSummary($visit_registration_dto, $visit_registration);
-        if (isset($visit_registration_dto->practitioner_evaluation)) {
-            $this->initPractitionerEvaluation($visit_registration_dto->practitioner_evaluation, $visit_registration);
+        if (isset($visit_registration_dto->practitioner_evaluations)){
+            foreach ($visit_registration_dto->practitioner_evaluations as &$practitioner_evaluation) {
+                $this->initPractitionerEvaluation($practitioner_evaluation, $visit_registration);
+            }
         }
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();

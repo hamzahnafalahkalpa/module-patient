@@ -4,7 +4,9 @@ namespace Hanafalah\ModulePatient\Data;
 
 use Carbon\Carbon;
 use Hanafalah\LaravelSupport\Supports\Data;
+use Hanafalah\ModulePatient\Concerns\Data\HasPractitionerEvaluation;
 use Hanafalah\ModulePatient\Contracts\Data\PatientData;
+use Hanafalah\ModulePatient\Data\PractitionerEvaluationData;
 use Hanafalah\ModulePatient\Contracts\Data\ReferralData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitPatientData as DataVisitPatientData;
 use Hanafalah\ModulePayer\Contracts\Data\PayerData;
@@ -17,6 +19,8 @@ use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Attributes\Validation\DateFormat;
 
 class VisitPatientData extends Data implements DataVisitPatientData{
+    use HasPractitionerEvaluation;
+
     #[MapInputName('id')]
     #[MapName('id')]
     public mixed $id = null;
@@ -99,6 +103,15 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[MapName('family_relationship')]
     public ?FamilyRelationshipData $family_relationship;
 
+    #[MapInputName('practitioner_evaluation')]
+    #[MapName('practitioner_evaluation')]
+    public ?PractitionerEvaluationData $practitioner_evaluation = null;
+
+    #[MapInputName('practitioner_evaluations')]
+    #[MapName('practitioner_evaluations')]
+    #[DataCollectionOf(PractitionerEvaluationData::class)]
+    public ?array $practitioner_evaluations = null;
+
     #[MapInputName('payer_id')]
     #[MapName('payer_id')]
     public mixed $payer_id = null;
@@ -110,6 +123,19 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[MapInputName('props')]
     #[MapName('props')]
     public ?VisitPatientPropsData $props = null;
+
+    public function setupPractitionerEvaluation(array &$attributes){
+        if (isset($attributes['practitioner_evaluation'])){
+            $attributes['practitioner_evaluations'] ??= [];
+            $attributes['practitioner_evaluation']['role_as'] = 'ADMITTER';
+            $attributes['practitioner_evaluations'][] = $attributes['practitioner_evaluation'];
+        }
+        if (isset($attributes['practitioner_evaluations']) && is_array($attributes['practitioner_evaluations'])){
+            foreach ($attributes['practitioner_evaluations'] as &$practitioner_evaluation){
+                $this->setPractitionerEvaluation($practitioner_evaluation);
+            }
+        }
+    }
 
     public static function before(array &$attributes){
         $new = static::new();
@@ -141,6 +167,7 @@ class VisitPatientData extends Data implements DataVisitPatientData{
             'name'           =>  trim('Total Tagihan Pasien '.($patient_name ?? '')),
             "reference_type" => "VisitPatient"
         ];
+        $new->setupPractitionerEvaluation($attributes);
     }
 
     public static function after(self $data): self{

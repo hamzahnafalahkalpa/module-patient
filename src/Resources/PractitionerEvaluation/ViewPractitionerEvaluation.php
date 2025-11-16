@@ -13,9 +13,11 @@ class ViewPractitionerEvaluation extends ApiResource
             'practitioner_reference_id' => $this->practitioner_id,
             'practitioner_reference'    => $this->relationValidation('practitioner', function () {
                 return $this->practitioner->toViewApi()->resolve();
-            }),
-            'is_commit'            => $this->is_commit,
-            'role_as'              => $this->role_as,
+            },$this->prop_practitioner_reference),
+            'profession_id'        => $this->profession_id,
+            'profession'           => $this->prop_profession,
+            'as_pic'               => $this->as_pic ?? false,
+            'role_as'              => $this->role_as ?? null,
             'created_at'           => $this->created_at,
             'updated_at'           => $this->updated_at
         ];

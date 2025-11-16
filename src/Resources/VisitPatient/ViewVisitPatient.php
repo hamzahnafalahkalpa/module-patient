@@ -22,10 +22,13 @@ class ViewVisitPatient extends ApiResource
             "flag"               => $this->flag,
             "visited_at"         => $this->visited_at,
             "reported_at"        => $this->reported_at,
-            "referral"           => $this->propOnlies($this->prop_referral,'id','referral_code','external_referral'),
+            "referral"           => isset($this->prop_referral) ? $this->propOnlies($this->prop_referral,'id','referral_code','external_referral') : null,
             "reference"          => $this->relationValidation('reference', function () {
                 return $this->reference->toViewApi()->resolve();
             }),
+            'practitioner_evaluation' => $this->relationValidation('practitionerEvaluation', function () {
+                return $this->practitionerEvaluation->toViewApi();
+            },$this->prop_practitioner_evaluation),
             "status"             => $this->status,
             "payer_id"           => $this->payer_id,
             "payer"              => $this->relationValidation("payer", function () {
@@ -47,7 +50,9 @@ class ViewVisitPatient extends ApiResource
                     return $arr;
                 });
             }),
-            'patient'            => $this->prop_patient,
+            'patient'            => $this->relationValidation('patient', function () {
+                return $this->patient->toViewApi()->resolve();
+            },$this->prop_patient),
             'activity'           => $this->prop_activity ?? null,
             "created_at"         => $this->created_at,
             "updated_at"         => $this->updated_at,

@@ -51,6 +51,10 @@ return [
     'filesystem' => [
         'profile_path' => 'profiles'
     ],
+    'direct_referral_froms' => [
+        //DIRECT REFERRAL FROM POLY
+        'RADIOLOGY','PATOLOGI KLINIK','PATOLOGI ANATOMI'
+    ],
     'practitioner' => 'User',
     'payment_detail' => 'PaymentDetail',
     'transaction' => 'Transaction'

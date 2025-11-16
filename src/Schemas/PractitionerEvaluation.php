@@ -23,7 +23,7 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
     public function prepareStorePractitionerEvaluation(PractitionerEvaluationData $practitioner_evaluation_dto): Model{
         $practitioner_model = app(config('database.models.'.config('module-patient.practitioner')))
                                 ->findOrFail($practitioner_evaluation_dto->practitioner_id);
-        $profession_model   = $practitioner_model->profession;
+        $profession_model   = $practitioner_model->profession ?? $this->ProfessionModel();
 
         $practitioner = $this->usingEntity()->firstOrCreate([
             'reference_type'        => $practitioner_evaluation_dto->reference_type,
@@ -37,7 +37,7 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
         ]);
         $props = &$practitioner_evaluation_dto->props;
         $props['prop_practitioner'] = $practitioner_model->toViewApiOnlies('id','name','flag','label');
-        if (!$practitioner->exists) $props['prop_profession'] = $profession_model?->toViewApiOnlies('id','name','flag','label');
+        $props['prop_profession'] = $profession_model?->toViewApiOnlies('id','name','flag','label');
 
         $this->fillingProps($practitioner, $practitioner_evaluation_dto->props);
         $practitioner->save();

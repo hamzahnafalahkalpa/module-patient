@@ -37,6 +37,10 @@ class ReferralData extends Data implements DataReferralData{
     #[MapName('medic_service_id')]
     public mixed $medic_service_id = null;
 
+    #[MapInputName('visited_at')]
+    #[MapName('visited_at')]
+    public ?string $visited_at = null;
+
     #[MapInputName('visit_registration')]
     #[MapName('visit_registration')]
     public ?VisitRegistrationData $visit_registration = null;
@@ -46,6 +50,7 @@ class ReferralData extends Data implements DataReferralData{
     public ?ReferralPropsData $props = null;
 
     public static function before(array &$attributes){
+        $attributes['visited_at'] ??= now()->format('Y-m-d');
         if (isset($attributes['visit_registration'])){
             $attributes['visit_registration']['medic_service_id'] ??= $attributes['medic_service_id'];
         }

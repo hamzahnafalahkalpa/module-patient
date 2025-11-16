@@ -5,7 +5,7 @@ namespace Hanafalah\ModulePatient\Data;
 use Hanafalah\LaravelSupport\Supports\Data;
 use Hanafalah\ModuleMedicService\Enums\Label;
 use Hanafalah\ModulePatient\Concerns\Data\HasPractitionerEvaluation;
-use Hanafalah\ModulePatient\Contracts\Data\PractitionerEvaluationData;
+use Hanafalah\ModulePatient\Data\PractitionerEvaluationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitRegistrationData as DataVisitRegistrationData;
 use Hanafalah\ModulePatient\Contracts\Data\VisitRegistrationPropsData;
@@ -57,6 +57,11 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     #[MapInputName('practitioner_evaluation')]
     #[MapName('practitioner_evaluation')]
     public ?PractitionerEvaluationData $practitioner_evaluation = null;
+
+    #[MapInputName('practitioner_evaluations')]
+    #[MapName('practitioner_evaluations')]
+    #[DataCollectionOf(PractitionerEvaluationData::class)]
+    public ?array $practitioner_evaluations = null;
 
     #[MapInputName('visit_examination')]
     #[MapName('visit_examination')]
@@ -124,7 +129,7 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
 
         $attributes['transaction'] = [
             'id' => null,
-            "reference_type" => "VisitPatient"
+            "reference_type" => "VisitRegistration"
         ];
     }
 

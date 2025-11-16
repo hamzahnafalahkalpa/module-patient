@@ -20,7 +20,7 @@ class ViewVisitRegistration extends ApiResource
             "medic_service"           => $this->prop_medic_service,
             'visit_patient_type'      => $this->visit_patient_type,
             'visit_patient'           => $this->prop_visit_patient,
-            'practitioner'            => $this->prop_pracitioner,
+            'practitioner_evaluation' => $this->prop_pracitioner_evaluation,
             'visit_examination'       => $this->prop_visit_examination,
             'item_rents'              => $this->relationValidation('itemRents', function () {
                 return $this->itemRents->transform(function ($itemRent) {

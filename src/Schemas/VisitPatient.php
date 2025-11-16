@@ -95,21 +95,24 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
     }
 
     protected function createVisitPatient(VisitPatientData $visit_patient_dto): Model{
-        $add = [
-            'parent_id'               => $visit_patient_dto->parent_id,
-            'patient_id'              => $visit_patient_dto->patient_id,
-            'reference_id'            => $visit_patient_dto->reference_id,
-            'reference_type'          => $visit_patient_dto->reference_type,
-            'flag'                    => $visit_patient_dto->flag,
-            'reservation_id'          => $visit_patient_dto->reservation_id,
-            'patient_type_service_id' => $visit_patient_dto->patient_type_service_id,
-            'queue_number'            => $visit_patient_dto->queue_number
-        ];
         if (isset($visit_patient_dto->id)){
             $guard  = ['id' => $visit_patient_dto->id];
+            $add = [
+                'patient_type_service_id' => $visit_patient_dto->patient_type_service_id,
+                'queue_number'            => $visit_patient_dto->queue_number
+            ];
             $create = [$guard,$add];
         }else{
-            $add['id'] = null;
+            $add = [
+                'parent_id'               => $visit_patient_dto->parent_id,
+                'patient_id'              => $visit_patient_dto->patient_id,
+                'reference_id'            => $visit_patient_dto->reference_id,
+                'reference_type'          => $visit_patient_dto->reference_type,
+                'flag'                    => $visit_patient_dto->flag,
+                'reservation_id'          => $visit_patient_dto->reservation_id,
+                'patient_type_service_id' => $visit_patient_dto->patient_type_service_id,
+                'queue_number'            => $visit_patient_dto->queue_number
+            ];
             $create = [$add];
         }
         $visit_patient_model = $this->usingEntity()->updateOrCreate(...$create);
@@ -134,9 +137,16 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             $visit_patient_dto->props->props['prop_patient'] = $patient_model->toViewApi()->resolve();
             $visit_patient_model->setRelation('patient', $visit_patient_dto->patient_model);
         }
-
-        $this->initTransaction($visit_patient_dto, $visit_patient_model)
-             ->initPaymentSummary($visit_patient_dto, $visit_patient_model);
+        
+        if (!isset($visit_patient_dto->id)){
+            $this->initTransaction($visit_patient_dto, $visit_patient_model)
+                ->initPaymentSummary($visit_patient_dto, $visit_patient_model);
+        }
+        if (isset($visit_patient_dto->practitioner_evaluations)){
+            foreach ($visit_patient_dto->practitioner_evaluations as &$practitioner_evaluation) {
+                $this->initPractitionerEvaluation($practitioner_evaluation, $visit_patient_model);
+            }
+        }
         $visit_patient_dto->props->props['prop_transaction'] = $visit_patient_model->transaction->toViewApi()->resolve();
         $this->setPayer($visit_patient_model, $visit_patient_dto);
 

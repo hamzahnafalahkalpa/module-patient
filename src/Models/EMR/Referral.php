@@ -22,7 +22,7 @@ class Referral extends BaseModel
     protected $primaryKey = 'id';
     protected $list       = [
         'id', 'referral_code', 'referral_type', 'medic_service_id', 
-        'visit_type', 'visit_id', 'status', 'props'
+        'visit_type', 'visit_id', 'visited_at', 'status', 'props'
     ];
     protected $show       = [];
 
@@ -34,7 +34,8 @@ class Referral extends BaseModel
         'nik'            => 'string',
         'medical_record' => 'string',
         'visit_type'     => 'string',
-        'visit_id'       => 'string'
+        'visit_id'       => 'string',
+        'visited_at'     => 'string'
     ];
 
     public function getPropsQuery(): array

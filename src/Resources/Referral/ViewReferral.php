@@ -15,6 +15,7 @@ class ViewReferral extends ApiResource
             'patient'               => $this->prop_patient,
             'visit_type'            => $this->visit_type,
             'visit_id'              => $this->visit_id,
+            'visited_at'            => $this->visited_at,
             'visit'                 => $this->prop_visit,
             'visit_registration'    => $this->relationValidation('visitRegistration',function(){
                 return $this->visitRegistration->toShowApi()->resolve();
