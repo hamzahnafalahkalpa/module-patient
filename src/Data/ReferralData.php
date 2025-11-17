@@ -41,6 +41,10 @@ class ReferralData extends Data implements DataReferralData{
     #[MapName('visited_at')]
     public ?string $visited_at = null;
 
+    #[MapInputName('status')]
+    #[MapName('status')]
+    public ?string $status = null;
+
     #[MapInputName('visit_registration')]
     #[MapName('visit_registration')]
     public ?VisitRegistrationData $visit_registration = null;

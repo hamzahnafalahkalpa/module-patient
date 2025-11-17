@@ -47,10 +47,10 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         $visit_registration   = $this->createVisitRegistration($visit_registration_dto);
         $visit_patient      ??= $visit_registration_dto->visit_patient_model ?? $visit_registration->visitPatient;
         $visit_registration_dto->visit_patient_model ??= $visit_patient;
-        if (isset($visit_registration_dto->visit_examination)){
+        if (isset($visit_registration_dto->visit_examination) && isset($visit_registration_dto->visit_patient_id)){
             $visit_examination_dto = &$visit_registration_dto->visit_examination;
-            $visit_examination_dto->visit_patient_id      = $visit_patient->getKey();
-            $visit_examination_dto->visit_registration_id = $visit_registration->getKey();
+            $visit_examination_dto->visit_patient_id         = $visit_patient->getKey();
+            $visit_examination_dto->visit_registration_id    = $visit_registration->getKey();
             $visit_examination_dto->visit_registration_model = $visit_registration;
             $visit_examination_dto->visit_patient_model      = $visit_patient;
             $visit_examination_dto->patient_model            = $visit_patient->patient;
@@ -63,7 +63,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();
 
-        if (!isset($visit_registration_dto->id)){
+        if (!isset($visit_registration_dto->id) && isset($visit_registration_dto->visit_patient_id)){
             if (in_array($visit_registration->prop_medic_service['label'], [
                 Label::OUTPATIENT->value, Label::MCU->value,
                 Label::LABORATORY->value, Label::RADIOLOGY->value
@@ -127,24 +127,26 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             $add['status'] = $visit_registration_dto->status;
         }
         $visit_registration = $this->usingEntity()->updateOrCreate($guard,$add);
+        $this->initTransaction($visit_registration_dto, $visit_registration);
+
         if (isset($visit_registration_dto->referral_model)){
             $referral_view = $visit_registration_dto->referral_model->toViewApi()->resolve();
             $visit_registration_dto->props->props['prop_referral'] = array_intersect_key($referral_view, array_flip([
                 'id', 'medic_service', 'visit', 'status', 'created_at', 'updated_at'
             ]));
         }
-
         $visit_registration->load(['paymentSummary', 'transaction']);
         
+        if (isset($visit_registration->visitPatient)){
+            $visit_patient_model = ($visit_registration_dto->visit_patient_model ??= $visit_registration->visitPatient);
+            $visit_patient_model->load('paymentSummary');
             if (!isset($visit_registration_dto->props->props['prop_visit_patient'])){
-                $visit_registration_dto->visit_patient_model = $visit_registration->visitPatient;
                 $visit_registration_dto->props->props['prop_visit_patient'] = $visit_registration_dto->visit_patient_model->toViewApi()->resolve();
             }
-    
-        if (!isset($visit_registration_dto->id)){
-            $this->initTransaction($visit_registration_dto, $visit_registration)
-                 ->initPaymentSummary($visit_registration_dto, $visit_registration);
+            $visit_registration_dto->payment_summary->parent_id ??= $visit_patient_model->paymentSummary->getKey();
+            $this->initPaymentSummary($visit_registration_dto, $visit_registration);
         }
+
         if (isset($visit_registration_dto->practitioner_evaluations)){
             foreach ($visit_registration_dto->practitioner_evaluations as &$practitioner_evaluation) {
                 $this->initPractitionerEvaluation($practitioner_evaluation, $visit_registration);

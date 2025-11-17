@@ -36,8 +36,8 @@ return new class extends Migration
 
                 $table->ulid('id')->primary();
                 $table->string('visit_registration_code', 100)->nullable();
-                $table->string('visit_patient_type', 50)->nullable(false);
-                $table->string('visit_patient_id', 36)->nullable(false);
+                $table->string('visit_patient_type', 50)->nullable(true);
+                $table->string('visit_patient_id', 36)->nullable(true);
 
                 $table->string('warehouse_type', 50)->nullable();
                 $table->string('warehouse_id', 36)->nullable();

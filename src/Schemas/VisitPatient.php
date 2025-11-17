@@ -103,6 +103,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             ];
             $create = [$guard,$add];
         }else{
+            $guard  = ['id' => null];
             $add = [
                 'parent_id'               => $visit_patient_dto->parent_id,
                 'patient_id'              => $visit_patient_dto->patient_id,
@@ -113,7 +114,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
                 'patient_type_service_id' => $visit_patient_dto->patient_type_service_id,
                 'queue_number'            => $visit_patient_dto->queue_number
             ];
-            $create = [$add];
+            $create = [$guard,$add];
         }
         $visit_patient_model = $this->usingEntity()->updateOrCreate(...$create);
         if (isset($visit_patient_dto->family_relationship) && isset($visit_patient_dto->family_relationship->name)) {
@@ -138,10 +139,10 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             $visit_patient_model->setRelation('patient', $visit_patient_dto->patient_model);
         }
         
-        if (!isset($visit_patient_dto->id)){
+        // if (!isset($visit_patient_dto->id)){
             $this->initTransaction($visit_patient_dto, $visit_patient_model)
                 ->initPaymentSummary($visit_patient_dto, $visit_patient_model);
-        }
+        // }
         if (isset($visit_patient_dto->practitioner_evaluations)){
             foreach ($visit_patient_dto->practitioner_evaluations as &$practitioner_evaluation) {
                 $this->initPractitionerEvaluation($practitioner_evaluation, $visit_patient_model);
