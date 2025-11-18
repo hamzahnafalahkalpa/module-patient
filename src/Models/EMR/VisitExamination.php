@@ -92,11 +92,11 @@ class VisitExamination extends BaseModel
     }
 
     public function viewUsingRelation(): array{
-        return [];
+        return ['visitPatient.patient.reference'];
     }
 
     public function showUsingRelation(): array{
-        return ['visitRegistration','practitionerEvaluations','modelHasMonitorings'];
+        return ['visitPatient.patient.reference','visitRegistration','practitionerEvaluations','modelHasMonitorings'];
     }
 
     public function getViewResource(){return ViewVisitExamination::class;}
