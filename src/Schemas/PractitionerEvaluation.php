@@ -36,7 +36,7 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
             'name'                  => $practitioner_model?->name ?? ''
         ]);
         $props = &$practitioner_evaluation_dto->props;
-        $props['prop_practitioner'] = $practitioner_model->toViewApiOnlies('id','name','flag','label');
+        $props['prop_practitioner'] = $practitioner_model->toViewApiOnlies('id','name');
         $props['prop_profession'] = $profession_model?->toViewApiOnlies('id','name','flag','label');
 
         $this->fillingProps($practitioner, $practitioner_evaluation_dto->props);

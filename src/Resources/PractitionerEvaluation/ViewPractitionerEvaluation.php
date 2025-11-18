@@ -10,10 +10,11 @@ class ViewPractitionerEvaluation extends ApiResource
     {
         $arr = [
             'id'                        => $this->id,
-            'practitioner_reference_id' => $this->practitioner_id,
-            'practitioner_reference'    => $this->relationValidation('practitioner', function () {
+            'name' => $this->name,
+            'practitioner_id' => $this->practitioner_id,
+            'practitioner'    => $this->relationValidation('practitioner', function () {
                 return $this->practitioner->toViewApi()->resolve();
-            },$this->prop_practitioner_reference),
+            },$this->prop_practitioner),
             'profession_id'        => $this->profession_id,
             'profession'           => $this->prop_profession,
             'as_pic'               => $this->as_pic ?? false,

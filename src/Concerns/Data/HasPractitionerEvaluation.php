@@ -7,8 +7,8 @@ trait HasPractitionerEvaluation
     public function setupPractitionerEvaluation(array &$attributes){
         if (isset($attributes['practitioner_evaluation'])){
             $attributes['practitioner_evaluations'] ??= [];
-            $attributes['practitioner_evaluation']['as_pic'] = true;
-            $attributes['practitioner_evaluation']['role_as'] = 'DPJP';
+            $attributes['practitioner_evaluation']['as_pic']  ??= true;
+            $attributes['practitioner_evaluation']['role_as'] ??= 'DPJP';
             $attributes['practitioner_evaluations'][] = $attributes['practitioner_evaluation'];
         }
         if (isset($attributes['practitioner_evaluations']) && is_array($attributes['practitioner_evaluations'])){
