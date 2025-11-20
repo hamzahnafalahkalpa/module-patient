@@ -19,7 +19,7 @@ class ShowVisitPatient extends ViewVisitPatient
                 return $this->visitRegistrations->transform(function ($visitRegistration) {
                     return is_array($visitRegistration) 
                             ? $this->propNil($visitRegistration,'visit_patient')
-                            : $visitRegistration->toViewApiExcepts('visit_patient');
+                            : $visitRegistration->toShowApiExcepts('visit_patient');
                 });
             }),
             "family_relationship" => $this->relationValidation("familyRelationship", function () {

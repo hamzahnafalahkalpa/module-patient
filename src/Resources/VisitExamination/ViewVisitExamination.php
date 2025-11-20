@@ -17,6 +17,7 @@ class ViewVisitExamination extends ApiResource
         $arr = [
             'id'                     => $this->id,
             'visit_examination_code' => $this->visit_examination_code,
+            'visit_patient_id'       => $this->visit_patient_id,
             'visit_registration_id'  => $this->visit_registration_id,
             'patient_id'             => $this->patient_id,
             'sign_off_at'            => $this->sign_off_at,

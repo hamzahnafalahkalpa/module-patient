@@ -142,6 +142,7 @@ class VisitPatient extends BaseModel
             'payer',
             'patient.reference', 
             'practitionerEvaluation',
+            'patientTypeService',
             // 'reservation',
             'visitRegistrations' => function ($query) {
                 $query->with(['visitExamination']);
