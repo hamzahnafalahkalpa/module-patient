@@ -111,6 +111,7 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
             $medic_service->label == Label::PHARMACY_UNIT->value || 
             $medic_service->label == Label::VERLOS_KAMER->value || 
             $medic_service->label == Label::EMERGENCY_UNIT->value || 
+            $medic_service->label == Label::MCU->value || 
             isset($medic_service->parent) && $medic_service->parent->label == Label::OUTPATIENT->value
         ){
             $attributes['visit_examination'] ??= [

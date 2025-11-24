@@ -119,6 +119,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         }else{
             $add['parent_id'] = $visit_registration_dto->parent_id ?? null; 
             $guard = [
+                'id'                 => null,
                 'medic_service_id'   => $visit_registration_dto->medic_service_id,
                 'referral_id'        => $visit_registration_dto->referral_id
             ];
