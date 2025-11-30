@@ -92,11 +92,11 @@ class VisitExamination extends BaseModel
     }
 
     public function viewUsingRelation(): array{
-        return ['visitPatient.patient.reference'];
+        return ['patient','visitRegistration','visitPatient.patient.reference'];
     }
 
     public function showUsingRelation(): array{
-        return ['visitPatient.patient.reference','visitRegistration','practitionerEvaluations','modelHasMonitorings'];
+        return ['patient','visitPatient.patient.reference','visitRegistration','practitionerEvaluations','modelHasMonitorings'];
     }
 
     public function getViewResource(){return ViewVisitExamination::class;}
@@ -104,6 +104,7 @@ class VisitExamination extends BaseModel
 
     public function visitPatient(){return $this->belongsToModel('VisitPatient');}
     public function visitRegistration(){return $this->belongsToModel('VisitRegistration');}
+    public function patient(){return $this->belongsToModel('Patient');}
     public function patientType(){return $this->belongsToModel('PatientType');}
     public function examinationTreatments(){return $this->hasManyModel('ExaminationTreatment');}
     public function assessment(){return $this->morphOneModel('Assessment','examination');}

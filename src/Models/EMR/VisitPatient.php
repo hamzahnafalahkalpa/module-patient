@@ -140,9 +140,9 @@ class VisitPatient extends BaseModel
     public function showUsingRelation(): array{
         return [
             'payer',
+            'patientTypeService',
             'patient.reference', 
             'practitionerEvaluation',
-            'patientTypeService',
             // 'reservation',
             'visitRegistrations' => function ($query) {
                 $query->with(['visitExamination']);

@@ -89,6 +89,12 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
             if (isset($attributes['id'])) $attributes['examination']['visit_examination_id'] = $attributes['id'];
             $attributes['examination'] = $new->requestDTO(config('app.contracts.ExaminationData'),$attributes['examination']);
         }
+
+        $patient_model = $new->PatientModel();
+        if (isset($attributes['patient_id'])){
+            $patient_model = $patient_model->find($attributes['patient_id']);
+        }
+        $attributes['prop_patient'] = $patient_model->toViewApi()->resolve();
     }
 
     public static function after(self $data): self{

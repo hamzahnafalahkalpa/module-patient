@@ -32,7 +32,9 @@ class PractitionerEvaluation extends BaseModel
 
     protected $casts = [
         'name' => 'string',
-        'pracitioner_name' => 'string'
+        'practitioner_name' => 'string',
+        'reference_type' => 'string',
+        'reference_id' => 'string'
     ];
 
     public function getPropsQuery(): array{

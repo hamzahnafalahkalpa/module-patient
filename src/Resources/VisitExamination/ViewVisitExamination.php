@@ -17,12 +17,17 @@ class ViewVisitExamination extends ApiResource
         $arr = [
             'id'                     => $this->id,
             'visit_examination_code' => $this->visit_examination_code,
-            'visit_patient_id'       => $this->visit_patient_id,
             'visit_registration_id'  => $this->visit_registration_id,
             'patient_id'             => $this->patient_id,
+            'patient'                => $this->relationValidation('patient', function () {
+                return $this->propExcludes($this->patient->toShowApi()->resolve(),'consument');
+            }),
             'sign_off_at'            => $this->sign_off_at,
             'is_addendum'            => $this->is_addendum,
-            'created_at'             => $this->created_at
+            'created_at'             => $this->created_at,
+            'visit_registration' => $this->relationValidation('visitRegistration', function () {
+                return $this->visitRegistration->toShowApi()->resolve();
+            }),
         ];
         return $arr;
     }
