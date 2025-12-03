@@ -46,16 +46,14 @@ class Referral extends ModulePatient implements ContractsReferral
         }
 
         if (isset($referral_dto->visit_registration)){
+            switch (true){
+                case $referral_dto->visit_type == 'VisitRegistration':
+                    $this->mapperForVisitRegistration($referral_dto,$referral);
+                break;
+            }            
             $visit_registration_dto = &$referral_dto->visit_registration;
             $visit_registration_dto->referral_id = $referral->getKey();
             $visit_registration_dto->referral_model = $referral;
-            if ($referral_dto->status == 'PROCESS'){
-                switch (true){
-                    case $referral_dto->visit_type == 'VisitRegistration':
-                        $this->mapperForVisitRegistration($referral_dto,$referral);
-                    break;
-                }
-            }
             $visit_registration = $this->schemaContract('visit_registration')->prepareStoreVisitRegistration($visit_registration_dto);
             $referral_dto->props->props['prop_visit_registration'] = $visit_registration->toViewApi()->resolve();
             $referral_dto->visit_model = $visit_registration;
@@ -73,11 +71,10 @@ class Referral extends ModulePatient implements ContractsReferral
         $today = \Carbon\Carbon::now($timezone)->format('Y-m-d');
         $visit_registration_model = $this->VisitRegistrationModel()->with('visitPatient')->findOrFail($referral_dto->visit_id);
         $visit_registration_dto = &$referral_dto->visit_registration;
-        if ($today == $referral_dto->visited_at) {
-            $visit_registration_dto->visit_patient_type = $visit_registration_model->visit_patient_type;
-            $visit_registration_dto->visit_patient_id   = $visit_registration_model->visit_patient_id;            
-            $visit_patient_id = $visit_registration_model->visit_patient_id;
-        }else{
+        $visit_registration_dto->visit_patient_type = $visit_registration_model->visit_patient_type;
+        $visit_registration_dto->visit_patient_id   = $visit_registration_model->visit_patient_id;            
+        $visit_patient_id = $visit_registration_model->visit_patient_id;
+        if ($referral_dto->status == 'PROCESS' && $today != $referral_dto->visited_at) {        
             $current_visit_patient = $visit_registration_model->visitPatient;
             if (isset($visit_registration_dto->visit_patient)){
                 $visit_patient_dto = &$visit_registration_dto->visit_patient;

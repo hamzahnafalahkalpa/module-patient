@@ -69,6 +69,19 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             $create = [$guard,$add];
         }else{
             $create = [$add];
+            $visit_registration_model = $visit_examination_dto->visit_registration_model ?? $this->VisitRegistrationModel()->findOrFail($visit_examination_dto->visit_registration_id);
+            switch (true) {
+                case $visit_examination_dto->sign_off:
+                    $visit_registration_model->status ??= Status::COMPLETED->value;
+                break;
+                case $visit_examination_dto->is_addendum:
+                break;
+                default:
+                    $visit_registration_model->status ??= Status::DRAFT->value;
+                break;
+            }
+            $visit_registration_model->status = Status::PROCESSING->value;
+            $visit_registration_model->save();
         }
 
         $visit_examination  = $this->usingEntity()->updateOrCreate(...$create);
