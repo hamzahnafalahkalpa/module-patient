@@ -18,6 +18,7 @@ class ViewVisitExamination extends ApiResource
             'id'                     => $this->id,
             'visit_examination_code' => $this->visit_examination_code,
             'visit_registration_id'  => $this->visit_registration_id,
+            'visit_patient_id'       => $this->visit_patient_id,
             'patient_id'             => $this->patient_id,
             'patient'                => $this->relationValidation('patient', function () {
                 return $this->propExcludes($this->patient->toShowApi()->resolve(),'consument');
