@@ -56,7 +56,6 @@ class Referral extends ModulePatient implements ContractsReferral
             $visit_registration_dto->referral_model = $referral;
             $visit_registration = $this->schemaContract('visit_registration')->prepareStoreVisitRegistration($visit_registration_dto);
             $referral_dto->props->props['prop_visit_registration'] = $visit_registration->toViewApi()->resolve();
-            $referral_dto->visit_model = $visit_registration;
         }
         if (!isset($referral_dto->visit_model)) $referral_dto->visit_model = $this->{$referral_dto->visit_type.'Model'}()->findOrFail($referral_dto->visit_id);
         $referral_dto->props->props['prop_visit'] = $referral_dto->visit_model->toViewApi()->resolve();
