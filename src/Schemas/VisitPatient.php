@@ -55,7 +55,6 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             }
         }
         $trx_transaction = &$visit_patient_model->transaction;
-
         //PROCESS VISIT REGISTRATIONS
         $visit_registrations = $visit_patient_dto?->visit_registrations;
         if (isset($visit_registrations) && count($visit_registrations) > 0){
@@ -66,9 +65,9 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
 
         if (isset($visit_patient_dto->visit_registration)){
             $visit_registration_model = $this->prepareStoreVisitRegistration($visit_patient_dto->visit_registration, $visit_patient_model, $trx_transaction);
-            $visit_patient_dto->props->props['prop_visit_registration'] = $visit_registration_model->toViewApiExcepts('visit_patient');
+            // $visit_patient_dto->props->props['prop_visit_registration'] = $visit_registration_model->toViewApiExcepts('visit_patient');
         }
-
+        
         $this->fillingProps($visit_patient_model, $visit_patient_dto->props);
         $visit_patient_model->save();
         return $visit_patient_model;

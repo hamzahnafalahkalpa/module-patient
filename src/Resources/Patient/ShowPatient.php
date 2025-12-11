@@ -24,7 +24,6 @@ class ShowPatient extends ViewPatient
                 return $this->visitExamination->toShowApi()->resolve();
             })
         ];
-
         $arr = $this->mergeArray(parent::toArray($request), $arr);
         return $arr;
     }

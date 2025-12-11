@@ -14,6 +14,7 @@ class ViewVisitPatient extends ApiResource
      */
     public function toArray(\Illuminate\Http\Request $request): array
     {
+
         $arr = [
             "id"                 => $this->id,
             'visit_code'         => $this->visit_code,
@@ -27,8 +28,8 @@ class ViewVisitPatient extends ApiResource
                 return $this->patientTypeService->toShowApi()->resolve();
             },$this->prop_patient_type_service),
             "referral"           => isset($this->prop_referral) ? $this->propOnlies($this->prop_referral,'id','referral_code','external_referral') : null,
-            'transaction'         => $this->relationValidation('reference',function(){
-                return $this->reference->toShowApi()->resolve();
+            'transaction'         => $this->relationValidation('transaction',function(){
+                return $this->transaction->toShowApi()->resolve();
             },$this->propNil($this->prop_transaction,'reference')),
             "reference"          => $this->relationValidation('reference', function () {
                 return $this->reference->toViewApi()->resolve();
@@ -48,7 +49,9 @@ class ViewVisitPatient extends ApiResource
             "organization"       => $this->relationValidation("organization", function () {
                 return $this->organization->toViewApi()->resolve();
             }),
-            'visit_registration'  => $this->prop_visit_registration,            
+            'visit_registration'  => $this->relationValidation('visitRegistration',function(){
+                return $this->visitRegistration->toViewApi()->resolve();
+            },$this->prop_visit_registration),            
             "services"           => $this->relationValidation('services', function () {
                 $services = $this->services;
                 return $services->map(function ($service) {
@@ -64,7 +67,6 @@ class ViewVisitPatient extends ApiResource
             "created_at"         => $this->created_at,
             "updated_at"         => $this->updated_at,
         ];
-
         return $arr;
     }
 }
