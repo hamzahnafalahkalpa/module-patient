@@ -148,9 +148,8 @@ class VisitPatientData extends Data implements DataVisitPatientData{
             $attributes['patient_model'] = $new->PatientModel()->findOrFail($attributes['patient_id']);
             $patient_name = $attributes['patient_model']->name;
         }else{
-            $patient_name = $attributes['patient']['name'];
+            $patient_name = $attributes['patient']['name'] ?? $attributes['patient']['unidentified_patient']['name'] ?? 'John Doe';
         }
-
         $attributes['transaction'] = [
             'id' => null,
             "reference_type" => "VisitPatient",

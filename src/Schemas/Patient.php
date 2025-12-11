@@ -37,6 +37,7 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
             $reference                 = $schema_reference->prepareStore($patient_dto->reference);
             $patient_dto->reference_id = $reference->getKey();
             $patient_dto->props['prop_'.Str::snake($patient_dto->reference_type)] = $reference->toViewApi()->resolve();
+            $patient_dto->name ??= $reference->name;
         }
         
         $add = [

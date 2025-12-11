@@ -15,7 +15,7 @@ class UnidentifiedPatientData extends Data implements DataUnidentifiedPatientDat
 
     #[MapInputName('name')]
     #[MapName('name')]
-    public string $name;
+    public ?string $name = null;
 
     #[MapInputName('props')]
     #[MapName('props')]
@@ -23,6 +23,6 @@ class UnidentifiedPatientData extends Data implements DataUnidentifiedPatientDat
 
     public static function before(array &$attributes){
         $attributes['sex'] ??= 'Male';
-        $attributes['name'] ??= $attributes['sex'] = 'Male' ? 'John Doe' : 'Jane Doe';
+        $attributes['name'] ??= $attributes['sex'] == 'Male' ? 'John Doe' : 'Jane Doe';
     }
 }

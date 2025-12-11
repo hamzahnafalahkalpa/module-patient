@@ -82,7 +82,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         $visit_registration_dto = &$update_visit_registration_dto;
         $visit_registration_model = $update_visit_registration_dto->visit_registration_model ?? $this->VisitRegistrationModel()->findOrFail($update_visit_registration_dto->id);
         $medic_service = $visit_registration_model->medicService;
-        if ($medic_service->label != Label::INPATIENT->value){
+        if (!in_array($medic_service->label, [Label::INPATIENT->value, Label::VERLOS_KAMER->value])){
             $visit_registration_model->status = $visit_registration_dto->status;
             $visit_registration_model->pushActivity(VisitRegistrationActivity::POLI_EXAM->value, [VisitRegistrationActivityStatus::POLI_EXAM_END->value]);
         }
@@ -113,6 +113,8 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             'visited_at' => $visit_registration_dto->visited_at ?? now(),
             'visit_patient_id'   => $visit_registration_dto->visit_patient_id,
             'visit_patient_type' => $visit_registration_dto->visit_patient_type,
+            'warehouse_type'    => $visit_registration_dto->warehouse_type ?? null,
+            'warehouse_id'      => $visit_registration_dto->warehouse_id ?? null,
         ];
         if (isset($visit_registration_dto->id)){
             $guard = ['id' => $visit_registration_dto->id];

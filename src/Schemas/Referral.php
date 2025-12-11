@@ -69,6 +69,7 @@ class Referral extends ModulePatient implements ContractsReferral
         $timezone = config('app.client_timezone', 'Asia/Jakarta');
         $today = \Carbon\Carbon::now($timezone)->format('Y-m-d');
         $visit_registration_model = $this->VisitRegistrationModel()->with('visitPatient')->findOrFail($referral_dto->visit_id);
+        $referral_dto->visit_model = $visit_registration_model;
         $visit_registration_dto = &$referral_dto->visit_registration;
         $visit_registration_dto->visit_patient_type = $visit_registration_model->visit_patient_type;
         $visit_registration_dto->visit_patient_id   = $visit_registration_model->visit_patient_id;            

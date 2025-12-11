@@ -27,6 +27,9 @@ class ViewVisitPatient extends ApiResource
                 return $this->patientTypeService->toShowApi()->resolve();
             },$this->prop_patient_type_service),
             "referral"           => isset($this->prop_referral) ? $this->propOnlies($this->prop_referral,'id','referral_code','external_referral') : null,
+            'transaction'         => $this->relationValidation('reference',function(){
+                return $this->reference->toShowApi()->resolve();
+            },$this->propNil($this->prop_transaction,'reference')),
             "reference"          => $this->relationValidation('reference', function () {
                 return $this->reference->toViewApi()->resolve();
             }),

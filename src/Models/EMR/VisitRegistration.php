@@ -49,6 +49,8 @@ class VisitRegistration extends BaseModel
         'medic_service_name'  => 'string',
         'medic_service_label' => 'string',
         'visit_patient_reference_type' => 'string',
+        'warehouse_type' => 'string',
+        'warehouse_id' => 'string',
         'created_at'                   => 'date',
         'status'                       => 'string'
     ];
@@ -90,7 +92,9 @@ class VisitRegistration extends BaseModel
     }
 
     public function viewUsingRelation(){
-        return [];
+        return [
+            'visitExamination'
+        ];
     }
 
     public function showUsingRelation(){

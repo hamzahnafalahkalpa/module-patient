@@ -44,7 +44,12 @@ class VisitExamination extends BaseModel
     protected $show       = [];
 
     protected $casts = [
-        'created_at'   => 'date'
+        'created_at'   => 'date',
+        'visit_registration_id' => 'string',
+        'visit_patient_id'      => 'string',
+        'patient_id'            => 'string',
+        'is_commit'    => 'boolean',
+        'sign_off_at'  => 'datetime'
     ];
 
     protected static function booted(): void
