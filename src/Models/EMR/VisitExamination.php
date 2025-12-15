@@ -17,14 +17,13 @@ use Hanafalah\ModulePatient\Enums\{
 use Hanafalah\ModulePatient\Enums\VisitExamination\Activity;
 use Hanafalah\ModulePatient\Enums\VisitExamination\ActivityStatus;
 use Hanafalah\ModulePatient\Concerns\HasPractitionerEvaluation;
-use Hanafalah\ModuleExamination\Concerns\HasExaminationSummary;
 use Hanafalah\ModulePatient\Resources\VisitExamination\ShowVisitExamination;
 use Hanafalah\ModulePatient\Resources\VisitExamination\ViewVisitExamination;
 
 class VisitExamination extends BaseModel
 {
     use HasUlids, SoftDeletes, HasProps, HasActivity;
-    use HasExaminationSummary, HasPractitionerEvaluation;
+    use HasPractitionerEvaluation;
 
     public $incrementing  = false;
     protected $keyType    = 'string';
@@ -101,7 +100,9 @@ class VisitExamination extends BaseModel
     }
 
     public function showUsingRelation(): array{
-        return ['patient','visitPatient.patient.reference','visitRegistration','practitionerEvaluations','modelHasMonitorings'];
+        return [
+            'patient','visitPatient.patient.reference','visitRegistration','practitionerEvaluations','modelHasMonitorings',
+            'examinationSummary'];
     }
 
     public function getViewResource(){return ViewVisitExamination::class;}

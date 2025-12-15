@@ -44,6 +44,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             $visit_registration_dto->visit_patient_type  = $visit_patient->getMorphClass();
             $visit_registration_dto->visit_patient_model = $visit_patient;
         }
+
         $visit_registration   = $this->createVisitRegistration($visit_registration_dto);
         $visit_patient      ??= $visit_registration_dto->visit_patient_model ?? $visit_registration->visitPatient;
         $visit_registration_dto->visit_patient_model ??= $visit_patient;
@@ -59,7 +60,6 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             $visit_registration_dto->props->props['prop_visit_examination'] = $visit_examination->toViewApiExcepts('visit_registration');
         }
         $this->storeItemRent($visit_registration_dto, $visit_registration);
-
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();
 

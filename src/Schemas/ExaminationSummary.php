@@ -4,30 +4,40 @@ namespace Hanafalah\ModulePatient\Schemas;
 
 use Hanafalah\ModulePatient\Contracts\Schemas\ExaminationSummary as ContractsExaminationSummary;
 use Illuminate\Database\Eloquent\Model;
-use Hanafalah\LaravelSupport\Supports\PackageManagement;
+use Hanafalah\ModuleExamination\Schemas\PatientSummary;
 use Hanafalah\ModulePatient\Contracts\Data\ExaminationSummaryData;
 
-class ExaminationSummary extends PackageManagement implements ContractsExaminationSummary
+class ExaminationSummary extends PatientSummary implements ContractsExaminationSummary
 {
     protected string $__entity = 'ExaminationSummary';
+    public $examination_summary_model;
 
-    public function prepareStoreExaminationSummary(ExaminationSummaryData $examination_summary_dto): Model
+    public function prepareStoreExaminationSummary(mixed $examination_summary_dto): Model
     {
-        if (isset($examination_summary_dto->id)) {
-            $guard = ['id' => $examination_summary_dto->id];
-        } else {
-            if (!isset($examination_summary_dto->reference_type) || !isset($examination_summary_dto->reference_id)) {
-                throw new \Exception('reference_type and reference_id is required', 422);
-            }
+        $add = [
+            'patient_id' => $examination_summary_dto->patient_id,            
+        ];
+        if (!isset($examination_summary_dto->id) && !isset($examination_summary_dto->patient_id)){
             $guard = [
-                'reference_type' => $examination_summary_dto->reference_type, 
+                'reference_type' => $examination_summary_dto->reference_type,
                 'reference_id'   => $examination_summary_dto->reference_id
             ];
+            $create = [$guard,$add];
+        }else{
+            $add = array_merge($add,[
+                'reference_type' => $examination_summary_dto->reference_type,
+                'reference_id'   => $examination_summary_dto->reference_id
+            ]);
+            $create = [$add];
         }
+        $examination_summary = $this->usingEntity()->updateOrCreate(...$create);
 
-        $model = $this->usingEntity()->firstOrCreate($guard);
-        $this->fillingProps($model, $examination_summary_dto);
-        $model->save();
-        return $this->examination_summary = $model;
+        $patient_model = $examination_summary_dto->patient_model ??= $this->PatientModel()->findOrFail($examination_summary_dto->patient_id);
+        $examination_summary_dto->props['prop_patient'] = $patient_model->toShowApi()->resolve();
+
+        $this->setEmrData($examination_summary_dto, $examination_summary);
+        $this->fillingProps($examination_summary, $examination_summary_dto->props);
+        $examination_summary->save();
+        return $this->examination_summary_model = $examination_summary;
     }
 }

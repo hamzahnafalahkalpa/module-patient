@@ -28,30 +28,6 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
     protected mixed $__order_by_created_at = 'desc'; //asc, desc, false
     public $visit_examination_model;
 
-    public function prepareCommitVisitExamination(?array $attributes = null): Model{
-        $attributes ??= request()->all();
-
-        $visit_examination = $this->VisitExaminationModel()->find($attributes['visit_examination_id']);
-        $visit_examination->is_commit = Commit::COMMIT->value;
-        $visit_examination->save();
-
-        //PUSH ACTIVITY FOR COMMITED
-        $visit_examination->pushActivity(Activity::VISITATION->value, [ActivityStatus::VISITED->value]);
-
-        $assessments = $visit_examination->assessments()->whereIn('morph', ['InitialDiagnose', 'SecondaryDiagnose', 'PrimaryDiagnose'])->get();
-        foreach ($assessments as $assessment) {
-            $assessment = $this->{$assessment->morph . 'Model'}()->find($assessment->getKey());
-            $assessment->reporting();
-        }
-        return $visit_examination;
-    }
-
-    public function commitVisitExamination(): array{
-        return $this->transaction(function () {
-            return $this->showVisitExamination($this->prepareCommitVisitExamination());
-        });
-    }
-
     public function prepareStoreVisitExamination(VisitExaminationData $visit_examination_dto): Model{
         $visit_patient_model = $visit_examination_dto?->visit_patient_model ?? $this->VisitPatientModel()->findOrFail($visit_examination_dto->visit_patient_id);
         $add = [
@@ -111,10 +87,11 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             if (!isset($examination_dto->id)){
                 $examination_dto->in_view_response = true;
                 $response = $this->schemaContract('examination')->prepareStoreExamination($examination_dto);
-                $visit_examination_dto->props->props['examination'] = $response;
+                // $visit_examination_dto->props->props['examination'] = $response;
             }else{
                 $this->schemaContract('examination')->prepareStoreExamination($examination_dto);
             }
+
             $visit_examination_dto->is_addendum = false;
             $visit_examination->is_addendum = false;
         }

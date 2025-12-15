@@ -2,4 +2,6 @@
 
 namespace Hanafalah\ModulePatient\Contracts\Data;
 
-interface ExaminationSummaryData {}
+use Hanafalah\ModuleExamination\Contracts\Data\PatientSummaryData;
+
+interface ExaminationSummaryData extends PatientSummaryData {}

@@ -103,7 +103,7 @@ class Patient extends BaseModel
 
     public function showUsingRelation(): array{
         return [
-            'reference.addresses'
+            'reference.addresses','patientSummary'
         ];
     }
 

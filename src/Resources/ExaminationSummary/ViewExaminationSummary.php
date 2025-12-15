@@ -2,9 +2,9 @@
 
 namespace Hanafalah\ModulePatient\Resources\ExaminationSummary;
 
-use Hanafalah\LaravelSupport\Resources\ApiResource;
+use Hanafalah\ModuleExamination\Resources\PatientSummary\ViewPatientSummary;
 
-class ViewExaminationSummary extends ApiResource
+class ViewExaminationSummary extends ViewPatientSummary
 {
     /**
      * Transform the resource into an array.
@@ -15,14 +15,12 @@ class ViewExaminationSummary extends ApiResource
     public function toArray(\Illuminate\Http\Request $request): array
     {
         $arr = [
-            'id' => $this->id,
-            'reference_type' => $this->reference_type,
-            'reference_id' => $this->reference_id,
-            'props'      => $this->getPropsData() ?? null,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at
+            'id'                => $this->id, 
+            'parent_id'          => $this->parent_id, 
+            'patient_id'         => $this->patient_id, 
+            'reference_type'     => $this->reference_type, 
+            'reference_id'       => $this->reference_id, 
         ];
-
         return $arr;
     }
 }

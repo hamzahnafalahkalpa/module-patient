@@ -4,10 +4,10 @@ namespace Hanafalah\ModulePatient;
 
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
-use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Hanafalah\ModulePatient\Contracts;
+use Hanafalah\ModulePatient\Supports\BaseModulePatient;
 
-class ModulePatient extends PackageManagement implements Contracts\ModulePatient
+class ModulePatient extends BaseModulePatient implements Contracts\ModulePatient
 {
     protected $__screening_forms;
     protected $__open_forms;

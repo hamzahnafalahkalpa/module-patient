@@ -67,7 +67,6 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             $visit_registration_model = $this->prepareStoreVisitRegistration($visit_patient_dto->visit_registration, $visit_patient_model, $trx_transaction);
             // $visit_patient_dto->props->props['prop_visit_registration'] = $visit_registration_model->toViewApiExcepts('visit_patient');
         }
-        
         $this->fillingProps($visit_patient_model, $visit_patient_dto->props);
         $visit_patient_model->save();
         return $visit_patient_model;

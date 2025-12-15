@@ -12,9 +12,10 @@ class ShowExaminationSummary extends ViewExaminationSummary
      */
     public function toArray(\Illuminate\Http\Request $request): array
     {
-        $arr = [];
+        $arr = [
+            'emr' => $this->emr
+        ];
         $arr = $this->mergeArray(parent::toArray($request), $arr);
-
         return $arr;
     }
 }

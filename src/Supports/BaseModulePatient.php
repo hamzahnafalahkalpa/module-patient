@@ -3,6 +3,7 @@
 namespace Hanafalah\ModulePatient\Supports;
 
 use Hanafalah\LaravelSupport\Contracts\Supports\DataManagement;
+use Illuminate\Database\Eloquent\Model;
 use Hanafalah\LaravelSupport\Supports\PackageManagement;
 
 class BaseModulePatient extends PackageManagement implements DataManagement
@@ -19,6 +20,6 @@ class BaseModulePatient extends PackageManagement implements DataManagement
      */
     public function __construct()
     {
-        $this->setConfig($this->__config_name, $this->__module_patient_config);
+        $this->setConfig('module-patient', $this->__module_patient_config);
     }
 }

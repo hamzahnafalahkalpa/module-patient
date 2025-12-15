@@ -13,10 +13,11 @@ use Hanafalah\ModulePatient\Contracts\Data\{
 use Hanafalah\ModulePatient\Contracts\Schemas\Patient as ContractsPatient;
 use Hanafalah\ModulePatient\Contracts\Schemas\ProfilePatient;
 use Hanafalah\ModulePatient\Contracts\Schemas\ProfilePhoto;
+use Hanafalah\ModulePatient\ModulePatient;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Patient extends PackageManagement implements ContractsPatient, ProfilePatient, ProfilePhoto
+class Patient extends ModulePatient implements ContractsPatient, ProfilePatient, ProfilePhoto
 {
     protected string $__entity = 'Patient';
     public $patient_model;
@@ -79,7 +80,6 @@ class Patient extends PackageManagement implements ContractsPatient, ProfilePati
             $visit_patient_dto->patient_model = $patient;
 
             $visit_patient_model = $this->schemaContract('visit_patient')->prepareStoreVisitPatient($visit_patient_dto);
-
             $patient->setRelation('visit_patient', $visit_patient_model);
             $patient->load(['visitExamination'=>fn($q)=>$q->orderBy('created_at','desc')]);
         }

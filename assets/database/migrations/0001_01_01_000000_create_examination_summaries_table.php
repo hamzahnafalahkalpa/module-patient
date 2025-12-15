@@ -1,5 +1,6 @@
 <?php
 
+use Hanafalah\LaravelSupport\Concerns\NowYouSeeMe;
 use Hanafalah\ModulePatient\Models\EMR\ExaminationSummary;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -7,9 +8,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    use Hanafalah\LaravelSupport\Concerns\NowYouSeeMe;
-
-    private $__table;
+    use NowYouSeeMe;
 
     public function __construct()
     {
@@ -27,22 +26,20 @@ return new class extends Migration
         if (!$this->isTableExists()) {
             Schema::create($table_name, function (Blueprint $table) {
                 $table->ulid('id')->primary();
-                $table->string("reference_type", 50)->nullable(false);
-                $table->string("reference_id", 36)->nullable(false);
+                $table->string('reference_type', 50)->nullable(false);
+                $table->string('reference_id', 36)->nullable(false);
                 $table->json('props')->nullable();
                 $table->timestamps();
+                $table->softDeletes();
 
-                $table->index(['reference_type', 'reference_id'], 'ref_es');
+                $table->index(['reference_type', 'reference_id'], 'summary_ref');
             });
 
             Schema::table($table_name, function (Blueprint $table) {
-                $table->foreignIdFor($this->__table, 'parent_id')
-                    ->nullable()->after($this->__table->getKeyName())
-                    ->index()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
-
-                $table->foreignIdFor($this->__table, 'group_summary_id')
-                    ->nullable()->after('parent_id')
-                    ->index()->constrained()->cascadeOnDelete()->cascadeOnUpdate();
+                $table->foreignIdFor($this->__table::class, 'parent_id')
+                    ->nullable()->after('id')
+                    ->index()->constrained()
+                    ->cascadeOnUpdate()->restrictOnDelete();
             });
         }
     }
