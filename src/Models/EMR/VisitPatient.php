@@ -27,11 +27,14 @@ use Hanafalah\ModulePatient\Enums\VisitPatient\{
 };
 use Hanafalah\ModulePatient\Enums\VisitRegistration\Status;
 use Hanafalah\ModulePayment\Concerns\HasPaymentSummary;
+use Hanafalah\ModuleTransaction\Concerns\HasTransaction;
 
 class VisitPatient extends BaseModel
 {
     use HasUlids, SoftDeletes;
-    use HasProps, HasActivity, HasPaymentSummary, HasPractitionerEvaluation;
+    use HasProps, HasActivity, 
+    HasPaymentSummary, HasPractitionerEvaluation,
+    HasTransaction;
 
     const CLINICAL_VISIT = 'VisitPatient';
     const STATUS_ACTIVE  = 'ACTIVE';
@@ -157,7 +160,7 @@ class VisitPatient extends BaseModel
 
     public function patient(){return $this->belongsToModel('Patient');}
     public function reservation(){return $this->belongsToModel('Reservation');}
-    public function transaction(){return $this->morphOneModel(config('module-patient.transaction'), 'reference');}
+    public function transaction(){return $this->morphOneModel('Transaction', 'reference');}
     public function visitRegistration(){return $this->morphOneModel('VisitRegistration', 'visit_patient');}
     public function visitExamination(){return $this->hasOneModel('VisitExamination', 'visit_patient_id');}
     public function visitRegistrations(){return $this->morphManyModel('VisitRegistration', 'visit_patient');}
