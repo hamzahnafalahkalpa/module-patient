@@ -112,7 +112,7 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
         foreach ($types as $type) {
             $lower_type = Str::lower($type);
             $value = $card_identity_dto->{$lower_type} ?? null;
-            if (isset($value)) $patient->setCardIdentity($type, $card_identity_dto->{$lower_type});
+            if (isset($value)) $patient->setCardIdentity($lower_type, $card_identity_dto->{$lower_type});
             $card_identity[$lower_type] = $value;
         }
         $patient->setAttribute('prop_card_identity',$card_identity);

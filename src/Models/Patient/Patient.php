@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 class Patient extends BaseModel
 {
     use HasUlids, HasProps, SoftDeletes,
-        HasCardIdentity, HasUserReference,
+        HasCardIdentity,
         HasLocation, HasProfilePhoto; 
 
     public $incrementing = false;
