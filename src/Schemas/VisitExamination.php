@@ -5,6 +5,7 @@ namespace Hanafalah\ModulePatient\Schemas;
 use Illuminate\Database\Eloquent\{
     Model
 };
+use Hanafalah\ModuleMedicService\Enums\Label;
 use Hanafalah\ModulePatient\{
     Enums\VisitExamination\CommitStatus,
     Enums\VisitExamination\ExaminationStatus,
@@ -62,6 +63,10 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         }
 
         $visit_examination  = $this->usingEntity()->updateOrCreate(...$create);
+        if (isset($visit_examination_dto->patient)){
+            $patient_dto = &$visit_examination_dto->patient;
+            $this->schemaContract('patient')->prepareStorePatient($patient_dto);
+        }
         $visit_examination_dto->visit_examination_model = &$visit_examination;
         if (!isset($visit_examination_dto->id)){
             $visit_examination->pushActivity(Activity::VISITATION->value, [
@@ -87,7 +92,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             if (!isset($examination_dto->id)){
                 $examination_dto->in_view_response = true;
                 $response = $this->schemaContract('examination')->prepareStoreExamination($examination_dto);
-                // $visit_examination_dto->props->props['examination'] = $response;
+                $visit_examination_dto->props->props['examination'] = $response;
             }else{
                 $this->schemaContract('examination')->prepareStoreExamination($examination_dto);
             }
@@ -158,11 +163,22 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             ActivityStatus::VISITED->value
         ]);
 
-        $this->schemaContract('visit_registration')->prepareUpdateVisitRegistration($this->requestDTO(config('app.contracts.UpdateVisitRegistrationData'), [
+        $visit_registration_model = $this->schemaContract('visit_registration')->prepareUpdateVisitRegistration($this->requestDTO(config('app.contracts.UpdateVisitRegistrationData'), [
             'id'     => $visit_examination->visit_registration_id,
             'visit_registration_model' => $visit_examination_dto->visit_registration_model ?? null,
             'status' => \Hanafalah\ModulePatient\Enums\VisitRegistration\Status::COMPLETED->value
         ]));
+
+        if ($visit_registration_model->medicService->label == Label::PUSKESMAS_PEMBANTU){
+            // request()->merge([
+            //     'reference_type' => 'VisitExamination',
+            //     'visit_examination_model' => $visit_examination,
+            // ]);        
+            // $this->schemaContract('pharmacy_sale')->prepareStorePharmacySale($this->requestDTO([
+
+            // ]));
+        }
+
         return $visit_examination;
     }
 

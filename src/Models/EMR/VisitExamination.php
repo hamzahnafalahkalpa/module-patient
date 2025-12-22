@@ -10,6 +10,7 @@ use Hanafalah\LaravelSupport\{
 };
 use Hanafalah\ModuleMedicService\Enums\Label;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Hanafalah\ModulePatient\Concerns\Emr\HasExaminationSummary;
 use Hanafalah\ModulePatient\Enums\{
     VisitExamination\ExaminationStatus,
     VisitRegistration\Status
@@ -23,7 +24,7 @@ use Hanafalah\ModulePatient\Resources\VisitExamination\ViewVisitExamination;
 class VisitExamination extends BaseModel
 {
     use HasUlids, SoftDeletes, HasProps, HasActivity;
-    use HasPractitionerEvaluation;
+    use HasExaminationSummary, HasPractitionerEvaluation;
 
     public $incrementing  = false;
     protected $keyType    = 'string';

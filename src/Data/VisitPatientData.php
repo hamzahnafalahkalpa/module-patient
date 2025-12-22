@@ -148,24 +148,33 @@ class VisitPatientData extends Data implements DataVisitPatientData{
             $attributes['patient_model'] = $new->PatientModel()->findOrFail($attributes['patient_id']);
             $patient_name = $attributes['patient_model']->name;
         }else{
-            $patient_name = $attributes['patient']['name'] ?? $attributes['patient']['unidentified_patient']['name'] ?? 'John Doe';
+            if (isset($attributes['patient'])){
+                $patient_name = $attributes['patient']['name'] ?? $attributes['patient']['unidentified_patient']['name'] ?? 'John Doe';
+            }
         }
-        $attributes['transaction'] = [
-            'id' => null,
-            "reference_type" => "VisitPatient",
-            'consument' => [
-                'id'             => null,
-                'phone'          => $phone ?? null,
-                'name'           => $patient_name ?? null,
-                'reference_type' => 'Patient',
-                'reference_id'   => $attributes['patient_id'] ?? null
-            ]
-        ];
-        $attributes['payment_summary'] = [
-            "id" => null,
-            'name'           =>  trim('Total Tagihan Pasien '.($patient_name ?? '')),
-            "reference_type" => "VisitPatient"
-        ];
+        if (isset($patient_name)){
+            $attributes['transaction'] = [
+                'id' => null,
+                "reference_type" => "VisitPatient",
+                'consument' => [
+                    'id'             => null,
+                    'phone'          => $phone ?? null,
+                    'name'           => $patient_name ?? null,
+                    'reference_type' => 'Patient',
+                    'reference_id'   => $attributes['patient_id'] ?? null
+                ]
+            ];
+            $attributes['payment_summary'] = [
+                "id" => null,
+                'name'           =>  trim('Total Tagihan Pasien '.($patient_name ?? '')),
+                "reference_type" => "VisitPatient"
+            ];
+        }else{
+            $attributes['transaction'] = [
+                'id' => null,
+                "reference_type" => "VisitPatient"
+            ];
+        }        
         $new->setupPractitionerEvaluation($attributes);
     }
 

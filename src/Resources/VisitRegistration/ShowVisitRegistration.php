@@ -7,8 +7,19 @@ class ShowVisitRegistration extends ViewVisitRegistration
     public function toArray(\Illuminate\Http\Request $request): array
     {
         $arr = [
+            'warehouse' => $this->relationValidation('warehouse',function(){
+                return $this->warehouse->toViewApi();
+            },$this->prop_warehouse),
+            'practitioner_evaluation' => $this->relationValidation('practitionerEvaluation', function () {
+                return $this->practitionerEvaluation->toShowApi();
+            },$this->prop_practitioner_evaluation),
+            'practitioner_evaluations' => $this->relationValidation('practitionerEvaluations', function () {
+                return $this->practitionerEvaluations->transform(function ($practitionerEvaluation) {
+                    return $practitionerEvaluation->toShowApi();
+                });
+            }),
             'visit_patient'       => $this->relationValidation('visitPatient',function(){
-                return $this->visitPatient->toViewApi();
+                return $this->visitPatient->toShowApi()->resolve();
             },$this->prop_visit_patient),
             'services'            => $this->relationValidation('services', function () {
                 return $this->services->transform(function ($service) {

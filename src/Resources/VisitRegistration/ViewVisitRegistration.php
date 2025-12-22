@@ -19,8 +19,12 @@ class ViewVisitRegistration extends ApiResource
             "visit_registration_code" => $this->visit_registration_code,
             "medic_service"           => $this->prop_medic_service,
             'visit_patient_type'      => $this->visit_patient_type,
-            'visit_patient'           => $this->prop_visit_patient,
-            'practitioner_evaluation' => $this->prop_pracitioner_evaluation,
+            'visit_patient'           => $this->relationValidation('visitPatient', function () {
+                return $this->visitPatient->toViewApi();
+            },$this->prop_visit_patient),
+            'practitioner_evaluation' => $this->relationValidation('practitionerEvaluation', function () {
+                return $this->practitionerEvaluation->toViewApi();
+            },$this->prop_practitioner_evaluation),
             'visit_examination'       => $this->relationValidation('visitExamination', function () {
                 return $this->visitExamination->toViewApi()->resolve();
             },$this->prop_visit_examination),
@@ -33,7 +37,7 @@ class ViewVisitRegistration extends ApiResource
             'activity'                => $this->sortActivity(),
             'service_labels'          => $this->prop_service_labels ?? [],
             'warehouse_type'          => $this->warehouse_type,
-            'warehouse_id'          => $this->warehouse_id,
+            'warehouse_id'            => $this->warehouse_id,
             "created_at"              => $this->created_at,
             "updated_at"              => $this->updated_at
         ];

@@ -44,22 +44,27 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             $visit_registration_dto->visit_patient_type  = $visit_patient->getMorphClass();
             $visit_registration_dto->visit_patient_model = $visit_patient;
         }
-
         $visit_registration   = $this->createVisitRegistration($visit_registration_dto);
         $visit_patient      ??= $visit_registration_dto->visit_patient_model ?? $visit_registration->visitPatient;
         $visit_registration_dto->visit_patient_model ??= $visit_patient;
-        if (isset($visit_registration_dto->visit_examination) && isset($visit_registration_dto->visit_patient_id)){
-            $visit_examination_dto = &$visit_registration_dto->visit_examination;
-            $visit_examination_dto->visit_patient_id         = $visit_patient->getKey();
-            $visit_examination_dto->visit_registration_id    = $visit_registration->getKey();
-            $visit_examination_dto->visit_registration_model = $visit_registration;
-            $visit_examination_dto->visit_patient_model      = $visit_patient;
-            $visit_examination_dto->patient_model            = $visit_patient->patient;
-            $visit_examination = $this->schemaContract('visit_examination')->prepareStoreVisitExamination($visit_examination_dto);
+        if (isset($visit_registration_dto->visit_examination)){
+            $visit_registration_dto->visit_examinations[] = $visit_registration_dto->visit_examination;
+        }
+        if (isset($visit_registration_dto->visit_examinations) && count($visit_registration_dto->visit_examinations) > 0 && isset($visit_registration_dto->visit_patient_id)){
+            foreach ($visit_registration_dto->visit_examinations as &$visit_examination_dto) {
+                $visit_examination_dto->visit_patient_id         = $visit_patient->getKey();
+                $visit_examination_dto->visit_registration_id    = $visit_registration->getKey();
+                $visit_examination_dto->visit_registration_model = $visit_registration;
+                $visit_examination_dto->visit_patient_model      = $visit_patient;
+                $visit_examination_dto->patient_model            = $visit_patient->patient;
+                $visit_examination = $this->schemaContract('visit_examination')->prepareStoreVisitExamination($visit_examination_dto);
+            }
+
             $visit_registration->setRelation('visitExamination', $visit_examination);
-            $visit_registration_dto->props->props['prop_visit_examination'] = $visit_examination->toViewApiExcepts('visit_registration');
+            // $visit_registration_dto->props->props['prop_visit_examination'] = $visit_examination->toViewApiExcepts('visit_registration');
         }
         $this->storeItemRent($visit_registration_dto, $visit_registration);
+
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();
 
@@ -143,13 +148,12 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         if (isset($visit_registration->visitPatient)){
             $visit_patient_model = ($visit_registration_dto->visit_patient_model ??= $visit_registration->visitPatient);
             $visit_patient_model->load('paymentSummary');
-            if (!isset($visit_registration_dto->props->props['prop_visit_patient'])){
-                $visit_registration_dto->props->props['prop_visit_patient'] = $visit_registration_dto->visit_patient_model->toViewApi()->resolve();
-            }
-            $visit_registration_dto->payment_summary->parent_id ??= $visit_patient_model->paymentSummary->getKey();
+            // if (!isset($visit_registration_dto->props->props['prop_visit_patient'])){
+            //     $visit_registration_dto->props->props['prop_visit_patient'] = $visit_registration_dto->visit_patient_model->toViewApi()->resolve();
+            // }
+            $visit_registration_dto->payment_summary->parent_id ??= $visit_patient_model?->paymentSummary?->getKey() ?? null;
             $this->initPaymentSummary($visit_registration_dto, $visit_registration);
         }
-
         if (isset($visit_registration_dto->practitioner_evaluations)){
             foreach ($visit_registration_dto->practitioner_evaluations as &$practitioner_evaluation) {
                 $this->initPractitionerEvaluation($practitioner_evaluation, $visit_registration);
@@ -157,6 +161,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         }
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();
+
         return $this->visit_registration_model = $visit_registration;
     }
 

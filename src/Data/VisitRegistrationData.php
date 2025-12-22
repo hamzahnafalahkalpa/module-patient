@@ -14,6 +14,7 @@ use Hanafalah\ModuleTransaction\Contracts\Data\TransactionData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
+use Hanafalah\ModulePatient\Data\VisitExaminationData as DataVisitExaminationData;
 
 class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     use HasPractitionerEvaluation;
@@ -78,6 +79,11 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     #[MapInputName('visit_examination')]
     #[MapName('visit_examination')]
     public ?VisitExaminationData $visit_examination = null;
+
+    #[MapInputName('visit_examinations')]
+    #[MapName('visit_examinations')]
+    #[DataCollectionOf(DataVisitExaminationData::class)]
+    public ?array $visit_examinations = null;
 
     #[MapInputName('referral_id')]
     #[MapName('referral_id')]

@@ -93,7 +93,7 @@ class VisitRegistration extends BaseModel
 
     public function viewUsingRelation(){
         return [
-            'visitExamination'
+            'visitExamination','visitPatient.patient'
         ];
     }
 
@@ -126,7 +126,7 @@ class VisitRegistration extends BaseModel
     public function itemRents(){return $this->morphManyModel('ItemRent','reference');}
     public function modelHasService(){return $this->morphOneModel('ModelHasService', 'model');}
     public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'model');}
-    public function practitionerEvaluation(){return $this->morphOneModel('PractitionerEvaluation','reference')->where('props->role_as','ADMITTER');}
+    public function practitionerEvaluation(){return $this->morphOneModel('PractitionerEvaluation','reference');}
     public function treatments(){
         $treatment_types = config('module-treatment.treatment_types');
         $treatment_keys  = array_keys($treatment_types);

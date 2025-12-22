@@ -32,7 +32,7 @@ return new class extends Migration
                 $table->timestamps();
                 $table->softDeletes();
 
-                $table->index(['reference_type', 'reference_id'], 'summary_ref');
+                $table->index(['reference_type', 'reference_id'], 'exam_summary_ref');
             });
 
             Schema::table($table_name, function (Blueprint $table) {

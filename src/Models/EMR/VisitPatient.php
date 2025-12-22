@@ -20,6 +20,7 @@ use Hanafalah\ModulePatient\{
     Resources\VisitPatient\ShowVisitPatient,
     Resources\VisitPatient\ViewVisitPatient
 };
+use Hanafalah\ModulePatient\Concerns\Emr\HasExaminationSummary;
 use Hanafalah\ModulePatient\Concerns\HasPractitionerEvaluation;
 use Hanafalah\ModulePatient\Enums\VisitPatient\{
     Activity,
@@ -34,7 +35,7 @@ class VisitPatient extends BaseModel
     use HasUlids, SoftDeletes;
     use HasProps, HasActivity, 
     HasPaymentSummary, HasPractitionerEvaluation,
-    HasTransaction;
+    HasTransaction, HasExaminationSummary;
 
     const CLINICAL_VISIT = 'VisitPatient';
     const STATUS_ACTIVE  = 'ACTIVE';
@@ -142,13 +143,14 @@ class VisitPatient extends BaseModel
 
     public function showUsingRelation(): array{
         return [
+            'reference',
             'payer',
             'patientTypeService',
             'patient.reference', 
             'practitionerEvaluation',
             // 'reservation',
             'visitRegistrations' => function ($query) {
-                $query->with(['visitExamination']);
+                $query->with(['warehouse','practitionerEvaluations','visitExamination']);
             },
             // 'organizations',
             // 'services',
@@ -168,6 +170,7 @@ class VisitPatient extends BaseModel
     public function modelHasOrganization(){return $this->morphOneModel('ModelHasOrganization', 'model');}
     public function modelHasOrganizations(){return $this->morphManyModel('ModelHasOrganization', 'model');}    
     public function familyRelationship(){return $this->morphOneModel('FamilyRelationship', 'reference');}    
+    public function reference(){return $this->morphTo();}
     public function modelHasService(){return $this->morphOneModel('ModelHasService', 'model');}
     public function modelHasServices(){return $this->morphManyModel('ModelHasService', 'model');}
     public function patientSummary(){return $this->hasOneModel('PatientSummary','visit_patient_id');}

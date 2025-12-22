@@ -10,6 +10,7 @@ use Hanafalah\ModulePatient\Contracts\Data\VisitExaminationPropsData;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
+use Hanafalah\ModulePatient\Contracts\Data\PatientData;
 
 class VisitExaminationData extends Data implements DataVisitExaminationData{
     use HasRequestData;
@@ -46,6 +47,14 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
     #[MapName('practitioner_evaluations')]
     #[DataCollectionOf(PractitionerEvaluationData::class)]
     public ?array $practitioner_evaluations = null;
+
+    #[MapInputName('patient_id')]
+    #[MapName('patient_id')]
+    public mixed $patient_id = null;
+
+    #[MapInputName('patient')]
+    #[MapName('patient')]
+    public ?PatientData $patient = null;
 
     #[MapInputName('sign_off')]
     #[MapName('sign_off')]
