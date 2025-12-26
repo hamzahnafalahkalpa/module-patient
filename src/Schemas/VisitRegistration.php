@@ -148,9 +148,9 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         if (isset($visit_registration->visitPatient)){
             $visit_patient_model = ($visit_registration_dto->visit_patient_model ??= $visit_registration->visitPatient);
             $visit_patient_model->load('paymentSummary');
-            // if (!isset($visit_registration_dto->props->props['prop_visit_patient'])){
-            //     $visit_registration_dto->props->props['prop_visit_patient'] = $visit_registration_dto->visit_patient_model->toViewApi()->resolve();
-            // }
+            if (!isset($visit_registration_dto->props->props['prop_visit_patient'])){
+                $visit_registration_dto->props->props['prop_visit_patient'] = $visit_registration_dto->visit_patient_model->toViewApi()->resolve();
+            }
             $visit_registration_dto->payment_summary->parent_id ??= $visit_patient_model?->paymentSummary?->getKey() ?? null;
             $this->initPaymentSummary($visit_registration_dto, $visit_registration);
         }
