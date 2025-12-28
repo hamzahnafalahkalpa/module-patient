@@ -38,6 +38,11 @@ class ViewVisitRegistration extends ApiResource
             'service_labels'          => $this->prop_service_labels ?? [],
             'warehouse_type'          => $this->warehouse_type,
             'warehouse_id'            => $this->warehouse_id,
+            'assessments'             => $this->relationValidation('assessments', function () {
+                return $this->assessments->transform(function ($assessment) {
+                    return $assessment->toViewApi();
+                });
+            }),
             "created_at"              => $this->created_at,
             "updated_at"              => $this->updated_at
         ];

@@ -124,6 +124,7 @@ class VisitRegistration extends BaseModel
     public function visitPatient(){return $this->morphTo()->withoutGlobalScopes();}
     public function visitExamination(){return $this->hasOneModel('VisitExamination');}
     public function visitExaminations(){return $this->hasOneModel('VisitExamination');}
+    public function assessments(){return $this->hasManyModel('Assessment');}
     public function medicService(){return $this->belongsToModel('MedicService');}
     public function itemRent(){return $this->morphOneModel('ItemRent','reference');}
     public function itemRents(){return $this->morphManyModel('ItemRent','reference');}

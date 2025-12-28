@@ -40,7 +40,8 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             $visit_patient_dto->patient_model = $patient;
         }
         $visit_patient_model = $this->createVisitPatient($visit_patient_dto);
-
+        $visit_patient_model->is_has_medical_legal_doc ??= false;
+        
         if ($visit_patient_model->getMorphClass() == $this->VisitPatientModelMorph()) {
             $visit_patient_model->pushActivity(Activity::ADM_VISIT->value, [ActivityStatus::ADM_START->value]);
             $this->preparePushLifeCycleActivity($visit_patient_model, $visit_patient_model, 'ADM_VISIT', ['ADM_START']);
