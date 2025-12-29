@@ -12,7 +12,6 @@ use Hanafalah\ModulePatient\{
     Enums\VisitPatient\VisitStatus,
     Enums\VisitRegistration\Status,
     ModulePatient,
-    Enums\EvaluationEmployee\Commit,
     Enums\VisitExamination\Activity,
     Enums\VisitExamination\ActivityStatus,
     Contracts\Schemas\VisitExamination as ContractsVisitExamination
@@ -129,7 +128,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             //     $visit_examination->setRelation('visitRegistration',$visit_registration_model);
             //     $visit_examination_dto->visit_registration_model = $visit_registration_model;
             // }
-            $this->prepareVisitExaminationSignOff($visit_examination_dto);        
+            $this->prepareVisitExaminationSignOff($visit_examination, $visit_examination_dto);        
         }
         
         // if (in_array($medic_service->flag, [Label::OUTPATIENT->value, Label::MCU->value])) {
@@ -155,7 +154,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         return $this->visit_examination_model = $visit_examination;
     }
 
-    public function prepareVisitExaminationSignOff(VisitExaminationData $visit_examination_dto): Model{
+    public function prepareVisitExaminationSignOff(Model &$visit_examination_model, VisitExaminationData &$visit_examination_dto): Model{
         $visit_examination = $visit_examination_dto->visit_examination_model ?? $this->VisitExaminationModel()->findOrFail($visit_examination_dto->id);
         $visit_examination->sign_off_at ??= $visit_examination_dto->sign_off_at;
         $visit_examination->save();

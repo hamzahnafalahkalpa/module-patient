@@ -60,17 +60,25 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         $visit_registrations = $visit_patient_dto?->visit_registrations;
         if (isset($visit_registrations) && count($visit_registrations) > 0){
             foreach ($visit_registrations as $visit_registration_dto) {
+                $visit_registration_dto->patient_model = $visit_patient_dto->patient_model ?? null;
                 $this->prepareStoreVisitRegistration($visit_registration_dto, $visit_patient_model, $trx_transaction);
             }
         }
 
         if (isset($visit_patient_dto->visit_registration)){
-            $visit_registration_model = $this->prepareStoreVisitRegistration($visit_patient_dto->visit_registration, $visit_patient_model, $trx_transaction);
+            $visit_registration_dto = $visit_patient_dto->visit_registration;
+            $visit_registration_dto->patient_model = $visit_patient_dto->patient_model ?? null;
+            $visit_registration_model = $this->prepareStoreVisitRegistration($visit_registration_dto, $visit_patient_model, $trx_transaction);
+            $visit_patient_model->setRelation('visitRegistration', $visit_registration_model);
             // $visit_patient_dto->props->props['prop_visit_registration'] = $visit_registration_model->toViewApiExcepts('visit_patient');
         }
         $this->fillingProps($visit_patient_model, $visit_patient_dto->props);
         $visit_patient_model->save();
         return $visit_patient_model;
+    }
+
+    protected function afterVisitPatientCreated(Model &$visit_patient_model, VisitPatientData &$visit_patient_dto): self{
+        return $this;
     }
 
     protected function prepareStoreVisitRegistration(VisitRegistrationData &$visit_registration_dto, Model $visit_patient_model,?Model $trx_transaction = null): Model{

@@ -49,6 +49,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         
         $visit_patient      ??= $visit_registration_dto->visit_patient_model ?? $visit_registration->visitPatient;
         $visit_registration_dto->visit_patient_model ??= $visit_patient;
+        $this->afterVisitRegistrationCreated($visit_registration, $visit_registration_dto);
         if (isset($visit_registration_dto->visit_examination)){
             $visit_registration_dto->visit_examinations[] = $visit_registration_dto->visit_examination;
         }
@@ -81,8 +82,11 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
                 ]);
             }
         }
-        
         return $this->visit_registration_model = $visit_registration;
+    }
+
+    protected function afterVisitRegistrationCreated(Model &$visit_registration_model, VisitRegistrationData &$visit_registration_dto): self{
+        return $this;
     }
 
     public function prepareUpdateVisitRegistration(UpdateVisitRegistrationData $update_visit_registration_dto): Model{

@@ -65,6 +65,21 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
         }
         $patient = $this->prepareStoreProfilePhoto($profile_dto);
 
+        $this->setPatientPayer($patient, $patient_dto);
+
+        if (isset($patient_dto->card_identity)){            
+            $this->patientIdentity(
+                $patient, $patient_dto->card_identity,
+                array_column(config('module-patient.patient_identities'),'value')
+            );
+        }
+        if (isset($reference_schema) && method_exists($schema_reference, 'afterPatientCreated')) {
+            $schema_reference->afterPatientCreated($patient, $reference, $patient_dto);
+        }
+        if (isset($reference)) $patient->sync($reference,$reference->toViewApi()->resolve());
+
+        $this->afterPatientCreated($patient, $patient_dto);
+
         if (isset($patient_dto->visit_patient)){
             $visit_patient_dto = &$patient_dto->visit_patient;
             $visit_patient_dto['patient_id'] = $patient->getKey();
@@ -83,22 +98,12 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
             $patient->setRelation('visit_patient', $visit_patient_model);
             $patient->load(['visitExamination'=>fn($q)=>$q->orderBy('created_at','desc')]);
         }
-
-        $this->setPatientPayer($patient, $patient_dto);
-
-        if (isset($patient_dto->card_identity)){            
-            $this->patientIdentity(
-                $patient, $patient_dto->card_identity,
-                array_column(config('module-patient.patient_identities'),'value')
-            );
-        }
-        if (isset($reference_schema) && method_exists($schema_reference, 'afterPatientCreated')) {
-            $schema_reference->afterPatientCreated($patient, $reference, $patient_dto);
-        }
-        if (isset($reference)) $patient->sync($reference,$reference->toViewApi()->resolve());
         return $patient;
     }
 
+    protected function afterPatientCreated(Model &$patient, PatientData &$patient_dto): self{
+        return $this;
+    }
 
     public function prepareStorePatient(PatientData $patient_dto): Model{
         $patient = $this->prepareStore($patient_dto);        

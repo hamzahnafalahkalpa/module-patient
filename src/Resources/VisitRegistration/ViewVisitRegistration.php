@@ -40,9 +40,11 @@ class ViewVisitRegistration extends ApiResource
             'warehouse_id'            => $this->warehouse_id,
             'assessments'             => $this->relationValidation('assessments', function () {
                 return $this->assessments->transform(function ($assessment) {
-                    return $assessment->toViewApi();
+                    return $assessment->toViewApi()->resolve();
                 });
             }),
+            'encounter_code'         => $this->encounter_code,
+            'ihs_number'            => $this->ihs_number,
             "created_at"              => $this->created_at,
             "updated_at"              => $this->updated_at
         ];
