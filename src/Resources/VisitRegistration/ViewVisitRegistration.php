@@ -43,8 +43,8 @@ class ViewVisitRegistration extends ApiResource
                     return $assessment->toViewApi()->resolve();
                 });
             }),
-            'encounter_code'         => $this->encounter_code,
-            'ihs_number'            => $this->ihs_number,
+            'encounter_code'          => $this->encounter_code,
+            'ihs_number'              => $this->ihs_number,
             "created_at"              => $this->created_at,
             "updated_at"              => $this->updated_at
         ];

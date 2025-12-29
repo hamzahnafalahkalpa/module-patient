@@ -105,6 +105,7 @@ class VisitRegistration extends BaseModel
             'itemRents',
             'practitionerEvaluation',
             'practitionerEvaluations',
+            'examinationSummary',
             'visitPatient' => function ($query) {
                 $query->with([
                     'patient' => function ($query) {
@@ -122,6 +123,7 @@ class VisitRegistration extends BaseModel
     public function getShowResource(){return ShowVisitRegistration::class;}
     public function warehouse(){return $this->morphTo();}
     public function visitPatient(){return $this->morphTo()->withoutGlobalScopes();}
+    public function examinationSummary(){return $this->morphOneModel('ExaminationSummary', 'reference');}
     public function visitExamination(){return $this->hasOneModel('VisitExamination');}
     public function visitExaminations(){return $this->hasOneModel('VisitExamination');}
     public function assessments(){return $this->hasManyModel('Assessment');}
