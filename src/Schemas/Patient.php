@@ -2,7 +2,6 @@
 
 namespace Hanafalah\ModulePatient\Schemas;
 
-use Hanafalah\LaravelSupport\Supports\PackageManagement;
 use Hanafalah\ModulePatient\Contracts\Data\{
     CardIdentityData,
     PatientData,
@@ -54,6 +53,15 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
                 'reference_id' => $patient_dto->reference_id
             ];
         $patient = $this->usingEntity()->updateOrCreate($guard, $add);
+        $this->schemaContract('patient_summary')->prepareStorePatientSummary(
+            $this->requestDTO(config('app.contracts.PatientSummaryData'), [
+                'patient_id' => $patient->getKey(),
+                'patient_model' => $patient,
+                'reference_type' => $patient->reference_type,
+                'reference_id' => $patient->reference_id,
+                'reference_model' => $patient->reference
+            ])
+        );
         $patient->refresh();
 
         $profile_dto = $patient_dto->profile_dto;

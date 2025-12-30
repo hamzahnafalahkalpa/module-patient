@@ -32,8 +32,7 @@ use Hanafalah\ModuleTransaction\Concerns\HasTransaction;
 
 class VisitPatient extends BaseModel
 {
-    use HasUlids, SoftDeletes;
-    use HasProps, HasActivity, 
+    use HasUlids, SoftDeletes, HasProps, HasActivity, 
     HasPaymentSummary, HasPractitionerEvaluation,
     HasTransaction, HasExaminationSummary;
 

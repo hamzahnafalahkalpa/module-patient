@@ -70,31 +70,31 @@ class Patient extends BaseModel
                 $query->medical_record = $medical_record;
             }
         });
-        static::created(function ($query) {
-            if (isset($query->medical_record)) {
-                $query->setCardIdentity(CardIdentity::MEDICAL_RECORD->value, $query->medical_record);
-            }
-            if (!isset($query->uuid)) {
-                if (isset(tenancy()->tenant)) {
-                    $tenant_id = \tenancy()->tenant->getKey();
-                    $central_tenant_id = \tenancy()->tenant->parent_id;
-                }
-                $user_ref = $query->userReference()->firstOrCreate([
-                    "reference_id"      => $query->getKey(),
-                    "reference_type"    => $query->getMorphClass(),
-                    "tenant_id"         => $tenant_id ?? null,
-                    "central_tenant_id" => $central_tenant_id ?? null
-                ]);
-                $query->uuid = $user_ref->uuid;
-                $query->save();
-            }
-            $query->load('reference');
-            $query->patientSummary()->firstOrCreate([
-                'patient_id'     => $query->getKey(),
-                'reference_id'   => $query->reference_id,
-                'reference_type' => $query->reference_type
-            ]);
-        });
+        // static::created(function ($query) {
+            // if (isset($query->medical_record)) {
+            //     $query->setCardIdentity(CardIdentity::MEDICAL_RECORD->value, $query->medical_record);
+            // }
+            // if (!isset($query->uuid)) {
+                // if (isset(tenancy()->tenant)) {
+                //     $tenant_id = \tenancy()->tenant->getKey();
+                //     $central_tenant_id = \tenancy()->tenant->parent_id;
+                // }
+                // $user_ref = $query->userReference()->firstOrCreate([
+                //     "reference_id"      => $query->getKey(),
+                //     "reference_type"    => $query->getMorphClass(),
+                //     "tenant_id"         => $tenant_id ?? null,
+                //     "central_tenant_id" => $central_tenant_id ?? null
+                // ]);
+                // $query->uuid = $user_ref->uuid;
+                // $query->save();
+            // }
+            // $query->load('reference');
+            // $query->patientSummary()->firstOrCreate([
+            //     'patient_id'     => $query->getKey(),
+            //     'reference_id'   => $query->reference_id,
+            //     'reference_type' => $query->reference_type
+            // ]);
+        // });
     }
 
     public function viewUsingRelation(): array{
