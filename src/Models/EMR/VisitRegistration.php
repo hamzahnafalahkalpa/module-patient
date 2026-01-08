@@ -96,7 +96,18 @@ class VisitRegistration extends BaseModel
 
     public function viewUsingRelation(){
         return [
-            'visitExamination','visitPatient.patient'
+            'visitExamination',
+            'visitPatient' => function ($query) {
+                $query->with([
+                    'reference',
+                    'patient' => function ($query) {
+                        $query->with([
+                            'reference',
+                            'cardIdentities'
+                        ]);
+                    }
+                ]);
+            }
         ];
     }
 
@@ -105,9 +116,11 @@ class VisitRegistration extends BaseModel
             'itemRents',
             'practitionerEvaluation',
             'practitionerEvaluations',
+            'warehouse',
             'examinationSummary',
             'visitPatient' => function ($query) {
                 $query->with([
+                    'reference',
                     'patient' => function ($query) {
                         $query->with([
                             'reference',

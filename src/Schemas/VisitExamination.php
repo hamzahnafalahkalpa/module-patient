@@ -33,7 +33,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         $add = [
             'visit_registration_id' => $visit_examination_dto->visit_registration_id,
             'visit_patient_id'      => $visit_examination_dto->visit_patient_id,
-            'patient_id'            => $visit_patient_model->patient_id,
+            'patient_id'            => $visit_examination_dto->patient_id ?? $visit_patient_model->patient_id,
             'sign_off_at'           => $visit_examination_dto->sign_off_at,
             'is_addendum'           => $visit_examination_dto->is_addendum ?? false,
         ];

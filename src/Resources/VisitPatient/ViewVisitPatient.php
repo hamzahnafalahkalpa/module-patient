@@ -14,7 +14,6 @@ class ViewVisitPatient extends ApiResource
      */
     public function toArray(\Illuminate\Http\Request $request): array
     {
-
         $arr = [
             "id"                 => $this->id,
             'visit_code'         => $this->visit_code,
@@ -35,7 +34,7 @@ class ViewVisitPatient extends ApiResource
                 return $this->reference->toViewApi()->resolve();
             }),
             'practitioner_evaluation' => $this->relationValidation('practitionerEvaluation', function () {
-                return $this->practitionerEvaluation->toViewApi();
+                return $this->practitionerEvaluation->toViewApi()->resolve();
             },$this->prop_practitioner_evaluation),
             "status"             => $this->status,
             "payer_id"           => $this->payer_id,

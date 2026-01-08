@@ -33,6 +33,7 @@ class Referral extends ModulePatient implements ContractsReferral
             $guard = ['id' => $referral_dto->id];
         }else{
             $guard = [
+                'id'       => null, 
                 'visit_type'       => $referral_dto->visit_type, 
                 'visit_id'         => $referral_dto->visit_id,
                 'referral_type'    => $referral_dto->referral_type,
