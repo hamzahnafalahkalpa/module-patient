@@ -27,7 +27,7 @@ class ShowVisitRegistration extends ViewVisitRegistration
                 });
             }),
             'examination_summary' => $this->relationValidation('examinationSummary', function () {
-                return $this->examinationSummary->toShowApi()->resolve();
+                return $this->examinationSummary->toShowApi();
             }),
             'visit_registrations' => $this->relationValidation('visitRegistrations', function () {
                 return $this->visitRegistrations->transform(function ($visitRegistration) {
