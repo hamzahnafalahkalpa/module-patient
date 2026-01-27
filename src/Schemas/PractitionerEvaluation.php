@@ -21,7 +21,7 @@ class PractitionerEvaluation extends ModulePatient implements ContractsPractitio
     public $practitioner_evaluation;
     
     public function prepareStorePractitionerEvaluation(PractitionerEvaluationData $practitioner_evaluation_dto): Model{
-        $practitioner_model = app(config('database.models.'.config('module-patient.practitioner')))
+        $practitioner_model = $practitioner_evaluation_dto->practitioner_model ?? app(config('database.models.'.config('module-patient.practitioner')))
                                 ->findOrFail($practitioner_evaluation_dto->practitioner_id);
         $profession_model   = $practitioner_model->profession ?? $this->ProfessionModel();
 

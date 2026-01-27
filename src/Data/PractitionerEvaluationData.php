@@ -39,6 +39,10 @@ class PractitionerEvaluationData extends Data implements DataPractitionerEvaluat
     #[MapName('practitioner_id')]
     public ?string $practitioner_id = null;
 
+    #[MapInputName('practitioner_model')]
+    #[MapName('practitioner_model')]
+    public ?object $practitioner_model = null;
+
     #[MapInputName('payment_details')]
     #[MapName('payment_details')]
     public array|null $payment_details = null;
