@@ -104,66 +104,6 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                         $visit_exam_examination_summary->setAttribute('emr',$visit_exam_existing_emr);
                         $visit_exam_examination_summary->save();
                     }
-
-                    // $visit_registration = $examination_dto->visit_registration_model;
-                    // $visit_reg_examination_summary = $visit_registration->examinationSummary;
-                    // if (isset($emr[$visit_reg_examination_summary->reference_id])){
-                    //     $visit_reg_existing_emr = $visit_reg_examination_summary->emr;
-                    //     foreach ($emr[$visit_reg_examination_summary->reference_id] as $key => $list_emr) {
-                    //         if (!isset($visit_reg_existing_emr[$key])){
-                    //             $visit_reg_existing_emr[$key] = $list_emr;
-                    //         }else{
-                    //             $new_assessment = $list_emr;
-                    //             foreach ($visit_reg_existing_emr[$key] as $existing_reg){
-                    //                 if ($existing_reg['examination_id'] == $visit_examination->getKey()) continue;
-                    //                 $new_assessment[] = $existing_reg;
-                    //             }
-                    //             $visit_reg_existing_emr[$key] = $new_assessment;
-                    //         }
-                    //     }
-                    //     $visit_reg_examination_summary->setAttribute('emr',$visit_reg_existing_emr);
-                    //     $visit_reg_examination_summary->save();
-                    // }
-
-                    // $visit_patient = $examination_dto->visit_patient_model;
-                    // $visit_patient_examination_summary = $visit_patient->examinationSummary;
-                    // if (isset($emr[$visit_patient_examination_summary->reference_id])){
-                    //     $visit_patient_existing_emr = $visit_patient_examination_summary->emr;
-                    //     foreach ($emr[$visit_patient_examination_summary->reference_id] as $key => $list_emr) {
-                    //         if (!isset($visit_patient_existing_emr[$key])){
-                    //             $visit_patient_existing_emr[$key] = $list_emr;
-                    //         }else{
-                    //             $new_assessment = $list_emr;
-                    //             foreach ($visit_patient_existing_emr[$key] as $existing_reg){
-                    //                 if ($existing_reg['examination_id'] == $visit_examination->getKey()) continue;
-                    //                 $new_assessment[] = $existing_reg;
-                    //             }
-                    //             $visit_patient_existing_emr[$key] = $new_assessment;
-                    //         }
-                    //     }
-                    //     $visit_patient_examination_summary->setAttribute('emr',$visit_patient_existing_emr);
-                    //     $visit_patient_examination_summary->save();
-                    // }
-
-                    // $patient_model = $examination_dto->patient_model;
-                    // $patient_summary = $patient_model->patientSummary;
-                    // if (isset($emr[$patient_summary->reference_id])){
-                    //     $patient_existing_emr = $patient_summary->emr;
-                    //     foreach ($emr[$patient_summary->reference_id] as $key => $list_emr) {
-                    //         if (!isset($patient_existing_emr[$key])){
-                    //             $patient_existing_emr[$key] = $list_emr;
-                    //         }else{
-                    //             $new_assessment = $list_emr;
-                    //             foreach ($patient_existing_emr[$key] as $existing_reg){
-                    //                 if ($existing_reg['examination_id'] == $visit_examination->getKey()) continue;
-                    //                 $new_assessment[] = $existing_reg;
-                    //             }
-                    //             $patient_existing_emr[$key] = $new_assessment;
-                    //         }
-                    //     }
-                    //     $patient_summary->setAttribute('emr',$patient_existing_emr);
-                    //     $patient_summary->save();
-                    // }
                 }
             }else{
                 $this->schemaContract('examination')->prepareStoreExamination($examination_dto);
@@ -243,10 +183,10 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             'status' => \Hanafalah\ModulePatient\Enums\VisitRegistration\Status::COMPLETED->value
         ]));
 
-        $visit_registration = $visit_examination_dto->visit_registration_model ?? $this->VisitPatientModel()->findOrFail($visit_examination_dto->visit_registration_id);
-        $visit_patient_model = $visit_examination_dto->visit_patient_model ?? $this->VisitPatientModel()->findOrFail($visit_examination_dto->visit_patient_id);
-
-        $patient_model = $visit_examination_dto->patient_model ??= $this->PatientModel()->findOrFail($visit_examination_dto->patient_id);
+        $visit_registration = $visit_examination_dto->visit_registration_model ?? $this->VisitRegistrationModel()->findOrFail($visit_examination_model->visit_registration_id);
+        $visit_patient_model = $visit_examination_dto->visit_patient_model ?? $this->VisitPatientModel()->findOrFail($visit_examination_model->visit_patient_id);
+                
+        $patient_model = $visit_examination_dto->patient_model ??= $this->PatientModel()->findOrFail($visit_examination_model->patient_id);
         $patient_summary_model = $this->schemaContract('patient_summary')->prepareStorePatientSummary($this->requestDTO(config('app.contracts.PatientSummaryData'),[
             'patient_id'      => $patient_model->getKey(),
             'patient_model'   => $patient_model,
@@ -279,17 +219,17 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         $visit_reg_emr = $visit_reg_summary_model->emr;
         $visit_pat_emr = $visit_patient_summary_model->emr;
         foreach ($visit_exam_examination_summary->emr as $key => $emr_data) {
-            $patient_emr[$key] = array_merge($emr_data,$patient_emr[$key]);
-            $visit_reg_emr[$key] = array_merge($emr_data,$visit_reg_emr[$key]);
-            $visit_pat_emr[$key] = array_merge($emr_data,$visit_pat_emr[$key]);
+            $patient_emr[$key] = array_merge($emr_data,$patient_emr[$key] ?? []);
+            $visit_reg_emr[$key] = array_merge($emr_data,$visit_reg_emr[$key] ?? []);
+            $visit_pat_emr[$key] = array_merge($emr_data,$visit_pat_emr[$key] ?? []);
         }
         $patient_summary_model->setAttribute('emr',$patient_emr);
         $patient_summary_model->save();
 
-        $visit_reg_summary_model->setAttribute('emr',$visit_reg_summary_model);
+        $visit_reg_summary_model->setAttribute('emr',$visit_reg_emr);
         $visit_reg_summary_model->save();
 
-        $visit_patient_summary_model->setAttribute('emr',$visit_patient_summary_model);
+        $visit_patient_summary_model->setAttribute('emr',$visit_pat_emr);
         $visit_patient_summary_model->save();
 
         return $visit_examination;
