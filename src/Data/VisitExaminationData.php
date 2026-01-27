@@ -39,6 +39,10 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
     #[MapName('visit_patient_model')]
     public ?object $visit_patient_model = null;
 
+    #[MapInputName('patient_model')]
+    #[MapName('patient_model')]
+    public ?object $patient_model = null;
+
     #[MapInputName('examination')]
     #[MapName('examination')]
     public array|object|null $examination = null;
@@ -102,6 +106,7 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
         $patient_model = $new->PatientModel();
         if (isset($attributes['patient_id'])){
             $patient_model = $patient_model->find($attributes['patient_id']);
+            $attributes['patient_model'] = $patient_model;
         }
         $attributes['prop_patient'] = $patient_model->toViewApi()->resolve();
     }
