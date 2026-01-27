@@ -91,7 +91,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             if (!isset($examination_dto->id)){
                 $examination_dto->in_view_response = true;
                 $response = $this->schemaContract('examination')->prepareStoreExamination($examination_dto);
-                $visit_examination_dto->props->props['examination'] = $response;
+                // $visit_examination_dto->props->props['examination'] = $response;
 
                 $emr = config('module-examination.assessment.emr',[]);
                 if (count($emr) > 0){

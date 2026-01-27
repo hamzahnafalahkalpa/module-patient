@@ -102,7 +102,7 @@ class VisitExamination extends BaseModel
 
     public function showUsingRelation(): array{
         return [
-            'patient','visitPatient.patient.reference','visitRegistration','practitionerEvaluations','modelHasMonitorings',
+            'patient','visitPatient.patient.reference','visitRegistration.practitionerEvaluation','practitionerEvaluations','modelHasMonitorings',
             'examinationSummary'];
     }
 
