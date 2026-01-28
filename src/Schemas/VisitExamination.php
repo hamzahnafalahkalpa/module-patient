@@ -95,6 +95,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
 
                 $emr = config('module-examination.assessment.emr',[]);
                 if (count($emr) > 0){
+                    $visit_examination->load('examinationSummary');
                     $visit_exam_examination_summary = $visit_examination->examinationSummary;
                     if (isset($emr[$visit_exam_examination_summary->reference_id])){
                         $visit_exam_existing_emr = $visit_exam_examination_summary->emr;
