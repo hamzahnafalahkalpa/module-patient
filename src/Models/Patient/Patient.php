@@ -35,15 +35,15 @@ class Patient extends BaseModel
 
     protected $casts = [
         'name'                    => 'string',
-        // 'first_name'              => 'string',
-        // 'last_name'               => 'string',
-        // 'dob'                     => 'immutable_date',
-        // 'medical_record'          => 'string',
-        // 'patient_occupation_name' => 'string',
-        // 'payer_name'              => 'string',
-        // 'nik'                     => 'string',
-        // 'nik_ibu'                 => 'string',
-        // 'passport'                => 'string'
+        'first_name'              => 'string',
+        'last_name'               => 'string',
+        'dob'                     => 'immutable_date',
+        'medical_record'          => 'string',
+        'patient_occupation_name' => 'string',
+        'payer_name'              => 'string',
+        'nik'                     => 'string',
+        'nik_ibu'                 => 'string',
+        'passport'                => 'string'
     ];
 
     public function getPropsQuery(): array{
