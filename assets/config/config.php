@@ -20,6 +20,7 @@ return [
         'database' => 'Database',
         'data' => 'Data',
         'resource' => 'Resources',
+        'view' => 'Views',
         'config' => '../assets/database/config',
         'migration' => '../assets/database/migrations'
     ],
@@ -57,5 +58,8 @@ return [
     ],
     'practitioner' => 'User',
     'payment_detail' => 'PaymentDetail',
-    'transaction' => 'Transaction'
+    'transaction' => 'Transaction',
+    'exports' => [
+        'VisitRegistrationEmr' => \Hanafalah\ModulePatient\Exports\VisitRegistrationEmrExport::class,
+    ],
 ];
