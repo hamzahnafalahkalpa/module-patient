@@ -104,6 +104,14 @@ class VisitRegistrationData extends Data implements DataVisitRegistrationData{
     #[MapInputName('payment_summary')]
     #[MapName('payment_summary')]
     public ?PaymentSummaryData $payment_summary;
+    
+    #[MapInputName('visit_patient_payment_summary_model')]
+    #[MapName('visit_patient_payment_summary_model')]
+    public ?object $visit_patient_payment_summary_model = null;
+
+    #[MapInputName('payment_summary_model')]
+    #[MapName('payment_summary_model')]
+    public ?object $payment_summary_model = null;
 
     #[MapInputName('examination')]
     #[MapName('examination')]

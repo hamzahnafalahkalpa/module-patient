@@ -37,7 +37,6 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             'sign_off_at'           => $visit_examination_dto->sign_off_at,
             'is_addendum'           => $visit_examination_dto->is_addendum ?? false,
         ];
-
         if (isset($visit_examination_dto->id)){
             $visit_examination = $this->VisitExaminationModel()->findOrFail($visit_examination_dto->id);
             $add['sign_off_at'] ??= $visit_examination->sign_off_at;
@@ -79,17 +78,28 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                 $this->initPractitionerEvaluation($practitioner_evaluation, $visit_examination);
             }
         }
+        
+        $visit_registration_model = $visit_examination_dto->visit_registration_model ?? $visit_examination->visitRegistration;
+        $visit_examination_dto->visit_registration_payment_summary_model ??= $visit_registration_model->paymentSummary;
 
+        $visit_patient_model = $visit_examination_dto->visit_patient_model ?? $visit_examination->visitPatient;
+        $visit_examination_dto->visit_patient_payment_summary_model ??= $visit_patient_model->paymentSummary;
         //SET ASSESSMENT
         if (isset($visit_examination_dto->examination)){            
             $examination_dto = &$visit_examination_dto->examination;
             $examination_dto->visit_examination_id ??= $visit_examination->getKey();
             $examination_dto->visit_examination_model = $visit_examination;            
             $examination_dto->visit_patient_model ??= $visit_examination_dto->visit_patient_model;
+
             $examination_dto->visit_registration_model ??= $visit_examination_dto->visit_registration_model;
+            $examination_dto->visit_registration_payment_summary_model ??= $visit_examination_dto->visit_registration_payment_summary_model;
+            $examination_dto->visit_patient_payment_summary_model ??= $visit_examination_dto->visit_patient_payment_summary_model;
             $examination_dto->patient_model ??= $visit_examination_dto->patient_model;
             if (!isset($examination_dto->id)){
-                $examination_dto->in_view_response = true;
+                $examination_dto->in_view_response = false;
+                config([
+                    'module-payment.setting.payment_detail.skip_event_created' => true
+                ]);
                 $response = $this->schemaContract('examination')->prepareStoreExamination($examination_dto);
                 // $visit_examination_dto->props->props['examination'] = $response;
 
@@ -177,6 +187,29 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         ]);
         $visit_exam_resolve = $visit_examination_model;
         $visit_exam_resolve = $visit_exam_resolve->toShowApi()->resolve();
+        
+        $visit_registration_model = $visit_examination_dto->visit_registration_model ?? $visit_examination->visitRegistration;
+        $visit_payment_summary = $visit_registration_model->paymentSummary;
+
+        $visit_examination->load('treatments');
+        $treatments = $visit_examination->treatments;
+        $calculate_amount = 0;
+        $calculate_cogs = 0;
+        $calculate_discount = 0;
+        foreach ($treatments as $treatment) {
+            $exam = $treatment['exam'];
+            $treatment_exam = $exam['treatment'];
+            $qty = floatval($exam['qty'] ?? 1);
+            $calculate_amount = $qty*intval($treatment_exam['price'] ?? 0);
+            $calculate_cogs = $qty*intval($treatment_exam['cogs'] ?? 0);
+            $calculate_discount = $qty*intval($treatment_exam['discount'] ?? 0);
+    
+            $visit_payment_summary->amount += $calculate_amount;
+            $visit_payment_summary->debt += $calculate_amount;
+            $visit_payment_summary->discount += $calculate_discount;
+            $visit_payment_summary->cogs += $calculate_cogs;
+        }
+        $visit_payment_summary->save();
 
         $this->schemaContract('visit_registration')->prepareUpdateVisitRegistration($this->requestDTO(config('app.contracts.UpdateVisitRegistrationData'), [
             'id'     => $visit_examination->visit_registration_id,

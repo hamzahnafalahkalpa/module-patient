@@ -53,6 +53,9 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         if (isset($visit_registration_dto->visit_examination)){
             $visit_registration_dto->visit_examinations[] = $visit_registration_dto->visit_examination;
         }
+        if (!isset($visit_registration_dto->visit_patient_payment_summary_model)){
+            $visit_registration_dto->visit_patient_payment_summary_model = $visit_patient->paymentSummary;
+        }
         if (isset($visit_registration_dto->visit_examinations) && count($visit_registration_dto->visit_examinations) > 0 && isset($visit_registration_dto->visit_patient_id)){
             foreach ($visit_registration_dto->visit_examinations as &$visit_examination_dto) {
                 $visit_examination_dto->visit_patient_id         = $visit_patient->getKey();
@@ -60,6 +63,8 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
                 $visit_examination_dto->visit_registration_model = $visit_registration;
                 $visit_examination_dto->visit_patient_model      = $visit_patient;
                 $visit_examination_dto->patient_model            = $visit_patient->patient;
+                $visit_examination_dto->visit_registration_payment_summary_model = $visit_registration_dto->payment_summary;
+                $visit_examination_dto->visit_patient_payment_summary_model = $visit_registration_dto->visit_patient_payment_summary_model;
                 $visit_examination = $this->schemaContract('visit_examination')->prepareStoreVisitExamination($visit_examination_dto);
             }
 

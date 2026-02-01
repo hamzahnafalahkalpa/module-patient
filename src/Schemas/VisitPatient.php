@@ -61,6 +61,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
         if (isset($visit_registrations) && count($visit_registrations) > 0){
             foreach ($visit_registrations as $visit_registration_dto) {
                 $visit_registration_dto->patient_model = $visit_patient_dto->patient_model ?? null;
+                $visit_registration_dto->visit_patient_payment_summary_model = $visit_patient_dto->payment_summary_model;
                 $this->prepareStoreVisitRegistration($visit_registration_dto, $visit_patient_model, $trx_transaction);
             }
         }

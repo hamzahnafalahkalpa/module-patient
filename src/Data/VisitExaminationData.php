@@ -39,6 +39,14 @@ class VisitExaminationData extends Data implements DataVisitExaminationData{
     #[MapName('visit_patient_model')]
     public ?object $visit_patient_model = null;
 
+    #[MapInputName('visit_patient_payment_summary_model')]
+    #[MapName('visit_patient_payment_summary_model')]
+    public ?object $visit_patient_payment_summary_model = null;
+
+    #[MapInputName('visit_registration_payment_summary_model')]
+    #[MapName('visit_registration_payment_summary_model')]
+    public ?object $visit_registration_payment_summary_model = null;
+
     #[MapInputName('patient_model')]
     #[MapName('patient_model')]
     public ?object $patient_model = null;

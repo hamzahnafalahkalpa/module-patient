@@ -98,6 +98,10 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     #[MapInputName('payment_summary')]
     #[MapName('payment_summary')]
     public ?PaymentSummaryData $payment_summary;
+    
+    #[MapInputName('payment_summary_model')]
+    #[MapName('payment_summary_model')]
+    public ?object $payment_summary_model = null;
 
     #[MapInputName('family_relationship')]
     #[MapName('family_relationship')]

@@ -57,6 +57,7 @@ class ModulePatient extends BaseModulePatient implements Contracts\ModulePatient
             $payment_summary_dto->transaction_id  = $model->transaction->getKey();
             $payment_summary_dto->reference_model = $model;
             $payment_summary = $this->schemaContract('payment_summary')->prepareStorePaymentSummary($payment_summary_dto);
+            $dto->payment_summary_model = $payment_summary;
             $model->setRelation('paymentSummary', $payment_summary);
             $payment_summary_dto->id = $payment_summary->getKey();
         }
