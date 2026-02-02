@@ -12,7 +12,7 @@ class ShowVisitExamination extends ViewVisitExamination
             }),
             'practitioner_evaluations' => $this->relationValidation('practitionerEvaluations', function () {
                 return $this->practitionerEvaluations->transform(function ($practitionerEvaluation) {
-                    return $practitionerEvaluation->toViewApi();
+                    return $practitionerEvaluation->toViewApi()->resolve();
                 });
             }),
             'screening_summaries' => $this->screening_summaries,

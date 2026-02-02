@@ -123,7 +123,6 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             $visit_examination_dto->is_addendum = false;
             $visit_examination->is_addendum = false;
         }
-
         if (isset($visit_examination_dto->model_has_monitorings) && count($visit_examination_dto->model_has_monitorings) > 0){
             foreach ($visit_examination_dto->model_has_monitorings as &$model_has_monitoring_dto){
                 $model_has_monitoring_dto->reference_type = $visit_examination->getMorphClass();
@@ -210,16 +209,13 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             $visit_payment_summary->cogs += $calculate_cogs;
         }
         $visit_payment_summary->save();
-
         $this->schemaContract('visit_registration')->prepareUpdateVisitRegistration($this->requestDTO(config('app.contracts.UpdateVisitRegistrationData'), [
             'id'     => $visit_examination->visit_registration_id,
             'visit_registration_model' => $visit_examination_dto->visit_registration_model ?? null,
             'status' => \Hanafalah\ModulePatient\Enums\VisitRegistration\Status::COMPLETED->value
         ]));
-
         $visit_registration = $visit_examination_dto->visit_registration_model ?? $this->VisitRegistrationModel()->findOrFail($visit_examination_model->visit_registration_id);
         $visit_patient_model = $visit_examination_dto->visit_patient_model ?? $this->VisitPatientModel()->findOrFail($visit_examination_model->visit_patient_id);
-                
         $patient_model = $visit_examination_dto->patient_model ??= $this->PatientModel()->findOrFail($visit_examination_model->patient_id);
         $patient_summary_model = $this->schemaContract('patient_summary')->prepareStorePatientSummary($this->requestDTO(config('app.contracts.PatientSummaryData'),[
             'patient_id'      => $patient_model->getKey(),
@@ -227,7 +223,8 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             'reference_type'  => $patient_model->reference_type,
             'reference_id'    => $patient_model->reference_id,
             'reference_model' => $patient_model->reference,
-            'last_visit'      => $visit_exam_resolve
+            'last_visit'      => $visit_exam_resolve,
+            'test'            => true
         ]));
 
         $visit_reg_summary_model = $this->schemaContract('examination_summary')->prepareStoreExaminationSummary($this->requestDTO(config('app.contracts.ExaminationSummaryData'),[

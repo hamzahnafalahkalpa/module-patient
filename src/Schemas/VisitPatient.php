@@ -39,6 +39,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             $visit_patient_dto->patient_id = $patient->getKey();
             $visit_patient_dto->patient_model = $patient;
         }
+
         $visit_patient_model = $this->createVisitPatient($visit_patient_dto);
         $visit_patient_model->is_has_medical_legal_doc ??= false;
         
@@ -156,6 +157,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
                 $this->initPractitionerEvaluation($practitioner_evaluation, $visit_patient_model);
             }
         }
+
         $visit_patient_dto->props->props['prop_transaction'] = $visit_patient_model->transaction->toViewApi()->resolve();
         $this->setPayer($visit_patient_model, $visit_patient_dto);
 
