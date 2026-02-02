@@ -36,6 +36,11 @@ class ExaminationSummary extends PatientSummary implements ContractsExaminationS
         $examination_summary_dto->props['prop_patient'] = $patient_model->toShowApi()->resolve();
 
         $this->setEmrData($examination_summary_dto, $examination_summary);
+        if (isset($examination_summary_dto->props['test']) && $examination_summary_dto->props['test']){
+            $last_visit = $examination_summary_dto->props['last_visit'];
+            unset($last_visit['visit_registration'],$last_visit['visit_patient']);
+            $examination_summary_dto->props['last_visit'] = $last_visit;
+        }
         $this->fillingProps($examination_summary, $examination_summary_dto->props);
         $examination_summary->save();
         return $this->examination_summary_model = $examination_summary;
