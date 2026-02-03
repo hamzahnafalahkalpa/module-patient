@@ -27,6 +27,8 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
     protected string $__entity = 'VisitExamination';
     protected mixed $__order_by_created_at = 'desc'; //asc, desc, false
     public $visit_examination_model;
+    public $is_recently_created = false;
+    public $is_sign_off = false;
 
     public function prepareStoreVisitExamination(VisitExaminationData $visit_examination_dto): Model{
         $visit_patient_model = $visit_examination_dto?->visit_patient_model ?? $this->VisitPatientModel()->findOrFail($visit_examination_dto->visit_patient_id);
@@ -61,6 +63,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         }
 
         $visit_examination  = $this->usingEntity()->updateOrCreate(...$create);
+        if ($visit_examination->wasRecentlyCreated) $this->is_recently_created = true;
         if (isset($visit_examination_dto->patient)){
             $patient_dto = &$visit_examination_dto->patient;
             $this->schemaContract('patient')->prepareStorePatient($patient_dto);
@@ -142,17 +145,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         }
         
         $visit_examination_dto->sign_off_at ??= $visit_examination->sign_off_at;
-        if (isset($visit_examination_dto->sign_off_at) && isset($visit_examination_dto->sign_off)){
-            // $visit_registration_model = $visit_examination_dto->visit_registration_model ?? $visit_examination->visitRegistration;
-            // $medic_service = $visit_registration_model->medicService;
-            // if (!in_array($medic_service->label,['RAWAT INAP','VK'])){
-            //     $visit_registration_model->status = Status::COMPLETED->value;
-            //     $visit_registration_model->save();
-            //     $visit_examination->setRelation('visitRegistration',$visit_registration_model);
-            //     $visit_examination_dto->visit_registration_model = $visit_registration_model;
-            // }
-            $this->prepareVisitExaminationSignOff($visit_examination, $visit_examination_dto);        
-        }
+        $this->prepareVisitExaminationSignOff($visit_examination, $visit_examination_dto);                
         
         // if (in_array($medic_service->flag, [Label::OUTPATIENT->value, Label::MCU->value])) {
             //ADD DEFAULT SCREENING
@@ -178,92 +171,98 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
     }
 
     public function prepareVisitExaminationSignOff(Model &$visit_examination_model, VisitExaminationData &$visit_examination_dto): Model{
-        $visit_examination = $visit_examination_dto->visit_examination_model ?? $this->VisitExaminationModel()->findOrFail($visit_examination_dto->id);
-        $visit_examination->sign_off_at ??= $visit_examination_dto->sign_off_at;
-        $visit_examination->save();
-        $visit_examination->pushActivity(Activity::VISITATION->value, [
-            ActivityStatus::VISITED->value
-        ]);
-        $visit_exam_resolve = $visit_examination_model;
-        $visit_exam_resolve = $visit_exam_resolve->toShowApi()->resolve();
-        
-        $visit_registration_model = $visit_examination_dto->visit_registration_model ?? $visit_examination->visitRegistration;
-        $visit_payment_summary = $visit_registration_model->paymentSummary;
-
-        $visit_examination->load('treatments');
-        $treatments = $visit_examination->treatments;
-        $calculate_amount = 0;
-        $calculate_cogs = 0;
-        $calculate_discount = 0;
-        foreach ($treatments as $treatment) {
-            $exam = $treatment['exam'];
-            $treatment_exam = $exam['treatment'];
-            $qty = floatval($exam['qty'] ?? 1);
-            $calculate_amount = $qty*intval($treatment_exam['price'] ?? 0);
-            $calculate_cogs = $qty*intval($treatment_exam['cogs'] ?? 0);
-            $calculate_discount = $qty*intval($treatment_exam['discount'] ?? 0);
+        if (isset($visit_examination_dto->sign_off_at) && isset($visit_examination_dto->sign_off)){
+            $this->is_sign_off = true;
+            // $visit_examination = $visit_examination_dto->visit_examination_model ?? $this->VisitExaminationModel()->findOrFail($visit_examination_dto->id);
+            $visit_examination = &$visit_examination_model;
+            $visit_examination->sign_off_at ??= $visit_examination_dto->sign_off_at;
+            $visit_examination->save();
+            $visit_examination->pushActivity(Activity::VISITATION->value, [
+                ActivityStatus::VISITED->value
+            ]);
+            $visit_exam_resolve = $visit_examination_model;
+            $visit_exam_resolve = $visit_exam_resolve->toShowApi()->resolve();
+            
+            $visit_registration_model = $visit_examination_dto->visit_registration_model ?? $visit_examination->visitRegistration;
+            $visit_payment_summary = $visit_registration_model->paymentSummary;
     
-            $visit_payment_summary->amount += $calculate_amount;
-            $visit_payment_summary->debt += $calculate_amount;
-            $visit_payment_summary->discount += $calculate_discount;
-            $visit_payment_summary->cogs += $calculate_cogs;
+            $visit_examination->load('treatments');
+            $treatments = $visit_examination->treatments;
+            $calculate_amount = 0;
+            $calculate_cogs = 0;
+            $calculate_discount = 0;
+            foreach ($treatments as $treatment) {
+                $exam = $treatment['exam'];
+                $treatment_exam = $exam['treatment'];
+                $qty = floatval($exam['qty'] ?? 1);
+                $calculate_amount = $qty*intval($treatment_exam['price'] ?? 0);
+                $calculate_cogs = $qty*intval($treatment_exam['cogs'] ?? 0);
+                $calculate_discount = $qty*intval($treatment_exam['discount'] ?? 0);
+        
+                $visit_payment_summary->amount += $calculate_amount;
+                $visit_payment_summary->debt += $calculate_amount;
+                $visit_payment_summary->discount += $calculate_discount;
+                $visit_payment_summary->cogs += $calculate_cogs;
+            }
+            $visit_payment_summary->save();
+            $this->schemaContract('visit_registration')->prepareUpdateVisitRegistration($this->requestDTO(config('app.contracts.UpdateVisitRegistrationData'), [
+                'id'     => $visit_examination->visit_registration_id,
+                'visit_registration_model' => $visit_examination_dto->visit_registration_model ?? null,
+                'status' => \Hanafalah\ModulePatient\Enums\VisitRegistration\Status::COMPLETED->value
+            ]));
+            $visit_registration = $visit_examination_dto->visit_registration_model ?? $this->VisitRegistrationModel()->findOrFail($visit_examination_model->visit_registration_id);
+            $visit_patient_model = $visit_examination_dto->visit_patient_model ?? $this->VisitPatientModel()->findOrFail($visit_examination_model->visit_patient_id);
+            $patient_model = $visit_examination_dto->patient_model ??= $this->PatientModel()->findOrFail($visit_examination_model->patient_id);
+            $patient_summary_model = $this->schemaContract('patient_summary')->prepareStorePatientSummary($this->requestDTO(config('app.contracts.PatientSummaryData'),[
+                'patient_id'      => $patient_model->getKey(),
+                'patient_model'   => $patient_model,
+                'reference_type'  => $patient_model->reference_type,
+                'reference_id'    => $patient_model->reference_id,
+                'reference_model' => $patient_model->reference,
+                'last_visit'      => $visit_exam_resolve,
+                'test'            => true
+            ]));
+    
+            $visit_reg_summary_model = $this->schemaContract('examination_summary')->prepareStoreExaminationSummary($this->requestDTO(config('app.contracts.ExaminationSummaryData'),[
+                'patient_id' => $patient_model->getKey(),
+                'patient_model' => $patient_model,
+                'reference_type' => $visit_registration->getMorphClass(),
+                'reference_id' => $visit_registration->getKey(),
+                'reference_model' => $visit_registration,
+                'last_visit' => $visit_exam_resolve
+            ]));
+    
+            $visit_patient_summary_model = $this->schemaContract('examination_summary')->prepareStoreExaminationSummary($this->requestDTO(config('app.contracts.ExaminationSummaryData'),[
+                'patient_id' => $patient_model->getKey(),
+                'patient_model' => $patient_model,
+                'reference_type' => $visit_patient_model->getMorphClass(),
+                'reference_id' => $visit_patient_model->getKey(),
+                'reference_model' => $visit_patient_model,
+                'last_visit' => $visit_exam_resolve
+            ]));
+    
+            $visit_exam_examination_summary = $visit_examination_model->examinationSummary;
+            if (isset($visit_exam_examination_summary->emr)){
+                $patient_emr = $patient_summary_model->emr;
+                $visit_reg_emr = $visit_reg_summary_model->emr;
+                $visit_pat_emr = $visit_patient_summary_model->emr;
+                foreach ($visit_exam_examination_summary->emr as $key => $emr_data) {
+                    $patient_emr[$key] = array_merge($emr_data,$patient_emr[$key] ?? []);
+                    $visit_reg_emr[$key] = array_merge($emr_data,$visit_reg_emr[$key] ?? []);
+                    $visit_pat_emr[$key] = array_merge($emr_data,$visit_pat_emr[$key] ?? []);
+                }
+                $patient_summary_model->setAttribute('emr',$patient_emr);
+                $patient_summary_model->save();
+        
+                $visit_reg_summary_model->setAttribute('emr',$visit_reg_emr);
+                $visit_reg_summary_model->save();
+        
+                $visit_patient_summary_model->setAttribute('emr',$visit_pat_emr);
+                $visit_patient_summary_model->save();
+            }
         }
-        $visit_payment_summary->save();
-        $this->schemaContract('visit_registration')->prepareUpdateVisitRegistration($this->requestDTO(config('app.contracts.UpdateVisitRegistrationData'), [
-            'id'     => $visit_examination->visit_registration_id,
-            'visit_registration_model' => $visit_examination_dto->visit_registration_model ?? null,
-            'status' => \Hanafalah\ModulePatient\Enums\VisitRegistration\Status::COMPLETED->value
-        ]));
-        $visit_registration = $visit_examination_dto->visit_registration_model ?? $this->VisitRegistrationModel()->findOrFail($visit_examination_model->visit_registration_id);
-        $visit_patient_model = $visit_examination_dto->visit_patient_model ?? $this->VisitPatientModel()->findOrFail($visit_examination_model->visit_patient_id);
-        $patient_model = $visit_examination_dto->patient_model ??= $this->PatientModel()->findOrFail($visit_examination_model->patient_id);
-        $patient_summary_model = $this->schemaContract('patient_summary')->prepareStorePatientSummary($this->requestDTO(config('app.contracts.PatientSummaryData'),[
-            'patient_id'      => $patient_model->getKey(),
-            'patient_model'   => $patient_model,
-            'reference_type'  => $patient_model->reference_type,
-            'reference_id'    => $patient_model->reference_id,
-            'reference_model' => $patient_model->reference,
-            'last_visit'      => $visit_exam_resolve,
-            'test'            => true
-        ]));
 
-        $visit_reg_summary_model = $this->schemaContract('examination_summary')->prepareStoreExaminationSummary($this->requestDTO(config('app.contracts.ExaminationSummaryData'),[
-            'patient_id' => $patient_model->getKey(),
-            'patient_model' => $patient_model,
-            'reference_type' => $visit_registration->getMorphClass(),
-            'reference_id' => $visit_registration->getKey(),
-            'reference_model' => $visit_registration,
-            'last_visit' => $visit_exam_resolve
-        ]));
-
-        $visit_patient_summary_model = $this->schemaContract('examination_summary')->prepareStoreExaminationSummary($this->requestDTO(config('app.contracts.ExaminationSummaryData'),[
-            'patient_id' => $patient_model->getKey(),
-            'patient_model' => $patient_model,
-            'reference_type' => $visit_patient_model->getMorphClass(),
-            'reference_id' => $visit_patient_model->getKey(),
-            'reference_model' => $visit_patient_model,
-            'last_visit' => $visit_exam_resolve
-        ]));
-
-        $visit_exam_examination_summary = $visit_examination_model->examinationSummary;
-        $patient_emr = $patient_summary_model->emr;
-        $visit_reg_emr = $visit_reg_summary_model->emr;
-        $visit_pat_emr = $visit_patient_summary_model->emr;
-        foreach ($visit_exam_examination_summary->emr as $key => $emr_data) {
-            $patient_emr[$key] = array_merge($emr_data,$patient_emr[$key] ?? []);
-            $visit_reg_emr[$key] = array_merge($emr_data,$visit_reg_emr[$key] ?? []);
-            $visit_pat_emr[$key] = array_merge($emr_data,$visit_pat_emr[$key] ?? []);
-        }
-        $patient_summary_model->setAttribute('emr',$patient_emr);
-        $patient_summary_model->save();
-
-        $visit_reg_summary_model->setAttribute('emr',$visit_reg_emr);
-        $visit_reg_summary_model->save();
-
-        $visit_patient_summary_model->setAttribute('emr',$visit_pat_emr);
-        $visit_patient_summary_model->save();
-
-        return $visit_examination;
+        return $visit_examination_model;
     }
 
     public function visitExaminationCancelation(?array $attributes = null){

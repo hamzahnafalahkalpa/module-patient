@@ -20,6 +20,7 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
 {
     protected string $__entity = 'Patient';
     public $patient_model;
+    public $is_recently_created = false;
 
     protected array $__cache = [
         'index' => [
@@ -62,6 +63,7 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
                 'reference_model' => $patient->reference
             ])
         );
+        $this->is_recently_created = $patient->wasRecentlyCreated;
         $patient->refresh();
 
         $profile_dto = $patient_dto->profile_dto;
