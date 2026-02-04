@@ -11,12 +11,11 @@ trait HasPatientLib
         // validate strict format Y-m-d using CarbonImmutable to get parsing errors
         $dt = CarbonImmutable::createFromFormat('Y-m-d', $dob);
         $errors = CarbonImmutable::getLastErrors();
-        if ($dt === false || $errors['warning_count'] > 0 || $errors['error_count'] > 0) {
+        if ($dt === false || (is_bool($errors) && $errors)) {
             throw new \InvalidArgumentException('Invalid date format, expected Y-m-d');
         }
 
         $now = CarbonImmutable::now();
-
         if ($dt->greaterThan($now)) {
             throw new \InvalidArgumentException('DOB cannot be in the future');
         }
@@ -30,7 +29,6 @@ trait HasPatientLib
         // totals using Carbon helpers
         $totalMonths = $dt->diffInMonths($now);
         $totalDays = $dt->diffInDays($now);
-
         return [
             'years' => $years,
             'months' => $months,
@@ -44,7 +42,6 @@ trait HasPatientLib
         $age = $this->calculateAge($dob);
         $years = $age['years'];
         $totalMonths = $age['totalMonths'];
-
         /**
          * Segmentasi Umur:
          * 
