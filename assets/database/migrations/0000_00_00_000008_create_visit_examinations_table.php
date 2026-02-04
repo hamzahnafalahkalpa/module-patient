@@ -48,9 +48,9 @@ return new class extends Migration
                 $table->foreignIdFor($visit_patient::class)
                         ->nullable(false)->index()
                         ->constrained()->cascadeOnUpdate()->cascadeOnDelete();
-                $table->boolean('is_commit')->default(0)->nullable(false);
+                $table->unsignedSmallInteger('is_commit')->default(0)->nullable(false);
                 $table->timestamp('sign_off_at')->nullable(true);
-                $table->boolean('is_addendum')->nullable(true)->default(false);
+                $table->unsignedSmallInteger('is_addendum')->nullable(true)->default(0);
                 $table->enum('status', array_column(ExaminationStatus::cases(), 'value'));
                 $table->json('props')->nullable();
                 $table->timestamps();

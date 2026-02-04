@@ -63,11 +63,6 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         }
 
         $visit_examination  = $this->usingEntity()->updateOrCreate(...$create);
-        if ($visit_examination->wasRecentlyCreated) $this->is_recently_created = true;
-        if (isset($visit_examination_dto->patient)){
-            $patient_dto = &$visit_examination_dto->patient;
-            $this->schemaContract('patient')->prepareStorePatient($patient_dto);
-        }
         $visit_examination_dto->visit_examination_model = &$visit_examination;
         if (!isset($visit_examination_dto->id)){
             $visit_examination->pushActivity(Activity::VISITATION->value, [
@@ -75,7 +70,15 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                 ActivityStatus::VISITING->value
             ]);
         }
-
+        if ($visit_examination->wasRecentlyCreated) {
+            $this->is_recently_created = true;
+        }
+        
+        if (isset($visit_examination_dto->patient)){
+            $patient_dto = &$visit_examination_dto->patient;
+            $this->schemaContract('patient')->prepareStorePatient($patient_dto);
+        }
+        
         if (isset($visit_examination_dto->practitioner_evaluations)) {
             foreach ($visit_examination_dto->practitioner_evaluations as &$practitioner_evaluation) {
                 $this->initPractitionerEvaluation($practitioner_evaluation, $visit_examination);
@@ -147,6 +150,9 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         $visit_examination_dto->sign_off_at ??= $visit_examination->sign_off_at;
         $this->prepareVisitExaminationSignOff($visit_examination, $visit_examination_dto);                
         
+        if ($this->is_recently_created){
+            $this->afterVisitExaminationCreated($visit_examination,$visit_examination_dto);
+        }
         // if (in_array($medic_service->flag, [Label::OUTPATIENT->value, Label::MCU->value])) {
             //ADD DEFAULT SCREENING
             // $screenings = [];
@@ -337,5 +343,9 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         } else {
             throw new \Exception("Visit Examination Not Found");
         }
+    }
+
+    protected function afterVisitExaminationCreated(Model &$visit_examination_model, VisitExaminationData &$visit_examination_dto): self{
+        return $this;
     }
 }

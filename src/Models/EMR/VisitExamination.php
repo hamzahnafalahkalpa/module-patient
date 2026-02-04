@@ -120,6 +120,7 @@ class VisitExamination extends BaseModel
     public function pharmacySales(){return $this->morphMany('PharmacySale', 'reference');}
     public function examinationSummary(){return $this->morphOneModel('ExaminationSummary', 'reference');}
     public function treatments(){return $this->morphManyModel('Assessment', 'examination')->whereIn('morph',['ClinicalTreatment','LabTreatment','RadiologyTreatment']);}
+    public function diagnoses(){return $this->morphManyModel('Assessment', 'examination')->whereIn('morph',['BasicDiagnose']);}
     public function modelHasMonitoring(){return $this->morphOneModel('ModelHasMonitoring', 'reference');}
     public function modelHasMonitorings(){return $this->morphManyModel('ModelHasMonitoring', 'reference');}
 

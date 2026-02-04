@@ -23,6 +23,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
 {
     protected string $__entity = 'VisitRegistration';
     public $visit_registration_model;
+    public bool $is_recently_created = false;
 
     protected array $__cache = [
         'index' => [
@@ -49,7 +50,6 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         
         $visit_patient      ??= $visit_registration_dto->visit_patient_model ?? $visit_registration->visitPatient;
         $visit_registration_dto->visit_patient_model ??= $visit_patient;
-        $this->afterVisitRegistrationCreated($visit_registration, $visit_registration_dto);
         if (isset($visit_registration_dto->visit_examination)){
             $visit_registration_dto->visit_examinations[] = $visit_registration_dto->visit_examination;
         }
@@ -73,6 +73,10 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
         }
         $this->storeItemRent($visit_registration_dto, $visit_registration);
 
+        if ($this->is_recently_created){
+            $this->afterVisitRegistrationCreated($visit_registration, $visit_registration_dto);
+        }
+        
         $this->fillingProps($visit_registration, $visit_registration_dto->props);
         $visit_registration->save();
 
@@ -146,6 +150,9 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
             $add['status'] = $visit_registration_dto->status;
         }
         $visit_registration = $this->usingEntity()->updateOrCreate($guard,$add);
+        if ($visit_registration->wasRecentlyCreated){
+            $this->is_recently_created = true;
+        }
         $this->initTransaction($visit_registration_dto, $visit_registration);
 
         if (isset($visit_registration_dto->referral_model)){

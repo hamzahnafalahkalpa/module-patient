@@ -18,6 +18,7 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
 {
     protected string $__entity = 'VisitPatient';
     public $visit_patient_model;
+    public bool $is_recently_created = false;
 
     protected array $__cache = [
         'index' => [
@@ -126,6 +127,9 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             $create = [$guard,$add];
         }
         $visit_patient_model = $this->usingEntity()->updateOrCreate(...$create);
+        if ($visit_patient_model->wasRecentlyCreated){
+            $this->is_recently_created = true;
+        }
         if (isset($visit_patient_dto->family_relationship) && isset($visit_patient_dto->family_relationship->name)) {
             $patient_model = $visit_patient_dto->patient_model;
 
@@ -160,6 +164,10 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
 
         $visit_patient_dto->props->props['prop_transaction'] = $visit_patient_model->transaction->toViewApi()->resolve();
         $this->setPayer($visit_patient_model, $visit_patient_dto);
+
+        if ($this->is_recently_created){
+            $this->afterVisitPatientCreated($visit_patient_model,$visit_patient_dto);
+        }
 
         $this->fillingProps($visit_patient_model, $visit_patient_dto->props);
         $visit_patient_model->save();
