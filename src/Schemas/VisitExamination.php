@@ -36,12 +36,13 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             'visit_registration_id' => $visit_examination_dto->visit_registration_id,
             'visit_patient_id'      => $visit_examination_dto->visit_patient_id,
             'patient_id'            => $visit_examination_dto->patient_id ?? $visit_patient_model->patient_id,
-            'sign_off_at'           => $visit_examination_dto->sign_off_at,
             'is_addendum'           => $visit_examination_dto->is_addendum ?? false,
         ];
+        if (isset($visit_examination_dto->sign_off_at)){
+            $add['sign_off_at'] ??= $visit_examination->sign_off_at;
+        }
         if (isset($visit_examination_dto->id)){
             $visit_examination = $this->VisitExaminationModel()->findOrFail($visit_examination_dto->id);
-            $add['sign_off_at'] ??= $visit_examination->sign_off_at;
             $guard = ['id' => $visit_examination_dto->id];
             $create = [$guard,$add];
         }else{
