@@ -11,7 +11,7 @@ class ShowVisitRegistration extends ViewVisitRegistration
                 return $this->warehouse->toViewApi();
             },$this->prop_warehouse),
             'practitioner_evaluation' => $this->relationValidation('practitionerEvaluation', function () {
-                return $this->practitionerEvaluation->toShowApi();
+                return $this->practitionerEvaluation->toShowApi()->resolve();
             },$this->prop_practitioner_evaluation),
             'practitioner_evaluations' => $this->relationValidation('practitionerEvaluations', function () {
                 return $this->practitionerEvaluations->transform(function ($practitionerEvaluation) {
