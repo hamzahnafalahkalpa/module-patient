@@ -181,7 +181,8 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
     }
 
     public function prepareVisitExaminationSignOff(Model &$visit_examination_model, VisitExaminationData &$visit_examination_dto): Model{
-        if (isset($visit_examination_dto->sign_off_at) && isset($visit_examination_dto->sign_off)){
+        // if (isset($visit_examination_dto->sign_off_at) && isset($visit_examination_dto->sign_off)){
+        if ($this->is_sign_off){
             // $visit_examination = $visit_examination_dto->visit_examination_model ?? $this->VisitExaminationModel()->findOrFail($visit_examination_dto->id);
             $visit_examination = &$visit_examination_model;
             $visit_examination->sign_off_at ??= $visit_examination_dto->sign_off_at;
