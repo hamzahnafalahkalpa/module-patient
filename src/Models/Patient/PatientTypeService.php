@@ -14,7 +14,7 @@ class PatientTypeService extends PatientType
             $query->where('flag','PatientTypeService');
         });
         static::creating(function ($query) {
-            $query->flag = 'PatientType';
+            $query->flag = 'PatientTypeService';
         });
     }
 
