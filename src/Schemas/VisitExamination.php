@@ -64,7 +64,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         }
 
         $visit_examination  = $this->usingEntity()->updateOrCreate(...$create);
-        if ($visit_examination->isDirty('sign_off_at')){
+        if ($visit_examination->wasChanged('sign_off_at')){
             $this->is_sign_off = true;
         }
         $visit_examination_dto->visit_examination_model = &$visit_examination;
