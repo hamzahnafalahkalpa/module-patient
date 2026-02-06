@@ -215,6 +215,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                 $visit_payment_summary->cogs += $calculate_cogs;
             }
             $visit_payment_summary->save();
+
             $this->schemaContract('visit_registration')->prepareUpdateVisitRegistration($this->requestDTO(config('app.contracts.UpdateVisitRegistrationData'), [
                 'id'     => $visit_examination->visit_registration_id,
                 'visit_registration_model' => $visit_examination_dto->visit_registration_model ?? null,
@@ -230,7 +231,6 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                 'reference_id'    => $patient_model->reference_id,
                 'reference_model' => $patient_model->reference,
                 'last_visit'      => $visit_exam_resolve,
-                'test'            => true
             ]));
     
             $visit_reg_summary_model = $this->schemaContract('examination_summary')->prepareStoreExaminationSummary($this->requestDTO(config('app.contracts.ExaminationSummaryData'),[
@@ -253,21 +253,79 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
     
             $visit_exam_examination_summary = $visit_examination_model->examinationSummary;
             if (isset($visit_exam_examination_summary->emr)){
-                $patient_emr = $patient_summary_model->emr;
-                $visit_reg_emr = $visit_reg_summary_model->emr;
-                $visit_pat_emr = $visit_patient_summary_model->emr;
-                foreach ($visit_exam_examination_summary->emr as $key => $emr_data) {
-                    $patient_emr[$key] = array_merge($emr_data,$patient_emr[$key] ?? []);
-                    $visit_reg_emr[$key] = array_merge($emr_data,$visit_reg_emr[$key] ?? []);
-                    $visit_pat_emr[$key] = array_merge($emr_data,$visit_pat_emr[$key] ?? []);
+                $patient_emr = $patient_summary_model->emr ?? [];
+                $visit_reg_emr = $visit_reg_summary_model->emr ?? [];
+                $visit_pat_emr = $visit_patient_summary_model->emr ?? [];
+
+                // Mapping EMR keys to patient summary fields (array types with default empty array)
+                $emr_to_summary_mapping = [
+                    'Allergy' => 'allergies',
+                    'Symptom' => 'symptoms',
+                    'FamilyIllness' => 'family_illnesses',
+                    'BasicPrescription' => 'medications',
+                    'ClinicalTreatment' => 'treatments',
+                    'LabTreatment' => 'treatments',
+                    'RadiologyTreatment' => 'treatments',
+                ];
+                // Single object types with default empty array
+                $single_object_mapping = [
+                    'Anthropometry' => 'anthropometry',
+                    'VitalSign' => 'vital_sign',
+                ];
+
+                // Initialize all patient summary fields with default values if not exists
+                $array_fields = array_unique(array_values($emr_to_summary_mapping));
+                foreach ($array_fields as $field) {
+                    if (!isset($patient_summary_model->{$field})) {
+                        $patient_summary_model->setAttribute($field, []);
+                    }
                 }
-                $patient_summary_model->setAttribute('emr',$patient_emr);
+                foreach ($single_object_mapping as $field) {
+                    if (!isset($patient_summary_model->{$field})) {
+                        $patient_summary_model->setAttribute($field, null);
+                    }
+                }
+
+                foreach ($visit_exam_examination_summary->emr as $key => $emr_data) {
+                    // Check if emr_data is a 2D array (list of items) vs 1D array (single object)
+                    $is_list = is_array($emr_data) && isset($emr_data[0]) && is_array($emr_data[0]);
+
+                    if ($is_list) {
+                        // For 2D arrays (list of items), unshift new data to front and limit to 10
+                        $patient_emr[$key] = array_slice(array_merge($emr_data, $patient_emr[$key] ?? []), 0, 10);
+                        $visit_reg_emr[$key] = array_slice(array_merge($emr_data, $visit_reg_emr[$key] ?? []), 0, 10);
+                        $visit_pat_emr[$key] = array_slice(array_merge($emr_data, $visit_pat_emr[$key] ?? []), 0, 10);
+
+                        // Set patient summary fields for array types
+                        if (isset($emr_to_summary_mapping[$key])) {
+                            $field = $emr_to_summary_mapping[$key];
+                            $existing = $patient_summary_model->{$field} ?? [];
+                            $merged = array_slice(array_merge($emr_data['exam'], $existing), 0, 10);
+                            $patient_summary_model->setAttribute($field, $merged);
+                        }
+                    } else {
+                        // For 1D arrays (single object), merge with current data to keep up-to-date
+                        $patient_emr[$key] = array_merge($patient_emr[$key] ?? [], $emr_data);
+                        $visit_reg_emr[$key] = array_merge($visit_reg_emr[$key] ?? [], $emr_data);
+                        $visit_pat_emr[$key] = array_merge($visit_pat_emr[$key] ?? [], $emr_data);
+
+                        // Set patient summary fields for single object types
+                        if (isset($single_object_mapping[$key])) {
+                            $field = $single_object_mapping[$key];
+                            $existing = $patient_summary_model->{$field} ?? [];
+                            $merged = array_merge($existing, $emr_data['exam']);
+                            $patient_summary_model->setAttribute($field, $merged);
+                        }
+                    }
+                }
+
+                $patient_summary_model->setAttribute('emr', $patient_emr);
                 $patient_summary_model->save();
-        
-                $visit_reg_summary_model->setAttribute('emr',$visit_reg_emr);
+
+                $visit_reg_summary_model->setAttribute('emr', $visit_reg_emr);
                 $visit_reg_summary_model->save();
-        
-                $visit_patient_summary_model->setAttribute('emr',$visit_pat_emr);
+
+                $visit_patient_summary_model->setAttribute('emr', $visit_pat_emr);
                 $visit_patient_summary_model->save();
             }
         }

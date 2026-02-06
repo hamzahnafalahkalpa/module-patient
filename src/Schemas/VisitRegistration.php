@@ -24,6 +24,7 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
     protected string $__entity = 'VisitRegistration';
     public $visit_registration_model;
     public bool $is_recently_created = false;
+    protected mixed $__order_by_created_at = 'asc'; //asc, desc, false
 
     protected array $__cache = [
         'index' => [

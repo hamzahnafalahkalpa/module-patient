@@ -26,6 +26,7 @@ class ViewVisitExamination extends ApiResource
             'sign_off_at'            => $this->sign_off_at,
             'is_addendum'            => $this->is_addendum,
             'created_at'             => $this->created_at,
+            'is_prescription_completed' => $this->is_prescription_completed,
             'visit_registration' => $this->relationValidation('visitRegistration', function () {
                 return $this->visitRegistration->toShowApi()->resolve();
             }),
