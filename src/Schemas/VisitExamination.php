@@ -300,7 +300,11 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                         if (isset($emr_to_summary_mapping[$key])) {
                             $field = $emr_to_summary_mapping[$key];
                             $existing = $patient_summary_model->{$field} ?? [];
-                            $merged = array_slice(array_merge($emr_data['exam'], $existing), 0, 10);
+                            $exams = [];
+                            foreach ($emr_data as $exam) {
+                                $exams[] = $exam['exam'];
+                            }
+                            $merged = array_slice(array_merge($exams, $existing), 0, 10);
                             $patient_summary_model->setAttribute($field, $merged);
                         }
                     } else {
