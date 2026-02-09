@@ -45,7 +45,8 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
             'name'           => $patient_dto->name,
             'medical_record' => $patient_dto->medical_record ?? null,
             'patient_type_id' => $patient_dto->patient_type_id,
-            'patient_occupation_id' => $patient_dto->patient_occupation_id
+            'patient_occupation_id' => $patient_dto->patient_occupation_id,
+            'row_imported' => $patient_dto->row_imported
         ];
         $guard = isset($patient_dto->id) 
             ? ['id' => $patient_dto->id]

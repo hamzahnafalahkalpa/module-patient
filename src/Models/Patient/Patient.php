@@ -28,7 +28,7 @@ class Patient extends BaseModel
     protected $keyType = 'string';
     protected $primaryKey = 'id';
     protected $list = [
-        'id', 'uuid', 'name', 'reference_type', 'reference_id', 'medical_record', 
+        'id', 'uuid', 'name', 'reference_type', 'reference_id', 'medical_record', 'row_imported',
         'profile', 'patient_occupation_id','patient_type_id', 'props'
     ];
     protected $show = [];
