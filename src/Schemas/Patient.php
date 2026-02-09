@@ -31,6 +31,11 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
     ];
 
     protected function prepareStore(PatientData &$patient_dto){   
+        if (isset($patient_dto->medical_record)){
+            $patient_model = $this->usingEntity()->where('medical_record',$patient_dto->medical_record)->first();
+            if (isset($patient_model) && !isset($patient_dto->id)) return $patient_model;
+        }
+
         $reference_type   = $patient_dto->reference_type;
         $reference_schema = config('module-patient.patient_types.'.Str::snake($reference_type).'.schema');        
         if (isset($reference_schema) && isset($patient_dto->reference)) {
@@ -43,11 +48,13 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
         
         $add = [
             'name'           => $patient_dto->name,
-            'medical_record' => $patient_dto->medical_record ?? null,
             'patient_type_id' => $patient_dto->patient_type_id,
             'patient_occupation_id' => $patient_dto->patient_occupation_id,
             'row_imported' => $patient_dto->row_imported
         ];
+        if (isset($patient_dto->medical_record)){
+            $add['medical_record'] = $patient_dto->medical_record ?? null;
+        }
         $guard = isset($patient_dto->id) 
             ? ['id' => $patient_dto->id]
             : [
