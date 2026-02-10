@@ -39,6 +39,11 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
         $reference_type   = $patient_dto->reference_type;
         $reference_schema = config('module-patient.patient_types.'.Str::snake($reference_type).'.schema');        
         if (isset($reference_schema) && isset($patient_dto->reference)) {
+            if (isset($patient_dto->id) && !isset($patient_dto->reference->id)){
+                $patient_model = $this->usingEntity()->find($patient_dto->id);
+                $patient_dto->reference->id = $patient_model->reference_id;
+            }
+
             $schema_reference          = $this->schemaContract(Str::studly($reference_schema));
             $reference                 = $schema_reference->prepareStore($patient_dto->reference);
             $patient_dto->reference_id = $reference->getKey();
@@ -50,7 +55,6 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
             'name'           => $patient_dto->name,
             'patient_type_id' => $patient_dto->patient_type_id,
             'patient_occupation_id' => $patient_dto->patient_occupation_id,
-            'row_imported' => $patient_dto->row_imported
         ];
         if (isset($patient_dto->medical_record)){
             $add['medical_record'] = $patient_dto->medical_record ?? null;

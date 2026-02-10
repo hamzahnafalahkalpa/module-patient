@@ -27,10 +27,6 @@ class PatientData extends Data implements DataPatientData{
     #[MapName('medical_record')]
     public ?string $medical_record = null;
 
-    #[MapInputName('row_imported')]
-    #[MapName('row_imported')]
-    public ?int $row_imported = null;
-
     #[MapInputName('reference_type')]
     #[MapName('reference_type')]
     public ?string $reference_type = null;
