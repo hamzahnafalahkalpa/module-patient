@@ -39,6 +39,7 @@ class Patient extends BaseModel
         'last_name'               => 'string',
         'dob'                     => 'immutable_date',
         'medical_record'          => 'string',
+        'old_mr'                  => 'string',
         'patient_occupation_name' => 'string',
         'payer_name'              => 'string',
         'nik'                     => 'string',
@@ -54,6 +55,7 @@ class Patient extends BaseModel
             'nik'                      => 'props->prop_people->card_identity->nik',
             'nik_ibu'                  => 'props->prop_people->card_identity->nik_ibu',
             'passport'                 => 'props->prop_people->card_identity->passport',
+            'old_mr'                   => 'props->prop_card_identity->old_mr',
             'patient_occupation_name'  => 'props->prop_patient_occupation->name',
             'payer_name'               => 'props->prop_payer->name'
         ];
