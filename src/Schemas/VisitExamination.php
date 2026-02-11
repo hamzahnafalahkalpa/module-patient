@@ -59,7 +59,9 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                     $visit_registration_model->status ??= Status::DRAFT->value;
                 break;
             }
-            $visit_registration_model->status = Status::PROCESSING->value;
+            if (isset($visit_examination_dto->examination)){            
+                $visit_registration_model->status = Status::PROCESSING->value;
+            }
             $visit_registration_model->save();
         }
 
@@ -95,7 +97,12 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
         $visit_patient_model = $visit_examination_dto->visit_patient_model ?? $visit_examination->visitPatient;
         $visit_examination_dto->visit_patient_payment_summary_model ??= $visit_patient_model->paymentSummary;
         //SET ASSESSMENT
-        if (isset($visit_examination_dto->examination)){            
+        if (isset($visit_examination_dto->examination)){       
+            if ($visit_registration_model->status == 'DRAFT'){
+                $visit_registration_model->status = Status::PROCESSING->value;
+                $visit_registration_model->save();
+            }
+
             $examination_dto = &$visit_examination_dto->examination;
             $examination_dto->visit_examination_id ??= $visit_examination->getKey();
             $examination_dto->visit_examination_model = $visit_examination;            
