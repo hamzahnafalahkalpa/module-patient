@@ -48,6 +48,7 @@ class ViewVisitRegistration extends ApiResource
             }),
             'encounter_code'          => $this->encounter_code,
             'ihs_number'              => $this->ihs_number,
+            'queue_number'            => $this->queue_number,
             "created_at"              => $this->created_at,
             "updated_at"              => $this->updated_at
         ];
