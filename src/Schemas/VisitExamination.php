@@ -27,7 +27,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
     protected string $__entity = 'VisitExamination';
     protected mixed $__order_by_created_at = 'desc'; //asc, desc, false
     public $visit_examination_model;
-    public $is_recently_created = false;
+    public bool $is_recently_created = false;
     public $is_sign_off = false;
 
     public function prepareStoreVisitExamination(VisitExaminationData $visit_examination_dto): Model{

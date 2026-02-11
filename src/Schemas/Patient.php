@@ -20,7 +20,7 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
 {
     protected string $__entity = 'Patient';
     public $patient_model;
-    public $is_recently_created = false;
+    public bool $is_recently_created = false;
 
     protected array $__cache = [
         'index' => [
