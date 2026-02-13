@@ -62,7 +62,7 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
         $guard = isset($patient_dto->id) 
             ? ['id' => $patient_dto->id]
             : [
-                'reference_type' => $patient_dto->reference_type, 
+                'reference_type' => $reference_type, 
                 'reference_id' => $patient_dto->reference_id
             ];
         $patient = $this->usingEntity()->updateOrCreate($guard, $add);
