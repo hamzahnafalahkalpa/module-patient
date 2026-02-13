@@ -15,6 +15,8 @@ class ViewOldVisit extends ApiResource
   public function toArray(\Illuminate\Http\Request $request): array
   {
     $arr = parent::toArray($request);
+    unset($arr['deleted_at']);
+    unset($arr['props']);
     return $arr;
   }
 }
