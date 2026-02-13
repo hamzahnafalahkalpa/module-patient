@@ -200,7 +200,7 @@ class VisitPatientData extends Data implements DataVisitPatientData{
 
         $patient_type_service = $new->PatientTypeServiceModel();
         $patient_type_service = (isset($data->patient_type_service_id)) ? $patient_type_service->findOrFail($data->patient_type_service_id) : $patient_type_service;
-        $props['prop_patient_type_service'] = $patient_type_service->toViewApi()->resolve();
+        $props['prop_patient_type_service'] = $patient_type_service->toViewApiOnlies('id','name','flag','label');
         return $data;
     }
 }

@@ -11,11 +11,8 @@ class ShowVisitPatient extends ViewVisitPatient
                 return $this->patient->toShowApi()->resolve();
             },$this->prop_patient),
             'visit_registration'  => $this->relationValidation('visitRegistration',function(){
-                return $this->visitRegistration->toShowApi()->resolve();
-            }),   
-            // 'visit_registration'  => $this->relationValidation('visitRegistration',function(){
-            //     return $this->visitRegistration->toShowApi()->resolve();
-            // },$this->prop_visit_registration),   
+                return $this->visitRegistration->toShowApi()->resolve();                
+            }),               
             "visit_registrations" => $this->relationValidation("visitRegistrations", function () {
                 return $this->visitRegistrations->transform(function ($visitRegistration) {
                     return is_array($visitRegistration) 

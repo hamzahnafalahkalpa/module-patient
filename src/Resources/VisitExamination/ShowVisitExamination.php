@@ -7,9 +7,6 @@ class ShowVisitExamination extends ViewVisitExamination
     public function toArray(\Illuminate\Http\Request $request): array
     {
         $arr = [
-            'visit_registration' => $this->relationValidation('visitRegistration', function () {
-                return $this->visitRegistration->toShowApi()->resolve();
-            }),
             'practitioner_evaluations' => $this->relationValidation('practitionerEvaluations', function () {
                 return $this->practitionerEvaluations->transform(function ($practitionerEvaluation) {
                     return $practitionerEvaluation->toViewApi()->resolve();
