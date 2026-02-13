@@ -5,6 +5,7 @@ namespace Hanafalah\ModulePatient\Data;
 use Hanafalah\LaravelSupport\Concerns\Support\HasRequestData;
 use Hanafalah\LaravelSupport\Supports\Data;
 use Hanafalah\ModulePatient\Contracts\Data\PatientData as DataPatientData;
+use Hanafalah\ModulePatient\Contracts\Data\PatientOccupationData;
 use Hanafalah\ModulePatient\Contracts\Data\ProfilePhotoData;
 use Hanafalah\ModulePayer\Contracts\Data\PayerData;
 use Spatie\LaravelData\Attributes\MapInputName;
@@ -47,6 +48,10 @@ class PatientData extends Data implements DataPatientData{
     #[MapInputName('patient_occupation_id')]
     #[MapName('patient_occupation_id')]
     public mixed $patient_occupation_id = null;
+
+    #[MapInputName('patient_occupation')]
+    #[MapName('patient_occupation')]
+    public ?PatientOccupationData $patient_occupation = null;
 
     #[MapInputName('card_identity')]
     #[MapName('card_identity')]

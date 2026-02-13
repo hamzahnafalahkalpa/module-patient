@@ -51,6 +51,13 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
             $patient_dto->name ??= $reference->name;
         }
         
+        if (isset($patient_dto->patient_occupation)){
+            $patient_occupation_model = $this->schemaContract('patient_occupation')
+                                             ->prepareStorePatientOccupation($patient_dto->patient_occupation);
+            $patient_dto->patient_occupation_id = $patient_occupation_model->getKey();
+            $patient_dto->props['prop_patient_occupation'] = $patient_occupation_model->toViewApiOnlies('id','name','flag','label');
+        }
+
         $add = [
             'name'           => $patient_dto->name,
             'patient_type_id' => $patient_dto->patient_type_id,
