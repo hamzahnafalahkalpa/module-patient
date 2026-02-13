@@ -131,6 +131,17 @@ class Patient extends ModulePatient implements ContractsPatient, ProfilePatient,
         $patient = $this->prepareStore($patient_dto);        
         $this->fillingProps($patient,$patient_dto->props);
         $patient->save();
+
+        if (isset($patient_dto->old_visit)){
+            $patient_dto->old_visits[] = $patient_dto->old_visit;
+        }
+
+        if (isset($patient_dto->old_visits)){
+            foreach ($patient_dto->old_visits as &$old_visit) {
+                $old_visit->patient_id = $patient->getKey();
+                $this->schemaContract('old_visit')->prepareStoreOldVisit($old_visit);
+            }
+        }
         return $patient;
     }
 

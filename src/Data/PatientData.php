@@ -11,6 +11,7 @@ use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Attributes\MapName;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 
 class PatientData extends Data implements DataPatientData{
     use HasRequestData;
@@ -70,6 +71,15 @@ class PatientData extends Data implements DataPatientData{
     #[MapInputName('visit_patient')]
     #[MapName('visit_patient')]
     public array|object|null $visit_patient = null;
+
+    #[MapInputName('old_visit')]
+    #[MapName('old_visit')]
+    public ?OldVisitData $old_visit = null;
+
+    #[MapInputName('old_visits')]
+    #[MapName('old_visits')]
+    #[DataCollectionOf(OldVisitData::class)]
+    public ?array $old_visits = null;
 
     #[MapInputName('props')]
     #[MapName('props')]

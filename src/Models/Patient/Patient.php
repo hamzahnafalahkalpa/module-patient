@@ -112,6 +112,7 @@ class Patient extends BaseModel
     public function getViewResource(){return ViewPatient::class;}
     public function getShowResource(){return ShowPatient::class;}
     public function scopeUUID($builder, $uuid, $uuid_name = "props->uuid"){return $builder->where($uuid_name, $uuid);}
+    public function oldVisits(){return $this->hasManyModel('OldVisit');}
     public function patientType(){return $this->belongsToModel('PatientType');}
     public function people(){return $this->belongsToModel('People');}
     public function reference(){return $this->morphTo();}
