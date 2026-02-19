@@ -40,11 +40,14 @@ class Patient extends BaseModel
         'dob'                     => 'immutable_date',
         'medical_record'          => 'string',
         'old_mr'                  => 'string',
+        'patient_occupation_id'   => 'string',
         'patient_occupation_name' => 'string',
         'payer_name'              => 'string',
         'nik'                     => 'string',
         'nik_ibu'                 => 'string',
-        'passport'                => 'string'
+        'passport'                => 'string',
+        'patient_type_id'         => 'string',
+        'patient_type_name'       => 'string'
     ];
 
     public function getPropsQuery(): array{
@@ -57,6 +60,7 @@ class Patient extends BaseModel
             'passport'                 => 'props->prop_people->card_identity->passport',
             'old_mr'                   => 'props->prop_card_identity->old_mr',
             'patient_occupation_name'  => 'props->prop_patient_occupation->name',
+            'patient_type_name'        => 'props->prop_patient_type->name',
             'payer_name'               => 'props->prop_payer->name'
         ];
     }
