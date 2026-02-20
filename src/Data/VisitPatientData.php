@@ -129,6 +129,7 @@ class VisitPatientData extends Data implements DataVisitPatientData{
     public ?VisitPatientPropsData $props = null;
 
     public function setupPractitionerEvaluation(array &$attributes){
+        $new = static::new();
         if (isset($attributes['practitioner_evaluation'])){
             $attributes['practitioner_evaluations'] ??= [];
             $attributes['practitioner_evaluation']['role_as'] = 'ADMITTER';

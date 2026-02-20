@@ -160,6 +160,10 @@ class VisitPatient extends ModulePatient implements ContractsVisitPatient
             foreach ($visit_patient_dto->practitioner_evaluations as &$practitioner_evaluation) {
                 $this->initPractitionerEvaluation($practitioner_evaluation, $visit_patient_model);
             }
+            if (count($visit_patient_dto->practitioner_evaluations) == 1){
+                $practitioner_evaluation_model = $practitioner_evaluation->practitioner_evaluation_model;
+                $visit_patient_dto->props->props['prop_practitioner_evaluation'] = $practitioner_evaluation_model->toViewApi()->resolve();
+            }
         }
 
         $visit_patient_dto->props->props['prop_transaction'] = $visit_patient_model->transaction->toViewApi()->resolve();

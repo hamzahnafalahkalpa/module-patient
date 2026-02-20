@@ -72,7 +72,8 @@ class VisitPatient extends BaseModel
         'reported_at'    => 'datetime',
         'consument_name'  => 'string',
         'consument_phone' => 'string',
-        'medic_service_label' => 'string'
+        'medic_service_label' => 'string',
+        'practitioner_evaluation_name' => 'string'
     ];
 
     public function getPropsQuery(): array
@@ -82,7 +83,8 @@ class VisitPatient extends BaseModel
             'dob'            => 'props->prop_patient->prop_people->dob',
             'nik'            => 'props->prop_patient->people->card_identity->nik',
             'medical_record' => 'props->prop_patient->medical_record',
-            'medic_service_label' => 'props->prop_visit_registration->prop_medic_service->label'
+            'medic_service_label' => 'props->prop_visit_registration->prop_medic_service->label',
+            'practitioner_evaluation_name' => 'props->prop_practitioner_evaluation->name'
         ];
     }
 

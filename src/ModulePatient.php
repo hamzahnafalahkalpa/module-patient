@@ -69,6 +69,7 @@ class ModulePatient extends BaseModulePatient implements Contracts\ModulePatient
         $practitioner_evaluation_dto->reference_id    = $model->getKey();
         $practitioner_evaluation         = $this->schemaContract('practitioner_evaluation')->prepareStorePractitionerEvaluation($practitioner_evaluation_dto);
         $practitioner_evaluation_dto->id = $practitioner_evaluation->getKey();
+        $practitioner_evaluation_dto->practitioner_evaluation_model = $practitioner_evaluation;
         return $this;
     }
 }
