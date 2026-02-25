@@ -50,6 +50,17 @@ class Patient extends BaseModel
         'patient_type_name'       => 'string'
     ];
 
+    public function getFilterCasts(): array{
+        return collect($this->getCasts())
+            ->except([
+                'patient_occupation_name',
+                'payer_name',
+                'first_name',
+                'last_name'
+            ])
+            ->toArray();
+    }
+
     public function getPropsQuery(): array{
         return [
             'first_name'               => 'props->prop_people->first_name',
