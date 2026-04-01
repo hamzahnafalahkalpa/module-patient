@@ -115,7 +115,7 @@ class Patient extends BaseModel
     }
 
     public function viewUsingRelation(): array{
-        return ['reference'];
+        return ['reference.addresses'];
     }
 
     public function showUsingRelation(): array{

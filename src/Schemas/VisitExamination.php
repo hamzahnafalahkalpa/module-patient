@@ -231,6 +231,9 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
             $visit_registration = $visit_examination_dto->visit_registration_model ?? $this->VisitRegistrationModel()->findOrFail($visit_examination_model->visit_registration_id);
             $visit_patient_model = $visit_examination_dto->visit_patient_model ?? $this->VisitPatientModel()->findOrFail($visit_examination_model->visit_patient_id);
             $patient_model = $visit_examination_dto->patient_model ??= $this->PatientModel()->findOrFail($visit_examination_model->patient_id);
+
+            $general_screening = $visit_examination->general_screening ?? null;
+
             $patient_summary_model = $this->schemaContract('patient_summary')->prepareStorePatientSummary($this->requestDTO(config('app.contracts.PatientSummaryData'),[
                 'patient_id'      => $patient_model->getKey(),
                 'patient_model'   => $patient_model,
@@ -238,6 +241,7 @@ class VisitExamination extends ModulePatient implements ContractsVisitExaminatio
                 'reference_id'    => $patient_model->reference_id,
                 'reference_model' => $patient_model->reference,
                 'last_visit'      => $visit_exam_resolve,
+                'general_screening' => $general_screening
             ]));
     
             $visit_reg_summary_model = $this->schemaContract('examination_summary')->prepareStoreExaminationSummary($this->requestDTO(config('app.contracts.ExaminationSummaryData'),[
