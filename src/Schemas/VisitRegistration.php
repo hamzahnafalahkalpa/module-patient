@@ -6,6 +6,7 @@ use Hanafalah\ModuleMedicService\Enums\Label;
 use Illuminate\Database\Eloquent\{
     Model
 };
+use Illuminate\Database\Eloquent\Builder;
 
 use Hanafalah\ModulePatient\{
     Contracts\Schemas\VisitRegistration as ContractsVisitRegistration,
@@ -194,4 +195,18 @@ class VisitRegistration extends ModulePatient implements ContractsVisitRegistrat
 
         return $visitRegistration;
     }
+
+    // public function visitRegistration(mixed $conditionals = null): Builder{
+    //     $this->booting();
+    //     if (!config('app.set-param-logic', false)) $this->setParamLogic();
+
+    //     $model = $this->usingEntity();
+
+    //     // Route to Elasticsearch if enabled on model
+    //     $builder = method_exists($model, 'isElasticSearchEnabled') && $model->isElasticSearchEnabled() && config('elasticsearch.enabled', false)
+    //         ? $model->withElasticSearch($this->getParamLogic())
+    //         : $model->withParameters($this->getParamLogic());
+
+    //     return $builder->conditionals($this->mergeCondition($conditionals ?? []));
+    // }
 }
