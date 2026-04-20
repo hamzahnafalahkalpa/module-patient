@@ -38,7 +38,8 @@ trait HasPatientLib
         ];
     }
 
-    public function patientSegment(string $dob): string{
+    public function patientSegment(?string $dob = null): string{
+        if (!isset($dob)) return 'dewasa';
         $age = $this->calculateAge($dob);
         $years = $age['years'];
         $totalMonths = $age['totalMonths'];
